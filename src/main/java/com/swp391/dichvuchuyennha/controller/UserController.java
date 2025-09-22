@@ -8,6 +8,7 @@ import com.swp391.dichvuchuyennha.entity.Roles;
 import com.swp391.dichvuchuyennha.repository.RoleRepository;
 import com.swp391.dichvuchuyennha.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,8 +21,10 @@ import java.util.List;
 
 public class UserController {
 
-    private final UserService userService;
-    private final RoleRepository roleRepository;
+    @Autowired
+    UserService userService;
+    @Autowired
+    RoleRepository roleRepository;
 
     @PostMapping("/create")
     public ResponseEntity<ApiResponse<UserResponse>> createUser(@RequestBody UserCreateRequest request){
