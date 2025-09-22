@@ -1,11 +1,23 @@
 package com.swp391.dichvuchuyennha.service;
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+=======
+import com.swp391.dichvuchuyennha.dto.request.UserCreateRequest;
+import com.swp391.dichvuchuyennha.dto.response.UserResponse;
+import com.swp391.dichvuchuyennha.entity.Roles;
+>>>>>>> Stashed changes
 import com.swp391.dichvuchuyennha.entity.Users;
+import com.swp391.dichvuchuyennha.exception.AppException;
+import com.swp391.dichvuchuyennha.exception.ErrorCode;
+import com.swp391.dichvuchuyennha.repository.RoleRepository;
 import com.swp391.dichvuchuyennha.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+<<<<<<< Updated upstream
 import java.util.Optional;
 =======
 import com.swp391.dichvuchuyennha.dto.request.UserCreateRequest;
@@ -23,6 +35,9 @@ import org.springframework.stereotype.Service;
 
 
 >>>>>>> Stashed changes
+=======
+
+>>>>>>> Stashed changes
 
 @Service
 @RequiredArgsConstructor
@@ -30,22 +45,34 @@ public class UserService {
 
     private final UserRepository userRepository;
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+=======
+    private final RoleRepository roleRepository;
+    PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
+>>>>>>> Stashed changes
 
-    public Optional<Users> findByUsername(String username) {
-        return userRepository.findByUsername(username);
-    }
+    public UserResponse createUser(UserCreateRequest request) {
+        Roles role = roleRepository.findById(request.getRoleId())
+                .orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_EXISTED));
 
-    public Users save(Users user) {
-        return userRepository.save(user);
-    }
+        Users user = new Users();
+        user.setUsername(request.getUsername());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setEmail(request.getEmail());   // thêm email
+        user.setPhone(request.getPhone());   // thêm phone
+        user.setRole(role);
 
-    public boolean existsByUsername(String username) {
-        return userRepository.existsByUsername(username);
-    }
+        user = userRepository.save(user);
 
-    public boolean existsByEmail(String email) {
-        return userRepository.existsByEmail(email);
+        return UserResponse.builder()
+                .userId(user.getUserId())
+                .username(user.getUsername())
+                .email(user.getEmail())       // trả về email
+                .phone(user.getPhone())       // trả về phone
+                .roleName(role.getRoleName())
+                .build();
     }
+<<<<<<< Updated upstream
 }
 =======
     private final RoleRepository roleRepository;
@@ -72,5 +99,8 @@ public class UserService {
                 .roleName(role.getRoleName())
                 .build();
     }
+}
+>>>>>>> Stashed changes
+=======
 }
 >>>>>>> Stashed changes
