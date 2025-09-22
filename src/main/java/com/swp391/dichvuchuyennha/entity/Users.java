@@ -2,13 +2,7 @@ package com.swp391.dichvuchuyennha.entity;
 
 import jakarta.persistence.*;
 <<<<<<< Updated upstream
-<<<<<<< Updated upstream
 import lombok.AllArgsConstructor;
-=======
-import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
->>>>>>> Stashed changes
 =======
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -23,10 +17,6 @@ import java.util.List;
 @Table(name = "users")
 @Data
 <<<<<<< Updated upstream
-<<<<<<< Updated upstream
-=======
-@Builder
->>>>>>> Stashed changes
 =======
 @Builder
 >>>>>>> Stashed changes
