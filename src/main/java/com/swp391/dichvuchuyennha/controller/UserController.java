@@ -1,9 +1,6 @@
 package com.swp391.dichvuchuyennha.controller;
 
-<<<<<<< Updated upstream
-public class UserController {
-}
-=======
+
 import com.swp391.dichvuchuyennha.dto.request.ApiResponse;
 import com.swp391.dichvuchuyennha.dto.request.UserCreateRequest;
 import com.swp391.dichvuchuyennha.dto.response.UserResponse;
@@ -19,7 +16,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:5173") // cho phép React gọi
+@CrossOrigin(origins = "http://localhost:5173") 
 
 public class UserController {
 
@@ -51,4 +48,4 @@ public class UserController {
     }
 }
 
->>>>>>> Stashed changes
+

@@ -1,13 +1,13 @@
 package com.swp391.dichvuchuyennha.service;
 
-<<<<<<< Updated upstream
+
 import com.swp391.dichvuchuyennha.entity.Users;
 import com.swp391.dichvuchuyennha.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
-=======
+
 import com.swp391.dichvuchuyennha.dto.request.UserCreateRequest;
 import com.swp391.dichvuchuyennha.dto.response.UserResponse;
 import com.swp391.dichvuchuyennha.entity.Roles;
@@ -22,14 +22,14 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 
->>>>>>> Stashed changes
+
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
 
     private final UserRepository userRepository;
-<<<<<<< Updated upstream
+
 
     public Optional<Users> findByUsername(String username) {
         return userRepository.findByUsername(username);
@@ -47,8 +47,9 @@ public class UserService {
         return userRepository.existsByEmail(email);
     }
 }
-=======
+
     private final RoleRepository roleRepository;
+
     PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
 
     public UserResponse createUser(UserCreateRequest request) {
@@ -73,4 +74,4 @@ public class UserService {
                 .build();
     }
 }
->>>>>>> Stashed changes
+

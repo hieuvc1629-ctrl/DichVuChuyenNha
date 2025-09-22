@@ -2,7 +2,6 @@ package com.swp391.dichvuchuyennha.repository;
 
 import com.swp391.dichvuchuyennha.entity.Roles;
 import org.springframework.data.jpa.repository.JpaRepository;
-<<<<<<< Updated upstream
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
@@ -11,8 +10,4 @@ import java.util.Optional;
 public interface RoleRepository extends JpaRepository<Roles, Integer> {
     Optional<Roles> findByRoleId(Integer roleId);
     Optional<Roles> findByRoleName(String roleName);
-=======
-
-public interface RoleRepository extends JpaRepository<Roles, Integer> {
->>>>>>> Stashed changes
 }

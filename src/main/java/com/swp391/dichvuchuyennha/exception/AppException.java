@@ -1,12 +1,6 @@
 package com.swp391.dichvuchuyennha.exception;
 
 public class AppException extends RuntimeException {
-<<<<<<< Updated upstream
-    public AppException(String message) {
-        super(message);
-    }
-}
-=======
 
     public AppException(ErrorCode errorCode) {
         super(errorCode.getMessage());
@@ -23,4 +17,4 @@ public class AppException extends RuntimeException {
         this.errorCode = errorCode;
     }
 }
->>>>>>> Stashed changes
+

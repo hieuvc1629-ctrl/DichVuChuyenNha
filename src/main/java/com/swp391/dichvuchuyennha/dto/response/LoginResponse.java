@@ -6,14 +6,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-@FieldDefaults(level = lombok.AccessLevel.PRIVATE)
-public class UserResponse {
-    Integer userId;
-    String username;
-    String email;
-    String phone;
-    String roleName;
+public class LoginResponse {
+    private String token;
+    private String tokenType;
 }
