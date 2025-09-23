@@ -1,4 +1,7 @@
 {
+  "scripts": {
+    "start": "npm start --prefix project-group6-swp391"
+  },
   "dependencies": {
     "react-router-dom": "^6.30.1"
   }
