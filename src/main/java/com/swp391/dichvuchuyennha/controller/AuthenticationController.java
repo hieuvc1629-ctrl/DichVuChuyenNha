@@ -24,7 +24,6 @@ public class AuthenticationController {
         var result = authenticationService.authenticate(request);
         return ResponseEntity.ok(
                 ApiResponse.<AuthenticationResponse>builder()
-
                         .message("Login successful")
                         .result(result)
                         .build()
