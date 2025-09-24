@@ -19,7 +19,7 @@ public class ContractService {
     private final ContractRepository contractRepository;
     private final UserRepository userRepository;
 
-    // Chuyển Contract -> ContractResponse
+
     public ContractResponse toResponse(Contract contract) {
         return ContractResponse.builder()
                 .contractId(contract.getContractId())
