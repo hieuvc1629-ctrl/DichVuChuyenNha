@@ -12,6 +12,7 @@ public class UserCreateRequest {
     String username;
     String password;
     Integer roleId;
-    String email;   // thêm mới
-    String phone;   // thêm mới
+    String email;
+    String phone;
+
 }

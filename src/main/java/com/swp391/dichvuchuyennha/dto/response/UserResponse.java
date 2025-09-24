@@ -1,9 +1,6 @@
 package com.swp391.dichvuchuyennha.dto.response;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 @Data
@@ -17,4 +14,5 @@ public class UserResponse {
     String email;
     String phone;
     String roleName;
+
 }

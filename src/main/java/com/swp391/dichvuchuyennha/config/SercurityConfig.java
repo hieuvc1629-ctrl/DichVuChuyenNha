@@ -1,7 +1,6 @@
 package com.swp391.dichvuchuyennha.config;
 
-import org.apache.catalina.filters.CorsFilter;
-import org.springframework.boot.web.servlet.FilterRegistrationBean;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -11,23 +10,26 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import javax.crypto.spec.SecretKeySpec;
 
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SercurityConfig {
-
-
-
+    @Value("${jwt.secret}")
+    private String jwtSecret;
     private final String[] PUBLIC_URL = {
             "/api/auth/**",
             "/api/public/**",
-            "/api/test/public"
+            "/api/test/public",
+            "/api/contracts/**",
+            "/api/users/**"
     };
 
     @Bean
@@ -36,6 +38,8 @@ public class SercurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(PUBLIC_URL).permitAll()
+
+
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session
@@ -47,7 +51,16 @@ public class SercurityConfig {
                         )
                 );
 
+
+
+
         return http.build();
+    }
+    @Bean
+    public JwtDecoder jwtDecoder() {
+        return NimbusJwtDecoder.withSecretKey(
+                new SecretKeySpec(jwtSecret.getBytes(), "HmacSHA256")
+        ).build();
     }
 
     @Bean
@@ -67,4 +80,3 @@ public class SercurityConfig {
         return new BCryptPasswordEncoder();
     }
 }
-
