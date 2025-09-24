@@ -9,8 +9,6 @@ import java.util.List;
 import java.util.Optional;
 @Repository
 public interface ContractRepository extends JpaRepository<Contract, Integer> {
-
-    // Lấy tất cả hợp đồng của user
     List<Contract> findByOwnerAndStatus(Users owner, String status);
 
 }

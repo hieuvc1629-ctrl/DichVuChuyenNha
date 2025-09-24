@@ -30,6 +30,9 @@ public class Requests {
     @Column(name = "request_time")
     private LocalDateTime requestTime;
 
+    @Column(name = "description")
+    private String description;
+
     @Column(name = "status")
     private String status;
 
