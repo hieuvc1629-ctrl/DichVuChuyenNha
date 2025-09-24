@@ -27,6 +27,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class AuthenticationService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder; // inject bean từ config
 
     @Value("${jwt.secret}")
     private String jwtSecret;
@@ -39,7 +40,6 @@ public class AuthenticationService {
 
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
-        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
         Users user = userRepository.findByUsername(request.getUsername())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
@@ -50,6 +50,8 @@ public class AuthenticationService {
         return AuthenticationResponse.builder()
                 .token(token)
                 .authenticated(true)
+                .userId(user.getUserId())       // thêm
+                .username(user.getUsername())   // thêm
                 .build();
     }
 
@@ -62,7 +64,7 @@ public class AuthenticationService {
                     .issueTime(new Date())
                     .expirationTime(Date.from(Instant.now().plusSeconds(jwtExpirationSec)))
                     .jwtID(UUID.randomUUID().toString())
-                    .claim("roles", user.getRole().getRoleName())
+                    .claim("roles", List.of(user.getRole().getRoleName()))
                     .build();
 
             JWSHeader header = new JWSHeader(JWSAlgorithm.HS256);

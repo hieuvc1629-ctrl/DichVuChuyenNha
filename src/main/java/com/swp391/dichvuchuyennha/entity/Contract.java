@@ -63,4 +63,7 @@ public class Contract {
 
     @OneToMany(mappedBy = "contract", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<WorkProgress> workProgress;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "owner_id") // user phải ký hợp đồng
+    private Users owner;
 }
