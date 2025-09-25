@@ -10,10 +10,15 @@ import com.swp391.dichvuchuyennha.entity.Roles;
 import com.swp391.dichvuchuyennha.entity.Users;
 import com.swp391.dichvuchuyennha.exception.AppException;
 import com.swp391.dichvuchuyennha.exception.ErrorCode;
+
 import com.swp391.dichvuchuyennha.repository.CustomerCompanyRepository;
+
+import com.swp391.dichvuchuyennha.mapper.UserMapper;
+
 import com.swp391.dichvuchuyennha.repository.RoleRepository;
 import com.swp391.dichvuchuyennha.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -26,7 +31,12 @@ import java.util.Optional;
 public class UserService {
 
     private final UserRepository userRepository;
+
     private final CustomerCompanyRepository customerCompanyRepository;
+=======
+    @Autowired
+    UserMapper userMapper;
+
     private final RoleRepository roleRepository;
 
     private final PasswordEncoder passwordEncoder;
@@ -36,6 +46,7 @@ public class UserService {
                 .orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_EXISTED));
 
         Users user = new Users();
+
         user.setUsername(request.getUsername());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setEmail(request.getEmail());
@@ -51,6 +62,12 @@ public class UserService {
                 .phone(user.getPhone())
                 .roleName(role.getRoleName())
                 .build();
+
+        userMapper.toUsers(user);
+        user = userRepository.save(user);
+
+        return userMapper.toUserResponse(user);
+
     }
 
     public UserResponse createCustomerCompanyUser(CustomerCompanyRequest req) {
@@ -65,7 +82,7 @@ public class UserService {
         Roles customerCompanyRole = roleRepository.findByRoleName("customer_company")
                 .orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_EXISTED));
 
-        // create user
+        
         Users user = new Users();
         user.setUsername(req.getUsername());
         user.setPassword(passwordEncoder.encode(req.getPassword()));
