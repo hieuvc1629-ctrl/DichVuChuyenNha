@@ -1,110 +1,141 @@
-import React, { useState, useEffect } from "react";
-import { Formik, Form, Field, ErrorMessage } from "formik";
-import * as Yup from "yup";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { Form, Input, Button, Select, message } from "antd";
 
-const CustomerRegisterForm = () => {
-  const [message, setMessage] = useState("");
+const { Option } = Select;
+
+export default function CustomerRegisterForm() {
   const [roles, setRoles] = useState([]);
+  const [selectedRole, setSelectedRole] = useState(null);
+  const [form] = Form.useForm();
 
   useEffect(() => {
-    const fetchRoles = async () => {
-      try {
-        const res = await axios.get("http://localhost:8080/api/users/roles");
-        // Lọc chỉ lấy roleId = 4 hoặc 5
-        const filteredRoles = res.data.result.filter(role => role.id === 4 || role.id === 5);
-        setRoles(filteredRoles);
-      } catch (err) {
-        console.error("Error fetching roles:", err);
-      }
-    };
-    fetchRoles();
+    axios
+      .get("http://localhost:8080/api/users/roles")
+      .then((res) => {
+        setRoles(res.data.result || []);
+      })
+      .catch((err) => {
+        console.error(err);
+        message.error("Không load được roles!");
+      });
   }, []);
 
-  const initialValues = {
-    username: "",
-    password: "",
-    roleId: "", 
-    email: "",
-    phone: "",
-  };
+  const onFinish = (values) => {
+    let url = "";
+    let payload = { ...values };
 
-  const validationSchema = Yup.object({
-    username: Yup.string().required("Username is required"),
-    password: Yup.string()
-      .min(6, "Password must be at least 6 characters")
-      .required("Password is required"),
-    roleId: Yup.number().required("Please select a role"),
-    email: Yup.string().email("Invalid email").required("Email is required"),
-    phone: Yup.string()
-      .matches(/^[0-9]{9,11}$/, "Phone must be 9-11 digits")
-      .required("Phone is required"),
-  });
+    const selectedRoleName = roles.find(
+      (r) => r.roleId === selectedRole
+    )?.roleName;
 
-  const handleSubmit = async (values, { resetForm }) => {
-    try {
-      const res = await axios.post("http://localhost:8080/api/users/create", values);
-      setMessage(res.data.message);
-      resetForm();
-    } catch (err) {
-      setMessage("Error creating user");
-      console.error(err);
+    if (selectedRoleName === "customer_company") {
+      url = "http://localhost:8080/api/users/customer-company";
+      delete payload.roleId; // 👈 Xóa vì backend không cần
+    } else {
+      url = "http://localhost:8080/api/users/create";
     }
+
+    console.log("Payload gửi đi:", payload);
+
+    axios
+      .post(url, payload)
+      .then((res) => {
+        message.success("Đăng ký thành công!");
+        console.log("Kết quả:", res.data);
+        form.resetFields();
+        setSelectedRole(null);
+      })
+      .catch((err) => {
+        console.error("Lỗi:", err.response?.data || err);
+        message.error(err.response?.data?.message || "Đăng ký thất bại!");
+      });
   };
 
   return (
-    <div style={{ maxWidth: "400px", margin: "0 auto" }}>
-      <h2>Customer Register</h2>
-      <Formik
-        initialValues={initialValues}
-        validationSchema={validationSchema}
-        onSubmit={handleSubmit}
+    <Form
+      form={form}
+      onFinish={onFinish}
+      layout="vertical"
+      style={{ maxWidth: 500, margin: "0 auto" }}
+    >
+      <Form.Item name="username" label="Username" rules={[{ required: true }]}>
+        <Input placeholder="Nhập username" />
+      </Form.Item>
+
+      <Form.Item name="password" label="Password" rules={[{ required: true }]}>
+        <Input.Password placeholder="Nhập password" />
+      </Form.Item>
+
+      <Form.Item
+        name="email"
+        label="Email"
+        rules={[{ required: true, type: "email" }]}
       >
-        <Form>
-          <div>
-            <label>Username</label>
-            <Field type="text" name="username" className="form-control" />
-            <ErrorMessage name="username" component="div" style={{ color: "red" }} />
-          </div>
+        <Input placeholder="Nhập email" />
+      </Form.Item>
 
-          <div>
-            <label>Password</label>
-            <Field type="password" name="password" className="form-control" />
-            <ErrorMessage name="password" component="div" style={{ color: "red" }} />
-          </div>
+      <Form.Item
+        name="phone"
+        label="Phone"
+        rules={[{ required: true, message: "Nhập số điện thoại" }]}
+      >
+        <Input placeholder="Nhập số điện thoại" />
+      </Form.Item>
 
-          <div>
-            <label>Email</label>
-            <Field type="email" name="email" className="form-control" />
-            <ErrorMessage name="email" component="div" style={{ color: "red" }} />
-          </div>
+      <Form.Item
+        name="roleId"
+        label="Chọn Role"
+        rules={[{ required: true, message: "Vui lòng chọn role" }]}
+      >
+        <Select
+          placeholder="Chọn role"
+          onChange={(value) => setSelectedRole(value)}
+        >
+          {roles.map((r) => (
+            <Option key={r.roleId} value={r.roleId}>
+              {r.roleName}
+            </Option>
+          ))}
+        </Select>
+      </Form.Item>
 
-          <div>
-            <label>Phone</label>
-            <Field type="text" name="phone" className="form-control" />
-            <ErrorMessage name="phone" component="div" style={{ color: "red" }} />
-          </div>
+      {/* Nếu chọn customer_company thì hiện thêm field */}
+      {selectedRole &&
+        roles.find((r) => r.roleId === selectedRole)?.roleName ===
+          "customer_company" && (
+          <>
+            <Form.Item
+              name="companyName"
+              label="Company Name"
+              rules={[{ required: true, message: "Nhập tên công ty" }]}
+            >
+              <Input placeholder="Nhập tên công ty" />
+            </Form.Item>
 
-          <div>
-            <label>Role</label>
-            <Field as="select" name="roleId" className="form-control">
-              <option value="">-- Select role --</option>
-              {roles.map(role => (
-                <option key={role.id} value={role.id}>{role.name}</option>
-              ))}
-            </Field>
-            <ErrorMessage name="roleId" component="div" style={{ color: "red" }} />
-          </div>
+            <Form.Item
+              name="taxCode"
+              label="Tax Code"
+              rules={[{ required: true, message: "Nhập mã số thuế" }]}
+            >
+              <Input placeholder="Nhập mã số thuế" />
+            </Form.Item>
 
-          <button type="submit" style={{ marginTop: "10px" }}>
-            Register
-          </button>
-        </Form>
-      </Formik>
+            <Form.Item
+              name="address"
+              label="Address"
+              rules={[{ required: true, message: "Nhập địa chỉ" }]}
+            >
+              <Input placeholder="Nhập địa chỉ" />
+            </Form.Item>
+          </>
+        )}
 
-      {message && <p>{message}</p>}
-    </div>
+      <Form.Item>
+        <Button type="primary" htmlType="submit" block>
+          Đăng ký
+        </Button>
+      </Form.Item>
+    </Form>
   );
-};
-
-export default CustomerRegisterForm;
+}

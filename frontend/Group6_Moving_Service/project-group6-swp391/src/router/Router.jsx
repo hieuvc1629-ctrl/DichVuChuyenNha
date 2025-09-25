@@ -2,10 +2,13 @@ import React from 'react';
 import Layout from '../components/Layout';
 
 import { createBrowserRouter, RouterProvider, useParams } from 'react-router-dom';
-import Login from '../HomePage/LoginPage';
+
 import LoginPage from '../HomePage/LoginPage';
 import CustomerRegisterForm from '../customer/CustomerRegisterForm';
-import AuthPage from '../components/AuthPage';
+import UserContractsPage from '../customer/UserContractPage';
+import CustomerPage from '../customer/CustomerPage';
+import CreateAdminUser from '../admin/CreateAdminUser';
+
 
 // Wrapper để lấy :id từ URL và truyền vào ContractDetail
 
@@ -24,6 +27,19 @@ const Router = () => {
           path:"customer-register",
           element:<CustomerRegisterForm/>
         },
+        {
+          path:"customer-page",
+          element:<CustomerPage/>
+        },
+        {
+          path:"list-contract-unsigned",
+          element:<UserContractsPage/>
+        },
+        {
+          path:"admin-create-user",
+          element:<CreateAdminUser/>
+        },
+
        
       ]
     }

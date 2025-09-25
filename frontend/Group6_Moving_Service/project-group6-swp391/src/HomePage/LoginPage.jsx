@@ -3,8 +3,9 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import axios from "axios";
 import "./style/LoginPage.css"; // dùng chung cho login và signup
-
+import { useNavigate } from "react-router-dom";
 const LoginPage = () => {
+  const navigate = useNavigate();
   const initialValues = {
     username: "",
     password: "",
@@ -16,15 +17,21 @@ const LoginPage = () => {
   });
 
   const handleSubmit = async (values, { setSubmitting }) => {
-    try {
-      const response = await axios.post("http://localhost:8080/api/auth/login", values);
-      localStorage.setItem("token", response.data.result.token);
-      alert("Login successful!");
-    } catch (error) {
-      alert(error.response?.data?.message || "Login failed");
-      setSubmitting(false);
-    }
-  };
+  try {
+    const response = await axios.post("http://localhost:8080/api/auth/login", values);
+
+    // Lưu token và userId (giả sử backend trả userId)
+    localStorage.setItem("token", response.data.result.token);
+    localStorage.setItem("userId", response.data.result.userId);
+    alert("Login successful!");
+
+    // Chuyển sang trang danh sách hợp đồng
+    navigate("/customer-page");
+  } catch (error) {
+    alert(error.response?.data?.message || "Login failed");
+    setSubmitting(false);
+  }
+};
 
   return (
     <div className="auth-form">
@@ -53,6 +60,22 @@ const LoginPage = () => {
             <button type="submit" className="auth-btn" disabled={isSubmitting}>
               {isSubmitting ? "Logging in..." : "Login"}
             </button>
+             <div style={{ marginTop: "15px", textAlign: "center" }}>
+              <span>Chưa có tài khoản? </span>
+              <button
+                type="button"
+                onClick={() => navigate("/customer-register")}
+                style={{
+                  background: "none",
+                  border: "none",
+                  color: "#8B0000",
+                  cursor: "pointer",
+                  textDecoration: "underline"
+                }}
+              >
+                Đăng ký ngay
+              </button>
+            </div>
           </Form>
         )}
       </Formik>
