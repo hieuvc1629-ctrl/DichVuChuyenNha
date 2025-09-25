@@ -2,13 +2,13 @@ package com.swp391.dichvuchuyennha.controller;
 
 
 import com.swp391.dichvuchuyennha.dto.request.ApiResponse;
-import com.swp391.dichvuchuyennha.dto.request.CustomerCompanyRequest;
 import com.swp391.dichvuchuyennha.dto.request.EmployeeCreateRequest;
 import com.swp391.dichvuchuyennha.dto.request.UserCreateRequest;
 import com.swp391.dichvuchuyennha.dto.response.RoleResponse;
 import com.swp391.dichvuchuyennha.dto.response.UserResponse;
 import com.swp391.dichvuchuyennha.entity.Roles;
 import com.swp391.dichvuchuyennha.repository.RoleRepository;
+import com.swp391.dichvuchuyennha.service.AdminService;
 import com.swp391.dichvuchuyennha.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,20 +19,20 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/api/admin")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:5173") 
+@CrossOrigin(origins = "http://localhost:5173")
 
-public class UserController {
+public class AdminController {
 
     @Autowired
-    UserService userService;
+    AdminService adminService;
     @Autowired
     RoleRepository roleRepository;
 
-    @PostMapping("/create")
+    @PostMapping("/create-admin")
     public ResponseEntity<ApiResponse<UserResponse>> createUser(@RequestBody UserCreateRequest request){
-        UserResponse user = userService.createUser(request);
+        UserResponse user = adminService.createUser(request);
         return ResponseEntity.ok(
                 ApiResponse.<UserResponse>builder()
                         .code(1000)
@@ -41,9 +41,10 @@ public class UserController {
                         .build()
         );
     }
-    @GetMapping("/roles")
-    public ResponseEntity<ApiResponse<List<RoleResponse>>> getCustomerRoles() {
-        List<RoleResponse> roles = roleRepository.findByRoleIdIn(List.of(4, 5))
+
+    @GetMapping("/all-roles")
+    public ResponseEntity<ApiResponse<List<RoleResponse>>> getAllRoles() {
+        List<RoleResponse> roles = roleRepository.findAll()
                 .stream()
                 .map(r -> new RoleResponse(r.getRoleId(), r.getRoleName()))
                 .toList();
@@ -51,24 +52,21 @@ public class UserController {
         return ResponseEntity.ok(
                 ApiResponse.<List<RoleResponse>>builder()
                         .code(1000)
-                        .message("Customer roles list")
+                        .message("All roles list")
                         .result(roles)
                         .build()
         );
     }
-    @PostMapping("/customer-company")
-    public ResponseEntity<ApiResponse<UserResponse>> createCustomerCompany(
-            @RequestBody CustomerCompanyRequest request) {
-        UserResponse response = userService.createCustomerCompanyUser(request);
+    @PostMapping("/create-employee")
+    public ResponseEntity<ApiResponse<UserResponse>> createEmployee(@RequestBody EmployeeCreateRequest request) {
+        var result = adminService.createEmployeeUser(request);
         return ResponseEntity.ok(
                 ApiResponse.<UserResponse>builder()
-                        .code(1000)
-                        .message("Customer company created successfully")
-                        .result(response)
+                        .message("Tạo employee user thành công")
+                        .result(result)
                         .build()
         );
     }
-
 
 
 }

@@ -1,6 +1,9 @@
 package com.swp391.dichvuchuyennha.config;
 
 
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
@@ -25,6 +28,7 @@ import javax.crypto.spec.SecretKeySpec;
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
+@RequiredArgsConstructor
 public class SercurityConfig {
     @Value("${jwt.secret}")
     private String jwtSecret;
@@ -33,7 +37,8 @@ public class SercurityConfig {
             "/api/public/**",
             "/api/test/public",
             "/api/contracts/**",
-            "/api/users/**"
+            "/api/users/**",
+
     };
 
     @Bean
@@ -42,8 +47,7 @@ public class SercurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(PUBLIC_URL).permitAll()
-
-
+                        .requestMatchers("/api/admin/**").hasRole("admin")
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session
