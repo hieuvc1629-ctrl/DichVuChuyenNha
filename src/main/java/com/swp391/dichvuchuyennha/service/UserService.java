@@ -1,73 +1,51 @@
 package com.swp391.dichvuchuyennha.service;
 
 import com.swp391.dichvuchuyennha.dto.request.CustomerCompanyRequest;
-import com.swp391.dichvuchuyennha.dto.request.EmployeeCreateRequest;
 import com.swp391.dichvuchuyennha.dto.request.UserCreateRequest;
 import com.swp391.dichvuchuyennha.dto.response.UserResponse;
 import com.swp391.dichvuchuyennha.entity.CustomerCompany;
-import com.swp391.dichvuchuyennha.entity.Employee;
 import com.swp391.dichvuchuyennha.entity.Roles;
 import com.swp391.dichvuchuyennha.entity.Users;
 import com.swp391.dichvuchuyennha.exception.AppException;
 import com.swp391.dichvuchuyennha.exception.ErrorCode;
-
-import com.swp391.dichvuchuyennha.repository.CustomerCompanyRepository;
-
 import com.swp391.dichvuchuyennha.mapper.UserMapper;
-
+import com.swp391.dichvuchuyennha.repository.CustomerCompanyRepository;
 import com.swp391.dichvuchuyennha.repository.RoleRepository;
 import com.swp391.dichvuchuyennha.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
-
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
 
     private final UserRepository userRepository;
-
     private final CustomerCompanyRepository customerCompanyRepository;
-=======
-    @Autowired
-    UserMapper userMapper;
-
     private final RoleRepository roleRepository;
-
     private final PasswordEncoder passwordEncoder;
+    private final UserMapper userMapper;
 
     public UserResponse createUser(UserCreateRequest request) {
+        // check duplicate username & email
+        if (userRepository.existsByUsername(request.getUsername())) {
+            throw new AppException(ErrorCode.USERNAME_EXISTED);
+        }
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new AppException(ErrorCode.EMAIL_EXISTED);
+        }
+
         Roles role = roleRepository.findById(request.getRoleId())
                 .orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_EXISTED));
 
-        Users user = new Users();
-
-        user.setUsername(request.getUsername());
+        // map từ request sang entity
+        Users user = userMapper.toUsers(request);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setEmail(request.getEmail());
-        user.setPhone(request.getPhone());
         user.setRole(role);
 
-        user = userRepository.save(user);
+        Users savedUser = userRepository.save(user);
 
-        return UserResponse.builder()
-                .userId(user.getUserId())
-                .username(user.getUsername())
-                .email(user.getEmail())
-                .phone(user.getPhone())
-                .roleName(role.getRoleName())
-                .build();
-
-        userMapper.toUsers(user);
-        user = userRepository.save(user);
-
-        return userMapper.toUserResponse(user);
-
+        return userMapper.toUserResponse(savedUser);
     }
 
     public UserResponse createCustomerCompanyUser(CustomerCompanyRequest req) {
@@ -82,7 +60,6 @@ public class UserService {
         Roles customerCompanyRole = roleRepository.findByRoleName("customer_company")
                 .orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_EXISTED));
 
-        
         Users user = new Users();
         user.setUsername(req.getUsername());
         user.setPassword(passwordEncoder.encode(req.getPassword()));
@@ -102,16 +79,6 @@ public class UserService {
 
         customerCompanyRepository.save(customerCompany);
 
-        return UserResponse.builder()
-                .userId(savedUser.getUserId())
-                .username(savedUser.getUsername())
-                .email(savedUser.getEmail())
-                .phone(savedUser.getPhone())
-                .roleName(customerCompanyRole.getRoleName())
-                .build();
+        return userMapper.toUserResponse(savedUser);
     }
 }
-
-
-
-
