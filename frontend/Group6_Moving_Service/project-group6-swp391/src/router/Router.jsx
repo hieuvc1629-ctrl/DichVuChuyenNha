@@ -4,6 +4,7 @@ import Layout from '../components/Layout';
 import { createBrowserRouter, RouterProvider, useParams } from 'react-router-dom';
 
 import LoginPage from '../HomePage/LoginPage';
+import HomePage from '../HomePage/HomePage';
 import CustomerRegisterForm from '../customer/CustomerRegisterForm';
 import UserContractsPage from '../customer/UserContractPage';
 import CustomerPage from '../customer/CustomerPage';
@@ -19,6 +20,10 @@ const Router = () => {
       path: "/",
       element: <Layout />,
       children: [
+        {
+          path: "",
+          element: <HomePage/>
+        },
         {
           path: "login",
           element: <LoginPage/>

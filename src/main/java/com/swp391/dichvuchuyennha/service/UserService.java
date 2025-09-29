@@ -39,7 +39,7 @@ public class UserService {
                 .orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_EXISTED));
 
         // map từ request sang entity
-        Users user = userMapper.toUsers(request);
+        Users user = userMapper.toUsersCreateRequest(request);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setRole(role);
 
