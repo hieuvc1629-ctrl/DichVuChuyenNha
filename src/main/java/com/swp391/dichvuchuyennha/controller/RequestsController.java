@@ -9,10 +9,10 @@ import com.swp391.dichvuchuyennha.repository.UserRepository;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import java.util.List;
 @RestController
 @RequestMapping("/api/requests")
 @RequiredArgsConstructor
@@ -28,6 +28,14 @@ public class RequestsController {
         Users user = userRepository.findByUsername(context).orElseThrow();
         RequestResponse data = requestService.createRequest(user, requestDto);
         return ResponseEntity.ok(ApiResponse.<RequestResponse>builder().result(data).build());
+    }
+
+    @GetMapping("/my")
+    public ResponseEntity<ApiResponse<List<RequestResponse>>> getMyRequests() {
+        String context = SecurityContextHolder.getContext().getAuthentication().getName();
+        Users user = userRepository.findByUsername(context).orElseThrow();
+        List<RequestResponse> data = requestService.getMyRequests(user);
+        return ResponseEntity.ok(ApiResponse.<List<RequestResponse>>builder().result(data).build());
     }
 }
 

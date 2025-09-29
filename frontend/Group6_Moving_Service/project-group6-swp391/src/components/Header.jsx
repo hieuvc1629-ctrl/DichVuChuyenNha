@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { Button, message, Dropdown, Menu } from "antd";
 import { UserOutlined, PhoneOutlined, DownOutlined } from "@ant-design/icons";
 import axios from "axios";
+import api from "../service/api";
 import { useNavigate, useLocation } from "react-router-dom";
 import "./Header.css";
 
@@ -12,6 +13,7 @@ const Header = () => {
   const isLoggedIn = !!token;
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
   const dropdownRef = useRef(null);
+  // Inline request preview removed; we navigate to a dedicated page
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -59,15 +61,9 @@ const Header = () => {
     setIsDropdownVisible(!isDropdownVisible);
   };
 
+  // No fetching in header; handled in UserRequestsPage
+
   const userMenuItems = [
-    {
-      key: "requests",
-      label: "Danh sách yêu cầu",
-      onClick: () => {
-        navigate("/list-contract-unsigned");
-        setIsDropdownVisible(false);
-      }
-    },
     {
       key: "profile",
       label: "Thông tin cá nhân",
@@ -126,6 +122,16 @@ const Header = () => {
               
               {isDropdownVisible && (
                 <div className="user-dropdown">
+                  <button
+                    key="my-requests"
+                    className="dropdown-item"
+                    onClick={() => {
+                      navigate("/my-requests");
+                      setIsDropdownVisible(false);
+                    }}
+                  >
+                    Danh sách yêu cầu
+                  </button>
                   {userMenuItems.map((item) => (
                     <button
                       key={item.key}

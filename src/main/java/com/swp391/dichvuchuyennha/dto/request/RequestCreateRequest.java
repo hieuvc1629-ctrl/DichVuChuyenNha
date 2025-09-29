@@ -8,6 +8,11 @@ public class RequestCreateRequest {
     @NotBlank
     private String description;
     private Integer businessId;
+    private Integer userId;
+    @NotBlank
+    private String pickupAddress;
+    @NotBlank
+    private String destinationAddress;
 }
 
 
