@@ -7,6 +7,7 @@ import LoginPage from '../HomePage/LoginPage';
 import HomePage from '../HomePage/HomePage';
 import CustomerRegisterForm from '../customer/CustomerRegisterForm';
 import UserContractsPage from '../customer/UserContractPage';
+import UserRequestsPage from '../customer/UserRequestsPage';
 import CustomerPage from '../customer/CustomerPage';
 import CreateAdminUser from '../admin/CreateAdminUser';
 
@@ -39,6 +40,10 @@ const Router = () => {
         {
           path:"list-contract-unsigned",
           element:<UserContractsPage/>
+        },
+        {
+          path:"my-requests",
+          element:<UserRequestsPage/>
         },
         {
           path:"admin-create-user",

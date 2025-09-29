@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -30,8 +31,17 @@ public class Requests {
     @Column(name = "request_time")
     private LocalDateTime requestTime;
 
+    @Column(name = "moving_day")
+    private Date movingDay;
+
     @Column(name = "description")
     private String description;
+
+    @Column(name = "pickup_address")
+    private String pickupAddress;
+
+    @Column(name = "destination_address")
+    private String destinationAddress;
 
     @Column(name = "status")
     private String status;
