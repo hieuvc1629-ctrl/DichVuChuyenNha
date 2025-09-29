@@ -1,5 +1,7 @@
 package com.swp391.dichvuchuyennha.service;
 
+import com.swp391.dichvuchuyennha.dto.request.WorkProgressRequest;
+import com.swp391.dichvuchuyennha.dto.response.WorkProgressResponse;
 import com.swp391.dichvuchuyennha.entity.Contract;
 import com.swp391.dichvuchuyennha.entity.Employee;
 import com.swp391.dichvuchuyennha.entity.WorkProgress;
@@ -9,8 +11,7 @@ import com.swp391.dichvuchuyennha.mapper.WorkProgressMapper;
 import com.swp391.dichvuchuyennha.repository.ContractRepository;
 import com.swp391.dichvuchuyennha.repository.EmployeeRepository;
 import com.swp391.dichvuchuyennha.repository.WorkProgressRepository;
-import com.swp391.dichvuchuyennha.dto.request.WorkProgressRequest;
-import com.swp391.dichvuchuyennha.dto.response.WorkProgressResponse;
+import com.swp391.dichvuchuyennha.service.WorkProgressService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -23,84 +24,61 @@ import java.util.stream.Collectors;
 public class WorkProgressServiceImpl implements WorkProgressService {
 
     private final WorkProgressRepository workProgressRepository;
-    private final ContractRepository contractRepository;
     private final EmployeeRepository employeeRepository;
+    private final ContractRepository contractRepository;
     private final WorkProgressMapper mapper;
 
-    // ✅ Lấy toàn bộ tiến độ
     @Override
-    public List<WorkProgressResponse> getAllWorkProgress() {
-        return workProgressRepository.findAll()
+    public List<WorkProgressResponse> getByEmployeeId(Integer employeeId) {
+        return workProgressRepository.findByEmployee_EmployeeId(employeeId)
                 .stream()
                 .map(mapper::toResponse)
                 .collect(Collectors.toList());
     }
 
-    // ✅ Lấy tiến độ theo ID
     @Override
-    public WorkProgressResponse getWorkProgressById(Integer id) {
-        WorkProgress workProgress = workProgressRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.WORK_PROGRESS_NOT_FOUND));
-        return mapper.toResponse(workProgress);
-    }
+    public WorkProgressResponse createWorkProgress(Integer employeeId, WorkProgressRequest request) {
+        Employee employee = employeeRepository.findById(employeeId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
-    // ✅ Tạo mới tiến độ
-    @Override
-    public WorkProgressResponse createWorkProgress(WorkProgressRequest request) {
         Contract contract = contractRepository.findById(request.getContractId())
                 .orElseThrow(() -> new AppException(ErrorCode.CONTRACT_NOT_FOUND));
 
-        Employee employee = employeeRepository.findById(request.getEmployeeId())
-                .orElseThrow(() -> new AppException(ErrorCode.EMPLOYEE_NOT_FOUND));
+        WorkProgress progress = new WorkProgress();
+        progress.setEmployee(employee);
+        progress.setContract(contract);
+        progress.setTaskDescription(request.getTaskDescription());
+        progress.setProgressStatus(request.getProgressStatus());
+        progress.setUpdatedAt(LocalDateTime.now());
 
-        WorkProgress workProgress = new WorkProgress();
-        workProgress.setContract(contract);
-        workProgress.setEmployee(employee);
-        workProgress.setTaskDescription(request.getTaskDescription());
-        workProgress.setProgressStatus(request.getProgressStatus());
-        workProgress.setUpdatedAt(LocalDateTime.now());
-
-        WorkProgress saved = workProgressRepository.save(workProgress);
-        return mapper.toResponse(saved);
+        return mapper.toResponse(workProgressRepository.save(progress));
     }
 
-    // ✅ Cập nhật tiến độ
     @Override
-    public WorkProgressResponse updateWorkProgress(Integer id, WorkProgressRequest request) {
-        WorkProgress workProgress = workProgressRepository.findById(id)
+    public WorkProgressResponse updateWorkProgress(Integer progressId, Integer employeeId, WorkProgressRequest request) {
+        WorkProgress progress = workProgressRepository.findById(progressId)
                 .orElseThrow(() -> new AppException(ErrorCode.WORK_PROGRESS_NOT_FOUND));
 
-        if (request.getContractId() != null) {
-            Contract contract = contractRepository.findById(request.getContractId())
-                    .orElseThrow(() -> new AppException(ErrorCode.CONTRACT_NOT_FOUND));
-            workProgress.setContract(contract);
+        if (!progress.getEmployee().getEmployeeId().equals(employeeId)) {
+            throw new AppException(ErrorCode.UNAUTHORIZED);
         }
 
-        if (request.getEmployeeId() != null) {
-            Employee employee = employeeRepository.findById(request.getEmployeeId())
-                    .orElseThrow(() -> new AppException(ErrorCode.EMPLOYEE_NOT_FOUND));
-            workProgress.setEmployee(employee);
-        }
+        progress.setTaskDescription(request.getTaskDescription());
+        progress.setProgressStatus(request.getProgressStatus());
+        progress.setUpdatedAt(LocalDateTime.now());
 
-        if (request.getTaskDescription() != null) {
-            workProgress.setTaskDescription(request.getTaskDescription());
-        }
-
-        if (request.getProgressStatus() != null) {
-            workProgress.setProgressStatus(request.getProgressStatus());
-        }
-
-        workProgress.setUpdatedAt(LocalDateTime.now());
-
-        WorkProgress updated = workProgressRepository.save(workProgress);
-        return mapper.toResponse(updated);
+        return mapper.toResponse(workProgressRepository.save(progress));
     }
 
-    // ✅ Xóa tiến độ
     @Override
-    public void deleteWorkProgress(Integer id) {
-        WorkProgress workProgress = workProgressRepository.findById(id)
+    public void deleteWorkProgress(Integer progressId, Integer employeeId) {
+        WorkProgress progress = workProgressRepository.findById(progressId)
                 .orElseThrow(() -> new AppException(ErrorCode.WORK_PROGRESS_NOT_FOUND));
-        workProgressRepository.delete(workProgress);
+
+        if (!progress.getEmployee().getEmployeeId().equals(employeeId)) {
+            throw new AppException(ErrorCode.UNAUTHORIZED);
+        }
+
+        workProgressRepository.delete(progress);
     }
 }
