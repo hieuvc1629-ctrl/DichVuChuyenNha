@@ -1,46 +1,89 @@
 import React from "react";
-import { Button, message } from "antd";
+import { Navbar, Nav, Container, Button } from "react-bootstrap";
+import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
+import { Dropdown, Menu } from "antd";
 
 const Header = () => {
-  const handleLogout = async () => {
-    const token = localStorage.getItem("token"); // bạn lưu token sau khi login
+  const navigate = useNavigate();
+  const token = localStorage.getItem("token");
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
 
+  const handleLogout = async () => {
     if (!token) {
-      message.warning("Bạn chưa đăng nhập!");
+      navigate("/login");
       return;
     }
 
     try {
       await axios.post(
         "http://localhost:8080/api/auth/logout",
-        {}, // body rỗng
+        {},
         {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         }
       );
-
-      // Xoá token trong localStorage sau khi logout
-      localStorage.removeItem("token");
-      localStorage.removeItem("user"); // nếu bạn có lưu user info
-
-      message.success("Đăng xuất thành công!");
-      // Điều hướng về trang login (nếu dùng react-router-dom)
-      window.location.href = "/login";
     } catch (err) {
-      message.error("Có lỗi khi đăng xuất!");
+      console.error("Logout error:", err);
     }
+
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+
+    navigate("/login");
   };
 
+  const menu = (
+    <Menu
+      items={[
+        {
+          key: "profile",
+          label: "Hồ sơ",
+          onClick: () => navigate("/profile"),
+        },
+        {
+          type: "divider",
+        },
+        {
+          key: "logout",
+          label: "Đăng xuất",
+          onClick: handleLogout,
+        },
+      ]}
+    />
+  );
+
   return (
-    <div style={{ display: "flex", justifyContent: "space-between", padding: "10px 20px", background: "#8B0000", color: "#fff" }}>
-      <h2>🏠 Moving Service</h2>
-      <Button type="primary" danger onClick={handleLogout}>
-        Đăng xuất
-      </Button>
-    </div>
+    <Navbar bg="dark" variant="dark" expand="lg" style={{ borderBottom: "2px solid #333" }}>
+      <Container>
+        <Navbar.Brand as={Link} to="/" style={{ fontWeight: "bold", color: "#fff" }}>
+          🏠 Moving Service
+        </Navbar.Brand>
+        <Navbar.Toggle aria-controls="basic-navbar-nav" />
+        <Navbar.Collapse id="basic-navbar-nav">
+          <Nav className="ms-auto align-items-center">
+            {!token ? (
+              <>
+                <Nav.Link as={Link} to="/login" style={{ color: "#fff" }}>
+                  Đăng nhập
+                </Nav.Link>
+                <Button as={Link} to="/customer-register" variant="light" className="ms-2">
+                  Đăng ký
+                </Button>
+              </>
+            ) : (
+              <Dropdown overlay={menu} placement="bottomRight" arrow>
+                <Button type="text" style={{ color: "#fff" }}>
+                  {user?.username || "Tài khoản"}
+                </Button>
+              </Dropdown>
+            )}
+          </Nav>
+        </Navbar.Collapse>
+      </Container>
+    </Navbar>
   );
 };
 

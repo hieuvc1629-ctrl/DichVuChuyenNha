@@ -1,17 +1,21 @@
-import React from 'react';
-import Layout from '../components/Layout';
+import React from "react";
+import Layout from "../components/Layout";
+import {
+  createBrowserRouter,
+  RouterProvider,
+} from "react-router-dom";
 
-import { createBrowserRouter, RouterProvider, useParams } from 'react-router-dom';
+import LoginPage from "../HomePage/LoginPage";
+import CustomerRegisterForm from "../customer/CustomerRegisterForm";
+import UserContractsPage from "../customer/UserContractPage";
+import CustomerPage from "../customer/CustomerPage";
+import CreateAdminUser from "../admin/CreateAdminUser";
+import ProtectedRoute from "../auth/ProtectRoute";
+import AccessDeniedPage from "../auth/AccessDeniedPage";
+import LandingPage from "../HomePage/LandingPage";
 
-import LoginPage from '../HomePage/LoginPage';
-import CustomerRegisterForm from '../customer/CustomerRegisterForm';
-import UserContractsPage from '../customer/UserContractPage';
-import CustomerPage from '../customer/CustomerPage';
-import CreateAdminUser from '../admin/CreateAdminUser';
-
-
-// Wrapper để lấy :id từ URL và truyền vào ContractDetail
-
+import AnimatedPage from "../components/AnimatedPage";
+import ManagerContractsPage from "../manager/ManagerContractPage";
 
 const Router = () => {
   const router = createBrowserRouter([
@@ -19,35 +23,40 @@ const Router = () => {
       path: "/",
       element: <Layout />,
       children: [
+        { index: true, element: <LandingPage /> },
         {
           path: "login",
-          element: <LoginPage/>
+          element: (
+            <AnimatedPage>
+              <LoginPage />
+            </AnimatedPage>
+          ),
         },
         {
-          path:"customer-register",
-          element:<CustomerRegisterForm/>
+          path: "customer-register",
+          element: (
+            <AnimatedPage>
+              <CustomerRegisterForm />
+            </AnimatedPage>
+          ),
         },
+        { path: "customer-page", element: <CustomerPage /> },
+        { path: "manager-dashboard", element: <ManagerContractsPage/> },
+        { path: "list-contract-unsigned", element: <UserContractsPage /> },
         {
-          path:"customer-page",
-          element:<CustomerPage/>
+          path: "admin-create-user",
+          element: (
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <CreateAdminUser />
+            </ProtectedRoute>
+          ),
         },
-        {
-          path:"list-contract-unsigned",
-          element:<UserContractsPage/>
-        },
-        {
-          path:"admin-create-user",
-          element:<CreateAdminUser/>
-        },
-
-       
-      ]
-    }
+        { path: "access-denied", element: <AccessDeniedPage /> },
+      ],
+    },
   ]);
 
-  return (
-    <RouterProvider router={router} />
-  );
+  return <RouterProvider router={router} />;
 };
 
 export default Router;
