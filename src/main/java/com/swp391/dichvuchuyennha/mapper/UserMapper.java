@@ -8,6 +8,10 @@ import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface UserMapper {
+
+    Users toUsers(UserCreateRequest request);   // map từ request sang entity
+    UserResponse toUserResponse(Users users);   // map từ entity sang response
+
     @Mapping(target = "userId", ignore = true) // Assuming userId is auto-generated
     @Mapping(target = "employee", ignore = true) // Assuming these are handled elsewhere
     @Mapping(target = "customerCompany", ignore = true)

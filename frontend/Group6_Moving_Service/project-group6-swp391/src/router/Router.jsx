@@ -1,8 +1,6 @@
-import React from 'react';
-import Layout from '../components/Layout';
-
+import React from "react";
+import Layout from "../components/Layout";
 import { createBrowserRouter, RouterProvider, useParams } from 'react-router-dom';
-
 import LoginPage from '../HomePage/LoginPage';
 import HomePage from '../HomePage/HomePage';
 import CustomerRegisterForm from '../customer/CustomerRegisterForm';
@@ -12,8 +10,11 @@ import CustomerPage from '../customer/CustomerPage';
 import CreateAdminUser from '../admin/CreateAdminUser';
 
 
-// Wrapper để lấy :id từ URL và truyền vào ContractDetail
 
+
+
+import AnimatedPage from "../components/AnimatedPage";
+import ManagerContractsPage from "../manager/ManagerContractPage";
 
 const Router = () => {
   const router = createBrowserRouter([
@@ -21,43 +22,66 @@ const Router = () => {
       path: "/",
       element: <Layout />,
       children: [
+        { index: true, element: <LandingPage /> },
         {
           path: "",
           element: <HomePage/>
         },
         {
           path: "login",
-          element: <LoginPage/>
+          element: (
+            <AnimatedPage>
+              <LoginPage />
+            </AnimatedPage>
+          ),
         },
         {
-          path:"customer-register",
-          element:<CustomerRegisterForm/>
+          path: "customer-register",
+          element: (
+            <AnimatedPage>
+              <CustomerRegisterForm />
+            </AnimatedPage>
+          ),
         },
+        { path: "customer-page", element: <CustomerPage /> },
+        { path: "manager-dashboard", element: <ManagerContractsPage /> },
+        { path: "list-contract-unsigned", element: <UserContractsPage /> },
+
+        // 🔑 route cũ tạo user riêng
         {
-          path:"customer-page",
-          element:<CustomerPage/>
+          path: "admin-create-user",
+          element: (
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <CreateAdminUser />
+            </ProtectedRoute>
+          ),
         },
+
+        // 📊 route mới Admin Dashboard
         {
-          path:"list-contract-unsigned",
-          element:<UserContractsPage/>
-        },
-        {
+
+          path: "admin-dashboard",
+          element: (
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <AdminDashboard />
+            </ProtectedRoute>
+          ),
+
           path:"my-requests",
           element:<UserRequestsPage/>
         },
         {
           path:"admin-create-user",
           element:<CreateAdminUser/>
+
         },
 
-       
-      ]
-    }
+        { path: "access-denied", element: <AccessDeniedPage /> },
+      ],
+    },
   ]);
 
-  return (
-    <RouterProvider router={router} />
-  );
+  return <RouterProvider router={router} />;
 };
 
 export default Router;

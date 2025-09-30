@@ -1,3 +1,5 @@
+
+
 import React, { useState, useRef, useEffect } from "react";
 import { Button, message, Dropdown, Menu } from "antd";
 import { UserOutlined, PhoneOutlined, DownOutlined } from "@ant-design/icons";
@@ -29,9 +31,10 @@ const Header = () => {
     };
   }, []);
 
+
   const handleLogout = async () => {
     if (!token) {
-      message.warning("Bạn chưa đăng nhập!");
+      navigate("/login");
       return;
     }
 
@@ -46,22 +49,30 @@ const Header = () => {
         }
       );
 
+
+
       localStorage.removeItem("token");
       localStorage.removeItem("userId");
       localStorage.removeItem("user");
 
       message.success("Đăng xuất thành công!");
       navigate("/");
+
     } catch (err) {
-      message.error("Có lỗi khi đăng xuất!");
+      console.error("Logout error:", err);
     }
+
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+
+    navigate("/login");
   };
+
 
   const handleUserMenuClick = () => {
     setIsDropdownVisible(!isDropdownVisible);
   };
 
-  // No fetching in header; handled in UserRequestsPage
 
   const userMenuItems = [
     {
@@ -165,6 +176,7 @@ const Header = () => {
         </div>
       </div>
     </header>
+
   );
 };
 

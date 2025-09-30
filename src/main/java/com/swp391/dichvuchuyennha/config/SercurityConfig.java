@@ -39,6 +39,7 @@ public class SercurityConfig {
             "/api/test/public",
             "/api/contracts/**",
             "/api/users/**",
+            "/api/manager/contracts/**",
 
     };
 
@@ -46,11 +47,12 @@ public class SercurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
-                .cors(cors -> {})   // <== thêm cái này
+                .cors(cors -> {})
 
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(PUBLIC_URL).permitAll()
-                        .requestMatchers("/api/admin/**").hasRole("admin")
+                        .requestMatchers("/api/admin/*").hasRole("admin")
+
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session

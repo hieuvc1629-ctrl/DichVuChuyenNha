@@ -12,11 +12,11 @@ import lombok.experimental.FieldDefaults;
 @Builder
 @FieldDefaults(level = lombok.AccessLevel.PRIVATE)
 public class CustomerCompanyRequest {
-    private String username;
-    private String password;
-    private String email;
-    private String phone;
-    String companyName;
-    String taxCode;
-    String address;
+     String username;
+     String password;
+     String email;
+     String phone;
+     String companyName;
+     String taxCode;
+     String address;
 }
