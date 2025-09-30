@@ -1,15 +1,13 @@
 import React from "react";
 import Layout from "../components/Layout";
-import {
-  createBrowserRouter,
-  RouterProvider,
-} from "react-router-dom";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
 import LoginPage from "../HomePage/LoginPage";
 import CustomerRegisterForm from "../customer/CustomerRegisterForm";
 import UserContractsPage from "../customer/UserContractPage";
 import CustomerPage from "../customer/CustomerPage";
 import CreateAdminUser from "../admin/CreateAdminUser";
+import AdminDashboard from "../admin/AdminDashboard"; // 👈 thêm import
 import ProtectedRoute from "../auth/ProtectRoute";
 import AccessDeniedPage from "../auth/AccessDeniedPage";
 import LandingPage from "../HomePage/LandingPage";
@@ -41,8 +39,10 @@ const Router = () => {
           ),
         },
         { path: "customer-page", element: <CustomerPage /> },
-        { path: "manager-dashboard", element: <ManagerContractsPage/> },
+        { path: "manager-dashboard", element: <ManagerContractsPage /> },
         { path: "list-contract-unsigned", element: <UserContractsPage /> },
+
+        // 🔑 route cũ tạo user riêng
         {
           path: "admin-create-user",
           element: (
@@ -51,6 +51,17 @@ const Router = () => {
             </ProtectedRoute>
           ),
         },
+
+        // 📊 route mới Admin Dashboard
+        {
+          path: "admin-dashboard",
+          element: (
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <AdminDashboard />
+            </ProtectedRoute>
+          ),
+        },
+
         { path: "access-denied", element: <AccessDeniedPage /> },
       ],
     },
