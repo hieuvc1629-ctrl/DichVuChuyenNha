@@ -25,8 +25,8 @@ const LoginPage = () => {
     localStorage.setItem("userId", response.data.result.userId);
     alert("Login successful!");
 
-    // Chuyển sang trang danh sách hợp đồng
-    navigate("/customer-page");
+    // Chuyển về trang chủ
+    navigate("/");
   } catch (error) {
     alert(error.response?.data?.message || "Login failed");
     setSubmitting(false);

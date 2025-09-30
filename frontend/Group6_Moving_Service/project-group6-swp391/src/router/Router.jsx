@@ -1,16 +1,17 @@
 import React from "react";
 import Layout from "../components/Layout";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { createBrowserRouter, RouterProvider, useParams } from 'react-router-dom';
+import LoginPage from '../HomePage/LoginPage';
+import HomePage from '../HomePage/HomePage';
+import CustomerRegisterForm from '../customer/CustomerRegisterForm';
+import UserContractsPage from '../customer/UserContractPage';
+import UserRequestsPage from '../customer/UserRequestsPage';
+import CustomerPage from '../customer/CustomerPage';
+import CreateAdminUser from '../admin/CreateAdminUser';
 
-import LoginPage from "../HomePage/LoginPage";
-import CustomerRegisterForm from "../customer/CustomerRegisterForm";
-import UserContractsPage from "../customer/UserContractPage";
-import CustomerPage from "../customer/CustomerPage";
-import CreateAdminUser from "../admin/CreateAdminUser";
-import AdminDashboard from "../admin/AdminDashboard"; // 👈 thêm import
-import ProtectedRoute from "../auth/ProtectRoute";
-import AccessDeniedPage from "../auth/AccessDeniedPage";
-import LandingPage from "../HomePage/LandingPage";
+
+
+
 
 import AnimatedPage from "../components/AnimatedPage";
 import ManagerContractsPage from "../manager/ManagerContractPage";
@@ -22,6 +23,10 @@ const Router = () => {
       element: <Layout />,
       children: [
         { index: true, element: <LandingPage /> },
+        {
+          path: "",
+          element: <HomePage/>
+        },
         {
           path: "login",
           element: (
@@ -54,12 +59,21 @@ const Router = () => {
 
         // 📊 route mới Admin Dashboard
         {
+
           path: "admin-dashboard",
           element: (
             <ProtectedRoute allowedRoles={["admin"]}>
               <AdminDashboard />
             </ProtectedRoute>
           ),
+
+          path:"my-requests",
+          element:<UserRequestsPage/>
+        },
+        {
+          path:"admin-create-user",
+          element:<CreateAdminUser/>
+
         },
 
         { path: "access-denied", element: <AccessDeniedPage /> },

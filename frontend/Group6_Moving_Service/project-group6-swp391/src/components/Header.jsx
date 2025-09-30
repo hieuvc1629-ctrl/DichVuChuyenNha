@@ -1,13 +1,36 @@
-import React from "react";
-import { Navbar, Nav, Container, Button } from "react-bootstrap";
-import { useNavigate, Link } from "react-router-dom";
+
+
+import React, { useState, useRef, useEffect } from "react";
+import { Button, message, Dropdown, Menu } from "antd";
+import { UserOutlined, PhoneOutlined, DownOutlined } from "@ant-design/icons";
 import axios from "axios";
-import { Dropdown, Menu } from "antd";
+import api from "../service/api";
+import { useNavigate, useLocation } from "react-router-dom";
+import "./Header.css";
 
 const Header = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const token = localStorage.getItem("token");
-  const user = JSON.parse(localStorage.getItem("user") || "{}");
+  const isLoggedIn = !!token;
+  const [isDropdownVisible, setIsDropdownVisible] = useState(false);
+  const dropdownRef = useRef(null);
+  // Inline request preview removed; we navigate to a dedicated page
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsDropdownVisible(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
 
   const handleLogout = async () => {
     if (!token) {
@@ -25,6 +48,16 @@ const Header = () => {
           },
         }
       );
+
+
+
+      localStorage.removeItem("token");
+      localStorage.removeItem("userId");
+      localStorage.removeItem("user");
+
+      message.success("Đăng xuất thành công!");
+      navigate("/");
+
     } catch (err) {
       console.error("Logout error:", err);
     }
@@ -35,55 +68,115 @@ const Header = () => {
     navigate("/login");
   };
 
-  const menu = (
-    <Menu
-      items={[
-        {
-          key: "profile",
-          label: "Hồ sơ",
-          onClick: () => navigate("/profile"),
-        },
-        {
-          type: "divider",
-        },
-        {
-          key: "logout",
-          label: "Đăng xuất",
-          onClick: handleLogout,
-        },
-      ]}
-    />
-  );
+
+  const handleUserMenuClick = () => {
+    setIsDropdownVisible(!isDropdownVisible);
+  };
+
+
+  const userMenuItems = [
+    {
+      key: "profile",
+      label: "Thông tin cá nhân",
+      onClick: () => {
+        navigate("/customer-page");
+        setIsDropdownVisible(false);
+      }
+    },
+    {
+      key: "logout",
+      label: "Đăng xuất",
+      onClick: handleLogout
+    }
+  ];
 
   return (
-    <Navbar bg="dark" variant="dark" expand="lg" style={{ borderBottom: "2px solid #333" }}>
-      <Container>
-        <Navbar.Brand as={Link} to="/" style={{ fontWeight: "bold", color: "#fff" }}>
-          🏠 Moving Service
-        </Navbar.Brand>
-        <Navbar.Toggle aria-controls="basic-navbar-nav" />
-        <Navbar.Collapse id="basic-navbar-nav">
-          <Nav className="ms-auto align-items-center">
-            {!token ? (
-              <>
-                <Nav.Link as={Link} to="/login" style={{ color: "#fff" }}>
-                  Đăng nhập
-                </Nav.Link>
-                <Button as={Link} to="/customer-register" variant="light" className="ms-2">
-                  Đăng ký
-                </Button>
-              </>
-            ) : (
-              <Dropdown overlay={menu} placement="bottomRight" arrow>
-                <Button type="text" style={{ color: "#fff" }}>
-                  {user?.username || "Tài khoản"}
-                </Button>
-              </Dropdown>
-            )}
-          </Nav>
-        </Navbar.Collapse>
-      </Container>
-    </Navbar>
+    <header className="navbar">
+      <div className="navbar-container">
+        {/* Logo and Company Name */}
+        <div className="navbar-brand" onClick={() => navigate("/")}>
+          <div className="logo">
+            <div className="logo-icon">P</div>
+          </div>
+          <div className="brand-text">
+            <div className="company-name">ProMove Commercial</div>
+            <div className="company-tagline">Dịch Vụ Chuyển Nhà Chuyên Nghiệp</div>
+          </div>
+        </div>
+
+        {/* Navigation Links */}
+        <nav className="navbar-nav">
+          <a href="#services" className="nav-link">Dịch Vụ</a>
+          <a href="#about" className="nav-link">Giới Thiệu</a>
+          <a href="#reviews" className="nav-link">Đánh Giá</a>
+          <a href="#contact" className="nav-link">Liên Hệ</a>
+        </nav>
+
+        {/* Right Section */}
+        <div className="navbar-actions">
+          {/* Phone Number */}
+          <div className="phone-info">
+            <PhoneOutlined className="phone-icon" />
+            <span className="phone-number">(555) 123-4567</span>
+          </div>
+
+          {/* User Actions */}
+          {isLoggedIn ? (
+            <div className="user-menu" ref={dropdownRef}>
+              <button 
+                className="user-button" 
+                onClick={handleUserMenuClick}
+              >
+                <UserOutlined className="user-icon" />
+                <DownOutlined className="dropdown-icon" />
+              </button>
+              
+              {isDropdownVisible && (
+                <div className="user-dropdown">
+                  <button
+                    key="my-requests"
+                    className="dropdown-item"
+                    onClick={() => {
+                      navigate("/my-requests");
+                      setIsDropdownVisible(false);
+                    }}
+                  >
+                    Danh sách yêu cầu
+                  </button>
+                  {userMenuItems.map((item) => (
+                    <button
+                      key={item.key}
+                      className="dropdown-item"
+                      onClick={item.onClick}
+                    >
+                      {item.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="auth-buttons">
+              <Button 
+                type="text" 
+                className="login-btn"
+                onClick={() => navigate("/login")}
+              >
+                Đăng Nhập
+              </Button>
+              <Button 
+                type="primary" 
+                className="register-btn"
+                onClick={() => navigate("/customer-register")}
+              >
+                Đăng Ký
+              </Button>
+            </div>
+          )}
+        </div>
+      </div>
+    </header>
+
   );
 };
 

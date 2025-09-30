@@ -5,7 +5,8 @@ const CustomerPage = () => {
       const navigate = useNavigate();
     
   return (
-    <div><div style={{ marginTop: "15px", textAlign: "center" }}>
+    <div>
+        <div style={{ marginTop: "15px", textAlign: "center" }}>
   <span>Xem hợp đồng của tôi? </span>
   <button
     type="button"
