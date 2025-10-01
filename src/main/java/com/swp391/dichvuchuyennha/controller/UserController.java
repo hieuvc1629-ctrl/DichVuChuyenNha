@@ -3,9 +3,12 @@ package com.swp391.dichvuchuyennha.controller;
 import com.swp391.dichvuchuyennha.dto.request.ApiResponse;
 import com.swp391.dichvuchuyennha.dto.request.CustomerCompanyRequest;
 import com.swp391.dichvuchuyennha.dto.request.UserCreateRequest;
+import com.swp391.dichvuchuyennha.dto.request.UserUpdateRequest;
 import com.swp391.dichvuchuyennha.dto.response.RoleResponse;
 import com.swp391.dichvuchuyennha.dto.response.UserResponse;
+import com.swp391.dichvuchuyennha.entity.Users;
 import com.swp391.dichvuchuyennha.repository.RoleRepository;
+import com.swp391.dichvuchuyennha.service.AuthenticationService;
 import com.swp391.dichvuchuyennha.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +24,44 @@ public class UserController {
 
     private final UserService userService;
     private final RoleRepository roleRepository;
+    private final AuthenticationService authService;
+
+    // Lấy profile của user đang đăng nhập
+    @GetMapping("/me")
+    public ResponseEntity<UserResponse> getProfile(@RequestHeader("Authorization") String authHeader) {
+        String token = authHeader.substring(7); // bỏ "Bearer "
+        UserResponse user = authService.getUserFromToken(token);
+        return ResponseEntity.ok(user);
+    }
+
+    // Cập nhật profile
+    @PutMapping("/me")
+    public ResponseEntity<ApiResponse<UserResponse>> updateProfile(
+            @RequestHeader("Authorization") String authHeader,
+            @RequestBody UserUpdateRequest request) {
+
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(401)
+                    .body(ApiResponse.<UserResponse>builder()
+                            .code(401)
+                            .message("Unauthorized")
+                            .build());
+        }
+
+        String token = authHeader.substring(7);
+        Users user = authService.verifyAndParseToken(token);
+
+        UserResponse updated = userService.updateUser(user.getUserId(), request);
+
+        return ResponseEntity.ok(
+                ApiResponse.<UserResponse>builder()
+                        .code(1000)
+                        .message("Profile updated successfully")
+                        .result(updated)
+                        .build()
+        );
+    }
+
 
     @PostMapping("/create")
     public ResponseEntity<ApiResponse<UserResponse>> createUser(@RequestBody UserCreateRequest request) {

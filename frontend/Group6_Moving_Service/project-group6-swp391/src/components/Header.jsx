@@ -79,7 +79,7 @@ const Header = () => {
       key: "profile",
       label: "Thông tin cá nhân",
       onClick: () => {
-        navigate("/customer-page");
+        navigate("/user-profile");
         setIsDropdownVisible(false);
       }
     },
