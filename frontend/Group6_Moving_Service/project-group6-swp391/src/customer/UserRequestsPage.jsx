@@ -28,6 +28,7 @@ const UserRequestsPage = () => {
   const [createLoading, setCreateLoading] = useState(false);
   const [form] = Form.useForm();
   const [dateRange, setDateRange] = useState(null); // [start, end]
+  const [movingDay, setMovingDay] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -228,6 +229,10 @@ const UserRequestsPage = () => {
                 <Text>{selected.requestTime || "-"}</Text>
               </div>
               <div>
+                <Text strong>Ngày dự định chuyển: </Text>
+                <Text>{selected.movingDay ? new Date(selected.movingDay).toLocaleDateString() : "-"}</Text>
+              </div>
+              <div>
                 <Text strong>Mô tả: </Text>
                 <Text>{selected.description || "-"}</Text>
               </div>
@@ -252,7 +257,7 @@ const UserRequestsPage = () => {
           footer={null}
           destroyOnClose
         >
-          <Form
+            <Form
             form={form}
             layout="vertical"
             onFinish={async (values) => {
@@ -261,7 +266,7 @@ const UserRequestsPage = () => {
                 return;
               }
               setCreateLoading(true);
-              try {
+                try {
                 await api.post(
                   "/requests/create",
                   {
@@ -269,6 +274,7 @@ const UserRequestsPage = () => {
                     businessId: values.businessId || null,
                     pickupAddress: values.pickupAddress,
                     destinationAddress: values.destinationAddress,
+                    movingDay: values.movingDay ? values.movingDay.toDate() : null,
                   },
                   { headers: { Authorization: `Bearer ${token}` } }
                 );
@@ -299,6 +305,14 @@ const UserRequestsPage = () => {
             </Form.Item>
             <Form.Item label="Mã doanh nghiệp (nếu có)" name="businessId">
               <InputNumber style={{ width: '100%' }} placeholder="Nhập Business ID (tùy chọn)" />
+            </Form.Item>
+            <Form.Item label="Ngày dự định chuyển nhà" name="movingDay">
+              <DatePicker
+                style={{ width: '100%' }}
+                onChange={(d) => setMovingDay(d)}
+                format="YYYY-MM-DD"
+                disabledDate={(current) => current && current < new Date().setHours(0,0,0,0)}
+              />
             </Form.Item>
             <Form.Item
               label="Địa chỉ lấy hàng"
