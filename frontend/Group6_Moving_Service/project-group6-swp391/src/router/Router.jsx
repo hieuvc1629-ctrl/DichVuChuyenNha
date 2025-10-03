@@ -1,20 +1,17 @@
 import React from "react";
 import Layout from "../components/Layout";
-import { createBrowserRouter, RouterProvider, useParams } from 'react-router-dom';
-import LoginPage from '../HomePage/LoginPage';
-import HomePage from '../HomePage/HomePage';
-import CustomerRegisterForm from '../customer/CustomerRegisterForm';
-import UserContractsPage from '../customer/UserContractPage';
-import UserRequestsPage from '../customer/UserRequestsPage';
-import CustomerPage from '../customer/CustomerPage';
-import CreateAdminUser from '../admin/CreateAdminUser';
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import LoginPage from "../HomePage/LoginPage";
+import HomePage from "../HomePage/HomePage";
 
-
-
-
-
+import CustomerRegisterForm from "../customer/CustomerRegisterForm";
+import UserContractsPage from "../customer/UserContractPage";
+import UserRequestsPage from "../customer/UserRequestsPage";
+import CustomerPage from "../customer/CustomerPage";
+import CreateAdminUser from "../admin/CreateAdminUser";
 import AnimatedPage from "../components/AnimatedPage";
 import ManagerContractsPage from "../manager/ManagerContractPage";
+
 import LandingPage from "../HomePage/LandingPage";
 import ProtectedRoute from "../auth/ProtectRoute";
 import AccessDeniedPage from "../auth/AccessDeniedPage";
@@ -23,6 +20,9 @@ import ContractAssignment from "../manager/ContractAssigment";
 import CustomerProfile from "../auth/ProfilePage";
 import ProfilePage from "../auth/ProfilePage";
 
+
+
+
 const Router = () => {
   const router = createBrowserRouter([
     {
@@ -30,6 +30,7 @@ const Router = () => {
       element: <Layout />,
       children: [
         { index: true, element: <LandingPage /> },
+
         {
           path: "",
           element: <HomePage/>
@@ -43,6 +44,9 @@ const Router = () => {
           element: <ProfilePage/>
         },
      
+
+
+
         {
           path: "login",
           element: (
@@ -51,6 +55,7 @@ const Router = () => {
             </AnimatedPage>
           ),
         },
+
         {
           path: "customer-register",
           element: (
@@ -59,11 +64,12 @@ const Router = () => {
             </AnimatedPage>
           ),
         },
+
         { path: "customer-page", element: <CustomerPage /> },
         { path: "manager-dashboard", element: <ManagerContractsPage /> },
         { path: "list-contract-unsigned", element: <UserContractsPage /> },
 
-        // 🔑 route cũ tạo user riêng
+        // Admin routes
         {
           path: "admin-create-user",
           element: (
@@ -73,25 +79,23 @@ const Router = () => {
           ),
         },
 
-        // 📊 route mới Admin Dashboard
         {
-
           path: "admin-dashboard",
           element: (
             <ProtectedRoute allowedRoles={["admin"]}>
               <AdminDashboard />
             </ProtectedRoute>
           ),
+
         },
         {
           path:"my-requests",
           element:<UserRequestsPage/>
-        },
-        {
-          path:"admin-create-user",
-          element:<CreateAdminUser/>
 
         },
+
+        // user requests (customer)
+        { path: "my-requests", element: <UserRequestsPage /> },
 
         { path: "access-denied", element: <AccessDeniedPage /> },
       ],
@@ -102,3 +106,4 @@ const Router = () => {
 };
 
 export default Router;
+
