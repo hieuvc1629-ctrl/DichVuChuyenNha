@@ -33,6 +33,7 @@ public class ManagerContractService {
                                 .flatMap(survey ->
                                         survey.getQuotations().stream()
                                                 .filter(quotation -> quotation.getContracts().isEmpty())
+
                                                 .map(quotation -> ManagerContractInfoDTO.builder()
                                                         .requestId(request.getRequestId())
                                                         .requestDescription(request.getDescription())

@@ -2,6 +2,7 @@ package com.swp391.dichvuchuyennha.service;
 
 import com.swp391.dichvuchuyennha.dto.request.CustomerCompanyRequest;
 import com.swp391.dichvuchuyennha.dto.request.UserCreateRequest;
+import com.swp391.dichvuchuyennha.dto.request.UserUpdateRequest;
 import com.swp391.dichvuchuyennha.dto.response.UserResponse;
 import com.swp391.dichvuchuyennha.entity.CustomerCompany;
 import com.swp391.dichvuchuyennha.entity.Roles;
@@ -28,6 +29,26 @@ public class UserService {
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
+    public UserResponse updateUser(Integer userId, UserUpdateRequest request) {
+        Users user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (request.getUsername() != null) user.setUsername(request.getUsername());
+        if (request.getEmail() != null) user.setEmail(request.getEmail());
+        if (request.getPhone() != null) user.setPhone(request.getPhone());
+        if (request.getPassword() != null && !request.getPassword().isBlank()) {
+            user.setPassword(passwordEncoder.encode(request.getPassword()));
+        }
+
+        Users saved = userRepository.save(user);
+        return new UserResponse(
+                saved.getUserId(),
+                saved.getUsername(),
+                saved.getEmail(),
+                saved.getPhone(),
+                saved.getRole().getRoleName()
+        );
+    }
 
     public List<UserResponse> getAllUsers() {
         List<Users> users = userRepository.findAll();

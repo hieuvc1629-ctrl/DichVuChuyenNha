@@ -14,6 +14,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
@@ -40,8 +41,9 @@ public class SercurityConfig {
             "/api/contracts/**",
             "/api/users/**",
             "/api/manager/contracts/**",
-
-    };
+            "/api/manager/view-contracts",
+            "/api/employees/**",
+            "/api/assignments/**"};
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -102,8 +104,10 @@ public class SercurityConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+//        return new BCryptPasswordEncoder();
+        return NoOpPasswordEncoder.getInstance();
+    }        // không mã hóa
+
 
 }
 

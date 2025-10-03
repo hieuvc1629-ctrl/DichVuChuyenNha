@@ -13,4 +13,6 @@ public class AuthenticationResponse {
     boolean authenticated;
     String username;
     Integer userId;
+    Integer roleId;    // thêm
+    String roleName;   // thêm
 }

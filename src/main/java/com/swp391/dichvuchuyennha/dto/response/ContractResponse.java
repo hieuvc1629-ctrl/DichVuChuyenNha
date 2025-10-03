@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @Builder
@@ -29,4 +30,10 @@ public class ContractResponse {
     // Thông tin người đã ký
     private Integer signedById;
     private String signedByUsername;
+
+    // Thông tin bổ sung
+    private List<EmployeeDTO> assignedEmployees; // danh sách nhân viên tham gia
+    private String startLocation; // địa chỉ đi
+    private String endLocation;   // địa chỉ đến
 }
+

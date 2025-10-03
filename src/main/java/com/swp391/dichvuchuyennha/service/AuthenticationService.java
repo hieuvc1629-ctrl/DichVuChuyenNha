@@ -7,6 +7,7 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import com.swp391.dichvuchuyennha.dto.request.AuthenticationRequest;
 import com.swp391.dichvuchuyennha.dto.response.AuthenticationResponse;
+import com.swp391.dichvuchuyennha.dto.response.UserResponse;
 import com.swp391.dichvuchuyennha.entity.Users;
 import com.swp391.dichvuchuyennha.exception.AppException;
 import com.swp391.dichvuchuyennha.exception.ErrorCode;
@@ -51,7 +52,9 @@ public class AuthenticationService {
                 .token(token)
                 .authenticated(true)
                 .userId(user.getUserId())       // thêm
-                .username(user.getUsername())   // thêm
+                .username(user.getUsername())
+                .roleId(user.getRole().getRoleId())       // thêm
+                .roleName(user.getRole().getRoleName())// thêm
                 .build();
     }
 
@@ -105,6 +108,16 @@ public class AuthenticationService {
     /** Logout: đưa token vào blacklist */
     public void logout(String token) {
         blacklistedTokens.add(token);
+    }
+    public UserResponse getUserFromToken(String token) {
+        Users user = verifyAndParseToken(token);
+        return UserResponse.builder()
+                .userId(user.getUserId())
+                .username(user.getUsername())
+                .email(user.getEmail())
+                .phone(user.getPhone())
+                .roleName(user.getRole().getRoleName())
+                .build();
     }
 
 }

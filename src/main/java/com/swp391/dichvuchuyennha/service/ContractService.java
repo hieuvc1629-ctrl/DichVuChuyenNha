@@ -1,6 +1,7 @@
 package com.swp391.dichvuchuyennha.service;
 
 import com.swp391.dichvuchuyennha.dto.response.ContractResponse;
+import com.swp391.dichvuchuyennha.dto.response.EmployeeDTO;
 import com.swp391.dichvuchuyennha.entity.Contract;
 import com.swp391.dichvuchuyennha.entity.Users;
 import com.swp391.dichvuchuyennha.repository.ContractRepository;
@@ -24,6 +25,19 @@ public class ContractService {
     private ContractResponse toResponse(Contract contract) {
         Users owner = contract.getQuotation().getSurvey().getRequest().getUser();
 
+        // Lấy danh sách nhân viên từ AssignmentEmployee
+        List<EmployeeDTO> employees = contract.getAssignmentEmployees().stream()
+                .map(a -> new EmployeeDTO(
+                        a.getEmployee().getEmployeeId(),
+                        a.getEmployee().getUser().getUsername(),
+                        a.getEmployee().getPosition()
+                ))
+                .toList();
+
+        // Lấy địa chỉ đi và đến từ Survey
+        String startLocation = contract.getQuotation().getSurvey().getAddressFrom();
+        String endLocation = contract.getQuotation().getSurvey().getAddressTo();
+
         return ContractResponse.builder()
                 .contractId(contract.getContractId())
                 .startDate(contract.getStartDate())
@@ -32,12 +46,13 @@ public class ContractService {
                 .totalAmount(contract.getTotalAmount())
                 .status(contract.getStatus())
                 .signedDate(contract.getSignedDate())
-                // Chủ hợp đồng (tạo request)
                 .ownerId(owner.getUserId())
                 .ownerUsername(owner.getUsername())
-                // Người ký
                 .signedById(contract.getSignedBy() != null ? contract.getSignedBy().getUserId() : null)
                 .signedByUsername(contract.getSignedBy() != null ? contract.getSignedBy().getUsername() : null)
+                .assignedEmployees(employees)
+                .startLocation(startLocation)
+                .endLocation(endLocation)
                 .build();
     }
 

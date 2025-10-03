@@ -4,8 +4,10 @@ import * as Yup from "yup";
 import axios from "axios";
 import "./style/LoginPage.css"; // dùng chung cho login và signup
 import { useNavigate } from "react-router-dom";
+
 const LoginPage = () => {
   const navigate = useNavigate();
+
   const initialValues = {
     username: "",
     password: "",
@@ -17,21 +19,35 @@ const LoginPage = () => {
   });
 
   const handleSubmit = async (values, { setSubmitting }) => {
-  try {
-    const response = await axios.post("http://localhost:8080/api/auth/login", values);
+    try {
+      const response = await axios.post(
+        "http://localhost:8080/api/auth/login",
+        values
+      );
 
-    // Lưu token và userId (giả sử backend trả userId)
-    localStorage.setItem("token", response.data.result.token);
-    localStorage.setItem("userId", response.data.result.userId);
-    alert("Login successful!");
+      // Lấy dữ liệu từ backend (AuthenticationResponse)
+      const { token, userId, username, roleId, roleName } = response.data.result;
 
-    // Chuyển về trang chủ
-    navigate("/");
-  } catch (error) {
-    alert(error.response?.data?.message || "Login failed");
-    setSubmitting(false);
-  }
-};
+      // Lưu vào localStorage
+      localStorage.setItem("token", token);
+      localStorage.setItem("userId", userId);
+      localStorage.setItem("username", username);
+      localStorage.setItem("roleId", roleId);
+      localStorage.setItem("roleName", roleName);
+
+      alert("Login successful!");
+
+      // Điều hướng theo roleId
+      if (roleId === 4 || roleId === 5) {
+        navigate("/customer-page");
+      } else {
+        navigate("/"); // ví dụ: admin/manager → home
+      }
+    } catch (error) {
+      alert(error.response?.data?.message || "Login failed");
+      setSubmitting(false);
+    }
+  };
 
   return (
     <div className="auth-form">
@@ -47,20 +63,29 @@ const LoginPage = () => {
             <div className="form-group">
               <label>Username</label>
               <Field type="text" name="username" className="form-input" />
-              <ErrorMessage name="username" component="div" className="error-text" />
+              <ErrorMessage
+                name="username"
+                component="div"
+                className="error-text"
+              />
             </div>
 
             <div className="form-group">
               <label>Password</label>
               <Field type="password" name="password" className="form-input" />
-              <ErrorMessage name="password" component="div" className="error-text" />
+              <ErrorMessage
+                name="password"
+                component="div"
+                className="error-text"
+              />
               <div className="forgot-text">Forgot?</div>
             </div>
 
             <button type="submit" className="auth-btn" disabled={isSubmitting}>
               {isSubmitting ? "Logging in..." : "Login"}
             </button>
-             <div style={{ marginTop: "15px", textAlign: "center" }}>
+
+            <div style={{ marginTop: "15px", textAlign: "center" }}>
               <span>Chưa có tài khoản? </span>
               <button
                 type="button"
@@ -70,7 +95,7 @@ const LoginPage = () => {
                   border: "none",
                   color: "#8B0000",
                   cursor: "pointer",
-                  textDecoration: "underline"
+                  textDecoration: "underline",
                 }}
               >
                 Đăng ký ngay
