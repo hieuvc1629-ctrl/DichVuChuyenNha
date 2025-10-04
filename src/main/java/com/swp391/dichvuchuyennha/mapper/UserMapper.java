@@ -8,10 +8,12 @@ import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface UserMapper {
+    Users toUsers(UserCreateRequest request);   // map từ request sang entity
 
-    // Map từ request sang entity (bỏ qua các field không cần set khi create)
-    @Mapping(target = "userId", ignore = true)
-    @Mapping(target = "employee", ignore = true)
+
+    @Mapping(target = "userId", ignore = true) // Assuming userId is auto-generated
+    @Mapping(target = "employee", ignore = true) // Assuming these are handled elsewhere
+
     @Mapping(target = "customerCompany", ignore = true)
     @Mapping(target = "contractsSigned", ignore = true)
     @Mapping(target = "feedbacks", ignore = true)
@@ -19,7 +21,7 @@ public interface UserMapper {
     @Mapping(target = "requests", ignore = true)
     Users toUsersCreateRequest(UserCreateRequest request);
 
-    // Map từ entity sang response
+   
     UserResponse toUserResponse(Users users);
 }
 

@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Layout, Menu, Table, Tag, Modal, Pagination, Typography, Space, Button, Spin, Empty, Form, Input, InputNumber, message } from "antd";
+import { Layout, Menu, Table, Tag, Modal, Pagination, Typography, Space, Button, Spin, Empty, Form, Input, InputNumber, message, DatePicker } from "antd";
 import { ProfileOutlined, FileTextOutlined, OrderedListOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import api from "../service/api";
@@ -27,6 +27,8 @@ const UserRequestsPage = () => {
   const [createOpen, setCreateOpen] = useState(false);
   const [createLoading, setCreateLoading] = useState(false);
   const [form] = Form.useForm();
+  const [dateRange, setDateRange] = useState(null); // [start, end]
+  const [movingDay, setMovingDay] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -47,11 +49,28 @@ const UserRequestsPage = () => {
     if (token) fetchData();
   }, [token]);
 
-  const total = requests.length;
+  const filteredRequests = useMemo(() => {
+    if (!dateRange || !Array.isArray(dateRange) || dateRange.length !== 2 || !dateRange[0] || !dateRange[1]) {
+      return requests;
+    }
+    const startDate = new Date(dateRange[0]);
+    const endDate = new Date(dateRange[1]);
+    // Normalize to day boundaries
+    startDate.setHours(0, 0, 0, 0);
+    endDate.setHours(23, 59, 59, 999);
+    return requests.filter((r) => {
+      if (!r?.requestTime) return false;
+      const t = new Date(r.requestTime);
+      if (isNaN(t.getTime())) return false;
+      return t >= startDate && t <= endDate;
+    });
+  }, [requests, dateRange]);
+
+  const total = filteredRequests.length;
   const currentItems = useMemo(() => {
     const start = (page - 1) * PAGE_SIZE;
-    return requests.slice(start, start + PAGE_SIZE);
-  }, [page, requests]);
+    return filteredRequests.slice(start, start + PAGE_SIZE);
+  }, [page, filteredRequests]);
 
   const columns = [
     {
@@ -69,9 +88,24 @@ const UserRequestsPage = () => {
       },
     },
     {
-      title: "Thời gian",
+      title: "Ngày",
       dataIndex: "requestTime",
-      render: (val) => val || "-",
+      render: (val) => {
+        if (!val) return "-";
+        const d = new Date(val);
+        if (isNaN(d.getTime())) return "-";
+        return d.toLocaleDateString();
+      },
+    },
+    {
+      title: "Giờ",
+      dataIndex: "requestTime",
+      render: (val) => {
+        if (!val) return "-";
+        const d = new Date(val);
+        if (isNaN(d.getTime())) return "-";
+        return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+      },
     },
     {
       title: "Lấy hàng",
@@ -116,9 +150,25 @@ const UserRequestsPage = () => {
         />
       </Sider>
       <Content style={{ padding: 24 }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 50 }}>
           <Title level={3} style={{ margin: 0 }}>Danh sách yêu cầu</Title>
           <Space>
+            <DatePicker.RangePicker
+              allowClear
+              onChange={(vals) => {
+                if (!vals || vals.length !== 2) {
+                  setDateRange(null);
+                  setPage(1);
+                  return;
+                }
+                // Convert to native Date via toDate() if exists; otherwise assume it's already a Date/string
+                const startVal = vals[0] && typeof vals[0].toDate === "function" ? vals[0].toDate() : vals[0];
+                const endVal = vals[1] && typeof vals[1].toDate === "function" ? vals[1].toDate() : vals[1];
+                setDateRange([startVal, endVal]);
+                setPage(1);
+              }}
+              placeholder={["Từ ngày", "Đến ngày"]}
+            />
             <Text type="secondary">Tổng cộng {total} yêu cầu</Text>
             <Button type="primary" onClick={() => setCreateOpen(true)}>Tạo yêu cầu mới</Button>
           </Space>
@@ -179,6 +229,10 @@ const UserRequestsPage = () => {
                 <Text>{selected.requestTime || "-"}</Text>
               </div>
               <div>
+                <Text strong>Ngày dự định chuyển: </Text>
+                <Text>{selected.movingDay ? new Date(selected.movingDay).toLocaleDateString() : "-"}</Text>
+              </div>
+              <div>
                 <Text strong>Mô tả: </Text>
                 <Text>{selected.description || "-"}</Text>
               </div>
@@ -203,7 +257,7 @@ const UserRequestsPage = () => {
           footer={null}
           destroyOnClose
         >
-          <Form
+            <Form
             form={form}
             layout="vertical"
             onFinish={async (values) => {
@@ -212,7 +266,7 @@ const UserRequestsPage = () => {
                 return;
               }
               setCreateLoading(true);
-              try {
+                try {
                 await api.post(
                   "/requests/create",
                   {
@@ -220,6 +274,7 @@ const UserRequestsPage = () => {
                     businessId: values.businessId || null,
                     pickupAddress: values.pickupAddress,
                     destinationAddress: values.destinationAddress,
+                    movingDay: values.movingDay ? values.movingDay.toDate() : null,
                   },
                   { headers: { Authorization: `Bearer ${token}` } }
                 );
@@ -250,6 +305,14 @@ const UserRequestsPage = () => {
             </Form.Item>
             <Form.Item label="Mã doanh nghiệp (nếu có)" name="businessId">
               <InputNumber style={{ width: '100%' }} placeholder="Nhập Business ID (tùy chọn)" />
+            </Form.Item>
+            <Form.Item label="Ngày dự định chuyển nhà" name="movingDay">
+              <DatePicker
+                style={{ width: '100%' }}
+                onChange={(d) => setMovingDay(d)}
+                format="YYYY-MM-DD"
+                disabledDate={(current) => current && current < new Date().setHours(0,0,0,0)}
+              />
             </Form.Item>
             <Form.Item
               label="Địa chỉ lấy hàng"

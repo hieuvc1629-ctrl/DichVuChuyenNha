@@ -31,6 +31,9 @@ public class RequestService {
             request.setBusiness(currentUser.getCustomerCompany());
         }
         request.setRequestTime(LocalDateTime.now());
+        if (requestDto.getMovingDay() != null) {
+            request.setMovingDay(requestDto.getMovingDay());
+        }
         request.setDescription(requestDto.getDescription());
         request.setPickupAddress(requestDto.getPickupAddress());
         request.setDestinationAddress(requestDto.getDestinationAddress());
@@ -58,6 +61,7 @@ public class RequestService {
                 .requestTime(request.getRequestTime())
                 .pickupAddress(request.getPickupAddress())
                 .destinationAddress(request.getDestinationAddress())
+                .movingDay(request.getMovingDay())
                 .build();
     }
 
@@ -71,9 +75,11 @@ public class RequestService {
                         .requestTime(r.getRequestTime())
                         .pickupAddress(r.getPickupAddress())
                         .destinationAddress(r.getDestinationAddress())
+                        .movingDay(r.getMovingDay())
                         .build())
                 .collect(Collectors.toList());
     }
+
 }
 
 
