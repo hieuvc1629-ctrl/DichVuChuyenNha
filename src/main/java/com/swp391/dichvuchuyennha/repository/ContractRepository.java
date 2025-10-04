@@ -12,5 +12,7 @@ public interface ContractRepository extends JpaRepository<Contract, Integer> {
 
     // Tìm hợp đồng theo userId của request và trạng thái
     List<Contract> findByQuotation_Survey_Request_User_UserIdAndStatus(Integer userId, String status);
+    List<Contract> findByStatus(String status);
+
 
 }

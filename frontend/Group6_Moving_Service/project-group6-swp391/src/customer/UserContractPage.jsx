@@ -112,10 +112,7 @@ const UserContractsPage = () => {
             <p><strong>Total:</strong> {selectedContract.totalAmount}</p>
             <p><strong>Start Location:</strong> {selectedContract.startLocation}</p>
             <p><strong>End Location:</strong> {selectedContract.endLocation}</p>
-            <p><strong>Assigned Employees:</strong> {selectedContract.assignedEmployees?.length
-                ? selectedContract.assignedEmployees.map((e) => `${e.username} (${e.position})`).join(", ")
-                : "Chưa có nhân viên"}
-            </p>
+         
 
             <div style={{ marginTop: "15px" }}>
               <label>

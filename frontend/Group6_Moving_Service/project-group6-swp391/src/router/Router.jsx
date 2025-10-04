@@ -14,7 +14,6 @@ import CreateAdminUser from '../admin/CreateAdminUser';
 
 
 import AnimatedPage from "../components/AnimatedPage";
-import ManagerContractsPage from "../manager/ManagerContractPage";
 import LandingPage from "../HomePage/LandingPage";
 import ProtectedRoute from "../auth/ProtectRoute";
 import AccessDeniedPage from "../auth/AccessDeniedPage";
@@ -22,6 +21,7 @@ import AdminDashboard from "../admin/AdminDashBoard";
 import ContractAssignment from "../manager/ContractAssigment";
 import CustomerProfile from "../auth/ProfilePage";
 import ProfilePage from "../auth/ProfilePage";
+import SurveyDashboard from "../staff/SurveyDashboard";
 
 const Router = () => {
   const router = createBrowserRouter([
@@ -34,14 +34,23 @@ const Router = () => {
           path: "",
           element: <HomePage/>
         },
-         {
-          path: "contract-assignment",
-          element: <ContractAssignment/>
-        },
+        {
+  path: "contract-assignment",
+  element: (
+    <ProtectedRoute allowedRoles={["manager"]}>
+      <ContractAssignment />
+    </ProtectedRoute>
+  ),
+},
         {
           path:"user-profile",
           element: <ProfilePage/>
         },
+        {
+          path:"survey-dashboard",
+          element: <SurveyDashboard/>
+        },
+     
      
         {
           path: "login",
@@ -60,7 +69,7 @@ const Router = () => {
           ),
         },
         { path: "customer-page", element: <CustomerPage /> },
-        { path: "manager-dashboard", element: <ManagerContractsPage /> },
+  
         { path: "list-contract-unsigned", element: <UserContractsPage /> },
 
         // 🔑 route cũ tạo user riêng

@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/assignments")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "http://localhost:5173")
+
 public class AssignmentController {
 
     private final AssignmentService assignmentService;

@@ -35,6 +35,10 @@ public class Surveys {
     @Column(name = "status")
     private String status;
 
+    // 🔥 Thêm field số nhân công ước tính
+    @Column(name = "estimated_workers")
+    private Integer estimatedWorkers;
+
     @OneToMany(mappedBy = "survey", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Quotations> quotations;
 }

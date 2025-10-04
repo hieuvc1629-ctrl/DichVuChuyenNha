@@ -24,15 +24,13 @@ public class ContractResponse {
     private LocalDateTime signedDate;
 
     // Thông tin user owner
-    private Integer ownerId;
-    private String ownerUsername;
+
 
     // Thông tin người đã ký
     private Integer signedById;
     private String signedByUsername;
 
     // Thông tin bổ sung
-    private List<EmployeeDTO> assignedEmployees; // danh sách nhân viên tham gia
     private String startLocation; // địa chỉ đi
     private String endLocation;   // địa chỉ đến
 }
