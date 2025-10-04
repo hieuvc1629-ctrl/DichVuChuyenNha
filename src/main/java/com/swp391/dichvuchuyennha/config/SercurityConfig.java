@@ -38,12 +38,15 @@ public class SercurityConfig {
             "/api/auth/**",
             "/api/public/**",
             "/api/test/public",
-            "/api/contracts/**",
             "/api/users/**",
             "/api/manager/contracts/**",
             "/api/manager/view-contracts",
             "/api/employees/**",
-            "/api/assignments/**"};
+            "/api/assignments/**",
+            "/api/contracts/**",
+            "/api/surveys/**",
+             "/api/requests/**"};
+
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -54,6 +57,7 @@ public class SercurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(PUBLIC_URL).permitAll()
                         .requestMatchers("/api/admin/*").hasRole("admin")
+
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session

@@ -5,10 +5,12 @@ import com.swp391.dichvuchuyennha.dto.response.ContractResponse;
 import com.swp391.dichvuchuyennha.entity.Contract;
 import com.swp391.dichvuchuyennha.entity.Users;
 import com.swp391.dichvuchuyennha.repository.ContractRepository;
+import com.swp391.dichvuchuyennha.repository.UserRepository;
 import com.swp391.dichvuchuyennha.service.AuthenticationService;
 import com.swp391.dichvuchuyennha.service.ContractService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,35 +24,42 @@ public class ContractController {
     private final ContractRepository contractRepository;
     private final ContractService contractService;
     private final AuthenticationService authService;
+    private final UserRepository userRepository;
+
 
     /** Lấy danh sách hợp đồng chưa ký của user đang login */
     @GetMapping("/unsigned/me")
-    public ResponseEntity<List<ContractResponse>> getUnsignedContracts(
-            @RequestHeader("Authorization") String authHeader) {
+    public ResponseEntity<List<ContractResponse>> getUnsignedContracts() {
+        // Lấy username từ context
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
 
-        String token = authHeader.substring(7);
-        Users user = authService.verifyAndParseToken(token);
+        // Lấy user từ DB
+        Users user = userRepository.findByUsername(username).orElseThrow();
 
+        // Lấy danh sách hợp đồng unsigned theo userId
         List<ContractResponse> contracts = contractService.getUnsignedContracts(user.getUserId());
+
         return ResponseEntity.ok(contracts);
     }
 
     /** Ký hợp đồng */
     @PutMapping("/sign/{contractId}")
-    public ResponseEntity<ContractResponse> signContract(
-            @RequestHeader("Authorization") String authHeader,
-            @PathVariable Integer contractId) {
+    public ResponseEntity<ContractResponse> signContract(@PathVariable Integer contractId) {
+        // Lấy username từ context
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
 
-        String token = authHeader.substring(7);
-        Users user = authService.verifyAndParseToken(token);
+        // Lấy user từ DB
+        Users user = userRepository.findByUsername(username).orElseThrow();
 
+        // Gọi service ký hợp đồng
         ContractResponse signed = contractService.signContract(contractId, user.getUserId());
+
         return ResponseEntity.ok(signed);
     }
     // GET tất cả hợp đồng (dùng DTO)
     @GetMapping
-    public List<ContractDTO> getAllContracts() {
-        return contractRepository.findAll().stream()
+    public List<ContractDTO> getUnsignedContractsForManager() {
+        return contractRepository.findByStatus("UNSIGNED").stream()
                 .map(c -> new ContractDTO(c.getContractId(), c.getStatus()))
                 .toList();
     }
