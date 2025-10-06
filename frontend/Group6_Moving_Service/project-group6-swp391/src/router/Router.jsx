@@ -9,6 +9,8 @@ import UserContractsPage from "../customer/UserContractPage";
 import UserRequestsPage from "../customer/UserRequestsPage";
 import CustomerPage from "../customer/CustomerPage";
 import CreateAdminUser from "../admin/CreateAdminUser";
+import EmployeeManagement from "../admin/EmployeeManagement";
+import VehicleManagement from "../admin/VehicleManagement";
 import AnimatedPage from "../components/AnimatedPage";
 
 
@@ -100,7 +102,24 @@ const Router = () => {
               <AdminDashboard />
             </ProtectedRoute>
           ),
+        },
 
+        {
+          path: "employee-management",
+          element: (
+            <ProtectedRoute allowedRoles={["admin", "manager"]}>
+              <EmployeeManagement />
+            </ProtectedRoute>
+          ),
+        },
+
+        {
+          path: "vehicle-management",
+          element: (
+            <ProtectedRoute allowedRoles={["admin", "manager"]}>
+              <VehicleManagement />
+            </ProtectedRoute>
+          ),
         },
         {
           path:"my-requests",
