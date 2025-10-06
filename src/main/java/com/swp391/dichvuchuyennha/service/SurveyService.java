@@ -32,7 +32,7 @@ public class SurveyService {
         if (survey.getStatus() == null) {
             survey.setStatus("Pending");
         }
-        
+
 
 
         return surveyRepository.save(survey);

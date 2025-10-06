@@ -31,6 +31,7 @@ public class QuotationService {
         // Lưu vào DB
         return quotationRepository.save(quotation);
     }
+
     public List<Quotations> getAllQuotations() {
         return quotationRepository.findAll();
     }
