@@ -45,7 +45,9 @@ public class SercurityConfig {
             "/api/assignments/**",
             "/api/contracts/**",
             "/api/surveys/**",
-             "/api/requests/**"};
+             "/api/requests/**",
+             "/api/prices/**",
+               "/api/quotations/**"};
 
 
     @Bean
@@ -108,8 +110,8 @@ public class SercurityConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-//        return new BCryptPasswordEncoder();
-        return NoOpPasswordEncoder.getInstance();
+        return new BCryptPasswordEncoder();
+//        return NoOpPasswordEncoder.getInstance();
     }        // không mã hóa
 
 

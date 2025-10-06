@@ -20,6 +20,7 @@ import ContractAssignment from "../manager/ContractAssigment";
 import CustomerProfile from "../auth/ProfilePage";
 import ProfilePage from "../auth/ProfilePage";
 import SurveyDashboard from "../staff/SurveyDashboard";
+import PriceTable from "../HomePage/PriceTable";
 
 
 
@@ -53,7 +54,10 @@ const Router = () => {
           element: <SurveyDashboard/>
         },
      
-     
+      {
+          path:"price-service",
+          element: <PriceTable/>
+        },
 
 
 

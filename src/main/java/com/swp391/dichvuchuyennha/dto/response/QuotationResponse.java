@@ -11,23 +11,13 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class SurveyResponse {
-    private int surveyId;
-    private String addressFrom;
+public class QuotationResponse {
+    private String quotationId;
+    private Double totalPrice;
+    private LocalDateTime createdAt;
+    private  LocalDateTime surveyDate;
+    private  String addressFrom;
     private String addressTo;
-    private int estimatedWorkers;
-    private String status;
-    private LocalDateTime surveyDate;
-    private Double distanceKm;
-
-    private int requestId;
     private String username;
     private String companyName;
-    private LocalDateTime requestTime;
-
-
-
-
-
-
 }

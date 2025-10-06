@@ -32,6 +32,9 @@ public class Surveys {
     @Column(name = "address_to")
     private String addressTo;
 
+    @Column(name = "distance_km")
+    private Double distanceKm;
+
     @Column(name = "status")
     private String status;
 

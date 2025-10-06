@@ -2,12 +2,15 @@ package com.swp391.dichvuchuyennha.controller;
 
 import com.swp391.dichvuchuyennha.dto.request.ApiResponse;
 import com.swp391.dichvuchuyennha.dto.request.RequestCreateRequest;
+import com.swp391.dichvuchuyennha.dto.request.SurveyRequest;
 import com.swp391.dichvuchuyennha.dto.response.RequestDto;
 import com.swp391.dichvuchuyennha.dto.response.RequestResponse;
+import com.swp391.dichvuchuyennha.dto.response.SurveyResponse;
 import com.swp391.dichvuchuyennha.entity.Users;
 import com.swp391.dichvuchuyennha.repository.RequestRepository;
 import com.swp391.dichvuchuyennha.service.RequestService;
 import com.swp391.dichvuchuyennha.repository.UserRepository;
+import com.swp391.dichvuchuyennha.service.SurveyService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +28,8 @@ public class RequestsController {
     private final RequestService requestService;
     private final UserRepository userRepository;
     private final RequestRepository requestRepository;
+    private final SurveyService surveyService;
+
     @PostMapping("/create")
     public ResponseEntity<ApiResponse<RequestResponse>> create(@Valid @RequestBody RequestCreateRequest requestDto) {
         String context = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -52,6 +57,7 @@ public class RequestsController {
                         .build()
                 ).collect(Collectors.toList());
     }
+
 
 }
 

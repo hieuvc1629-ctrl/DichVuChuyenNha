@@ -12,7 +12,12 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 public class SurveyRequest {
-    private String requestId;
+    private Integer requestId;
+    private Double fromLat;
+    private Double fromLon;
+    private Double toLat;
+    private Double toLon;
+
 
     private LocalDateTime surveyDate;
     private String addressFrom;
