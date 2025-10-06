@@ -7,6 +7,7 @@ import com.swp391.dichvuchuyennha.service.AuthenticationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -19,16 +20,15 @@ public class AuthenticationController {
 
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<AuthenticationResponse>> login(
-            @RequestBody AuthenticationRequest request
-    ) {
+            @RequestBody AuthenticationRequest request) {
         var result = authenticationService.authenticate(request);
         return ResponseEntity.ok(
                 ApiResponse.<AuthenticationResponse>builder()
                         .message("Login successful")
                         .result(result)
-                        .build()
-        );
+                        .build());
     }
+
     @PostMapping("/logout")
     public ResponseEntity<?> logout(@RequestHeader("Authorization") String authHeader) {
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
@@ -36,5 +36,63 @@ public class AuthenticationController {
             authenticationService.logout(token);
         }
         return ResponseEntity.ok().body("Logged out successfully");
+    }
+
+    // : Forgot password - gửi OTP
+    @PostMapping("/forgot-password")
+    public ResponseEntity<ApiResponse<String>> forgotPassword(@RequestBody Map<String, String> body) {
+        String email = body.get("email");
+        if (email == null || email.isBlank()) {
+            return ResponseEntity.badRequest().body(
+                    ApiResponse.<String>builder()
+                            .code(1001)
+                            .message("Email is required")
+                            .build());
+        }
+        authenticationService.sendOtpForReset(email);
+        return ResponseEntity.ok(
+                ApiResponse.<String>builder()
+                        .message("OTP sent to your email")
+                        .build());
+    }
+
+    // : Verify OTP
+    @PostMapping("/verify-otp")
+    public ResponseEntity<ApiResponse<Boolean>> verifyOtp(@RequestBody Map<String, String> body) {
+        String email = body.get("email");
+        String otp = body.get("otp");
+        if (email == null || otp == null) {
+            return ResponseEntity.badRequest().body(
+                    ApiResponse.<Boolean>builder()
+                            .code(1001)
+                            .message("Email and OTP required")
+                            .build());
+        }
+        boolean valid = authenticationService.verifyOtp(email, otp);
+        return ResponseEntity.ok(
+                ApiResponse.<Boolean>builder()
+                        .message(valid ? "OTP valid" : "Invalid or expired OTP")
+                        .result(valid)
+                        .build());
+    }
+
+    // : Reset password
+    @PostMapping("/reset-password")
+    public ResponseEntity<ApiResponse<String>> resetPassword(@RequestBody Map<String, String> body) {
+        String email = body.get("email");
+        String newPassword = body.get("newPassword");
+        String otp = body.get("otp");
+        if (email == null || newPassword == null || otp == null) {
+            return ResponseEntity.badRequest().body(
+                    ApiResponse.<String>builder()
+                            .code(1001)
+                            .message("Email, OTP and new password required")
+                            .build());
+        }
+        authenticationService.resetPassword(email, newPassword, otp);
+        return ResponseEntity.ok(
+                ApiResponse.<String>builder()
+                        .message("Password reset successful")
+                        .build());
     }
 }
