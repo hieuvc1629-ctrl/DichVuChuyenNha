@@ -23,12 +23,23 @@ public class SurveyController {
     @PostMapping
     public ResponseEntity<SurveyResponse> createSurvey(@RequestBody SurveyRequest dto) {
         Surveys savedSurvey = surveyService.createSurvey(dto);
-        SurveyResponse response = surveyMapper.toResponse(savedSurvey);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(surveyMapper.toResponse(savedSurvey));
     }
     @GetMapping
     public ResponseEntity<List<SurveyResponse>> listAllSurveys() {
         List<SurveyResponse> surveys = surveyService.getAllSurveys();
         return ResponseEntity.ok(surveys);
     }
+    @PutMapping("/{id}")
+    public ResponseEntity<SurveyResponse> updateSurvey(@PathVariable Integer id,
+                                                       @RequestBody SurveyRequest dto) {
+        return ResponseEntity.ok(surveyService.updateSurvey(id, dto));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteSurvey(@PathVariable Integer id) {
+        surveyService.deleteSurvey(id);
+        return ResponseEntity.noContent().build();
+    }
+
 }

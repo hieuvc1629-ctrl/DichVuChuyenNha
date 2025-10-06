@@ -11,15 +11,10 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class SurveyRequest {
-    private Integer requestId;
+public class QuotationCreateRequest {
+    private Integer surveyId;
+    private Double totalPrice;
+    private LocalDateTime createdDate;
 
-
-
-    private LocalDateTime surveyDate;
-    private String addressFrom;
-    private String addressTo;
-    private String status;
-    private Integer estimatedWorkers;
 }
 

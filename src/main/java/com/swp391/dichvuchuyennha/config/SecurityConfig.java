@@ -42,6 +42,7 @@ public class SecurityConfig {
                         "/api/users/customer-company" // Đăng ký customer
         };
 
+
         @Bean
         public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
                 http

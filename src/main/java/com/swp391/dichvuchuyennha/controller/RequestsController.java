@@ -12,7 +12,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.List;
@@ -26,9 +25,7 @@ public class RequestsController {
     private final RequestService requestService;
     private final UserRepository userRepository;
     private final RequestRepository requestRepository;
-
     @PostMapping("/create")
-    @PreAuthorize("hasAnyRole('customer_individual', 'customer_company')") // Chỉ customer tạo
     public ResponseEntity<ApiResponse<RequestResponse>> create(@Valid @RequestBody RequestCreateRequest requestDto) {
         String context = SecurityContextHolder.getContext().getAuthentication().getName();
 
@@ -38,7 +35,6 @@ public class RequestsController {
     }
 
     @GetMapping("/my")
-    @PreAuthorize("hasAnyRole('customer_individual', 'customer_company')") // Chỉ customer xem của mình
     public ResponseEntity<ApiResponse<List<RequestResponse>>> getMyRequests() {
         String context = SecurityContextHolder.getContext().getAuthentication().getName();
         Users user = userRepository.findByUsername(context).orElseThrow();
@@ -47,7 +43,6 @@ public class RequestsController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('manager', 'admin')") // Manager/ admin xem all
     public List<RequestDto> getAllRequests() {
         return requestRepository.findAll()
                 .stream()
@@ -55,8 +50,10 @@ public class RequestsController {
                         .requestId(r.getRequestId())
                         .username(r.getUser() != null ? r.getUser().getUsername() : "N/A")
                         .companyName(r.getBusiness() != null ? r.getBusiness().getCompanyName() : "N/A")
-                        .build())
-                .collect(Collectors.toList());
+                        .build()
+                ).collect(Collectors.toList());
     }
 
 }
+
+
