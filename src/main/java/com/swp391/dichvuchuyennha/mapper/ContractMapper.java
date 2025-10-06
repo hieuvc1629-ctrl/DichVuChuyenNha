@@ -16,4 +16,5 @@ public interface ContractMapper {
     @Mapping(target = "endLocation", source = "quotation.survey.addressTo")
 
     ContractResponse toResponse(Contract contract);
+
 }

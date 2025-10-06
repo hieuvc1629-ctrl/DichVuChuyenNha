@@ -21,4 +21,5 @@ public class PriceController {
         List<ServicePriceDTO> list = priceService.getAllServicePrices();
         return ResponseEntity.ok(list);
     }
+
 }

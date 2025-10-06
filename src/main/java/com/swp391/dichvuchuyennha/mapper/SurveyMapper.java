@@ -25,3 +25,4 @@ public interface SurveyMapper {
     SurveyResponse toResponse(Surveys survey);
 
 }
+

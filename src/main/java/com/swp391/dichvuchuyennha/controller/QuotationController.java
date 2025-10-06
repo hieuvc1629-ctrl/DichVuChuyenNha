@@ -33,4 +33,5 @@ public class QuotationController {
                 .collect(Collectors.toList());
         return ResponseEntity.ok(responses);
     }
+
 }

@@ -44,4 +44,5 @@ public class Surveys {
 
     @OneToMany(mappedBy = "survey", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Quotations> quotations;
+
 }

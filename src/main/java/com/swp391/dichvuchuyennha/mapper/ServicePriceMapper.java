@@ -17,3 +17,5 @@ public interface ServicePriceMapper {
 
     List<PriceDTO> toPriceDTOs(List<Prices> prices);
 }
+
+

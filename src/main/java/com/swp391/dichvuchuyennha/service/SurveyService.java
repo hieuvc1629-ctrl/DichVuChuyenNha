@@ -20,7 +20,6 @@ public class SurveyService {
     private final SurveyMapper surveyMapper;
     private final SurveyRepository surveyRepository;
     private final RequestRepository requestRepository;
-    private final DistanceCalculator distanceCalculator;
 
     public Surveys createSurvey(SurveyRequest dto) {
         Surveys survey = surveyMapper.toEntity(dto);
@@ -33,14 +32,8 @@ public class SurveyService {
         if (survey.getStatus() == null) {
             survey.setStatus("Pending");
         }
-        if (dto.getFromLat() != null && dto.getFromLon() != null
-                && dto.getToLat() != null && dto.getToLon() != null) {
-            double distance = distanceCalculator.calculateDistance(
-                    dto.getFromLat(), dto.getFromLon(),
-                    dto.getToLat(), dto.getToLon()
-            );
-            survey.setDistanceKm(distance);
-        }
+        
+
 
         return surveyRepository.save(survey);
     }
@@ -60,14 +53,7 @@ public class SurveyService {
         survey.setAddressTo(dto.getAddressTo());
         survey.setStatus(dto.getStatus());
         survey.setEstimatedWorkers(dto.getEstimatedWorkers());
-        if (dto.getFromLat() != null && dto.getFromLon() != null
-                && dto.getToLat() != null && dto.getToLon() != null) {
-            double distance = distanceCalculator.calculateDistance(
-                    dto.getFromLat(), dto.getFromLon(),
-                    dto.getToLat(), dto.getToLon()
-            );
-            survey.setDistanceKm(distance);
-        }
+
         return surveyMapper.toResponse(surveyRepository.save(survey));
     }
 

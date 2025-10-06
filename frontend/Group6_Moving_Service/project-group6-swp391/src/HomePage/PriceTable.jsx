@@ -17,7 +17,9 @@ const PriceTable = () => {
         message.error("Không thể tải dữ liệu bảng giá");
         setLoading(false);
       });
-  }, []);
+  }, []); // dsdsds
+
+
 
   if (loading) return <Spin style={{ marginTop: "100px" }} />;
 

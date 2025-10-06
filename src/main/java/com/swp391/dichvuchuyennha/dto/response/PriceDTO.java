@@ -16,3 +16,4 @@ public class PriceDTO {
     private String priceType;
     private Double amount;
 }
+

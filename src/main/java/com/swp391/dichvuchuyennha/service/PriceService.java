@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+
 public class PriceService {
     private final ServiceRepository serviceRepository;
     private final ServicePriceMapper mapper;

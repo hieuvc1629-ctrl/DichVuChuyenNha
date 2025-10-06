@@ -75,6 +75,7 @@ public class SercurityConfig {
 
 
         return http.build();
+
     }
     @Bean
     public JwtDecoder jwtDecoder() {

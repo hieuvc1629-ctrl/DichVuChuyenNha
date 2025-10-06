@@ -19,3 +19,4 @@ public interface QuotationMapper {
     @Mapping(target = "companyName",source = "survey.request.user.customerCompany.companyName")
     QuotationResponse toResponse(Quotations quotations);
 }
+

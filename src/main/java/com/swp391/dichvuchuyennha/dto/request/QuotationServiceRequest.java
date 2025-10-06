@@ -5,16 +5,11 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class QuotationCreateRequest {
-    private Integer surveyId;
-    private Double totalPrice;
-    private LocalDateTime createdDate;
-
+public class QuotationServiceRequest {
+    private int quotationId;
+    private int serviceId;
 }
-

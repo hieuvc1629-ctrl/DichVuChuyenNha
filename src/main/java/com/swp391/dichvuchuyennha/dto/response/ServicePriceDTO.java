@@ -19,3 +19,4 @@ public class ServicePriceDTO {
     private Boolean isActive;
     private List<PriceDTO> prices;
 }
+
