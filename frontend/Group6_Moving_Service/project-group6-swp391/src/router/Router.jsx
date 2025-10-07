@@ -1,18 +1,16 @@
-import React from 'react';
-import Layout from '../components/Layout';
+// src/router/Router.jsx
+import React from "react";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import ManagerAssignmentPage from "../manager/ManagerAssignmentPage";
 
-import { createBrowserRouter, RouterProvider, useParams } from 'react-router-dom';
-
-import LoginPage from '../HomePage/LoginPage';
-import CustomerRegisterForm from '../customer/CustomerRegisterForm';
-import UserContractsPage from '../customer/UserContractPage';
-import CustomerPage from '../customer/CustomerPage';
-import CreateAdminUser from '../admin/CreateAdminUser';
-
-
-// Wrapper để lấy :id từ URL và truyền vào ContractDetail
-
-
+import Layout from "../components/Layout";
+import LoginPage from "../HomePage/LoginPage";
+import CustomerRegisterForm from "../customer/CustomerRegisterForm";
+import UserContractsPage from "../customer/UserContractPage";
+import CustomerPage from "../customer/CustomerPage";
+import CreateAdminUser from "../admin/CreateAdminUser";
+import WorkProgressPage from "../employee/WorkProgressPage";
+import WorkProgressCustomerPage from "../customer/WorkProgressCustomerPage";
 const Router = () => {
   const router = createBrowserRouter([
     {
@@ -21,33 +19,39 @@ const Router = () => {
       children: [
         {
           path: "login",
-          element: <LoginPage/>
+          element: <LoginPage />,
         },
         {
-          path:"customer-register",
-          element:<CustomerRegisterForm/>
+          path: "customer-register",
+          element: <CustomerRegisterForm />,
         },
         {
-          path:"customer-page",
-          element:<CustomerPage/>
+          path: "customer-page",
+          element: <CustomerPage />,
         },
         {
-          path:"list-contract-unsigned",
-          element:<UserContractsPage/>
+          path: "list-contract-unsigned",
+          element: <UserContractsPage />,
         },
         {
-          path:"admin-create-user",
-          element:<CreateAdminUser/>
+          path: "admin-create-user",
+          element: <CreateAdminUser />,
         },
+        {
+          path: "employee/work-progress",
+          element: <WorkProgressPage />,
+        },
+        {
+          path: "customer/work-progress", // 👈 thêm route này
+          element: <WorkProgressCustomerPage />,
+        },
+    
 
-       
-      ]
-    }
+      ],
+    },
   ]);
 
-  return (
-    <RouterProvider router={router} />
-  );
+  return <RouterProvider router={router} />;
 };
 
 export default Router;

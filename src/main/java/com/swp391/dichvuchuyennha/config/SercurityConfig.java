@@ -39,6 +39,8 @@ public class SercurityConfig {
             "/api/test/public",
             "/api/contracts/**",
             "/api/users/**",
+            "/api/work-progress/**",
+            "/api/manager/assignments/**"
 
     };
 
