@@ -20,10 +20,9 @@ public enum ErrorCode {
     USERNAME_EXISTED(1010,"Username is existed",HttpStatus.BAD_REQUEST),
     EMAIL_EXISTED(1011,"Email is existed!",HttpStatus.BAD_REQUEST),
     PHONE_EXISTED(1012,"Phone is existed!",HttpStatus.BAD_REQUEST),
-    WORK_PROGRESS_NOT_FOUND(1013,"Workprogress not found!",HttpStatus.NOT_FOUND),
-    CONTRACT_NOT_FOUND(1014,"Contract not found!",HttpStatus.NOT_FOUND),
-    EMPLOYEE_NOT_FOUND(1015,"Employee not found!",HttpStatus.NOT_FOUND)
-
+    CONTRACT_NOT_FOUND(1013,"Contract not found",HttpStatus.NOT_FOUND),
+    WORK_PROGRESS_NOT_FOUND(1014,"Work progress not found",HttpStatus.NOT_FOUND),
+    INVALID_REQUEST(1015, "Invalid request", HttpStatus.BAD_REQUEST),
 
     ;
 
@@ -32,7 +31,7 @@ public enum ErrorCode {
         this.message = message;
         this.statusCode = statusCode;
     }
-
+//k
     private final int code;
     private final String message;
     private final HttpStatusCode statusCode;
