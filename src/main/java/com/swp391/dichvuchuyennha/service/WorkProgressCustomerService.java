@@ -8,3 +8,4 @@ public interface WorkProgressCustomerService {
     List<WorkProgressResponse> getWorkProgressForCustomer(Integer userId);
     List<WorkProgressResponse> getWorkProgressByContract(Integer userId, Integer contractId);
 }
+//k

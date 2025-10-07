@@ -27,7 +27,7 @@ public class WorkProgressController {
     private final WorkProgressService workProgressService;
     private final EmployeeRepository employeeRepository;
 
-    @Value("${jwt.secret}")
+    @Value("${jwt.secret}") //h
     private String jwtSecret;
 
     private Long extractUserIdFromToken(String authHeader) {

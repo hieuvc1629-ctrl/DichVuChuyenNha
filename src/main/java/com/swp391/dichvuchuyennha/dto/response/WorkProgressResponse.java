@@ -22,3 +22,4 @@ public class WorkProgressResponse {
     private Double totalAmount;     // Tổng tiền hợp đồng
     private String employeeName;    // Tên nhân viên phụ trách
 }
+//k

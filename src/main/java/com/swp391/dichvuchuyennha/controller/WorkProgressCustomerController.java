@@ -23,7 +23,7 @@ public class WorkProgressCustomerController {
 
     private final WorkProgressCustomerService workProgressCustomerService;
 
-    @Value("${jwt.secret}")
+    @Value("${jwt.secret}")//ssua
     private String jwtSecret;
 
     private Long extractUserIdFromToken(String authHeader) {

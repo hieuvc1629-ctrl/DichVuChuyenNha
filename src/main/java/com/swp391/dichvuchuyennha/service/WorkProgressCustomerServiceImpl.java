@@ -25,7 +25,7 @@ public class WorkProgressCustomerServiceImpl implements WorkProgressCustomerServ
         return progressList.stream()
                 .map(mapper::toResponse)
                 .collect(Collectors.toList());
-    }
+    }//k
 
     @Override
     public List<WorkProgressResponse> getWorkProgressByContract(Integer userId, Integer contractId) {

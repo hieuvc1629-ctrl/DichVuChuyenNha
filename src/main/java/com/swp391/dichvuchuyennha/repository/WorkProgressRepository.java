@@ -26,5 +26,5 @@ public interface WorkProgressRepository extends JpaRepository<WorkProgress, Inte
     """)
     List<WorkProgress> findByContractAndCustomer(@Param("contractId") Integer contractId,
                                                  @Param("userId") Integer userId);
-
+//h
 }

@@ -12,3 +12,4 @@ public interface WorkProgressService {
     void deleteWorkProgress(Integer progressId, Integer employeeId);
 
 }
+//l

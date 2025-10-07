@@ -18,7 +18,7 @@ public interface WorkProgressMapper {
     @Mapping(source = "updatedAt", target = "updatedAt")
 
     // 🔽 Các trường mở rộng
-    @Mapping(
+    @Mapping(//h
             target = "customerName",
             expression = "java(entity.getContract() != null && " +
                     "entity.getContract().getQuotation() != null && " +

@@ -31,7 +31,7 @@ public enum ErrorCode {
         this.message = message;
         this.statusCode = statusCode;
     }
-
+//k
     private final int code;
     private final String message;
     private final HttpStatusCode statusCode;
