@@ -2,24 +2,16 @@ package com.swp391.dichvuchuyennha.mapper;
 
 import com.swp391.dichvuchuyennha.dto.response.DamageResponse;
 import com.swp391.dichvuchuyennha.entity.Damages;
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
-@Component
-public class DamageMapper {
-
-    public DamageResponse toResponse(Damages damage) {
-        DamageResponse response = new DamageResponse();
-        response.setDamageId(damage.getDamageId());
-        response.setContractId(
-                damage.getContract() != null ? damage.getContract().getContractId() : null
-        );
-        response.setCause(damage.getCause());
-        response.setResponsibleEmployeeId(
-                damage.getResponsibleEmployee() != null ? damage.getResponsibleEmployee().getEmployeeId() : null
-        );
-        response.setCost(damage.getCost());
-        response.setStatus(damage.getStatus());
-        return response;
-    }
-
+@Mapper(componentModel = "spring")
+public interface DamageMapper {
+    @Mapping(source = "damageId", target = "damageId")
+    @Mapping(source = "contract.contractId", target = "contractId")
+    @Mapping(source = "cause", target = "cause")
+    @Mapping(source = "responsibleEmployee.employeeId", target = "responsibleEmployeeId")
+    @Mapping(source = "cost", target = "cost")
+    @Mapping(source = "status", target = "status")
+    DamageResponse toResponse(Damages damage);
 }

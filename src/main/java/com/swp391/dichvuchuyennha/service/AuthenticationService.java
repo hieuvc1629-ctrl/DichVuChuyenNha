@@ -7,6 +7,7 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import com.swp391.dichvuchuyennha.dto.request.AuthenticationRequest;
 import com.swp391.dichvuchuyennha.dto.response.AuthenticationResponse;
+import com.swp391.dichvuchuyennha.dto.response.UserResponse;
 import com.swp391.dichvuchuyennha.entity.Users;
 import com.swp391.dichvuchuyennha.exception.AppException;
 import com.swp391.dichvuchuyennha.exception.ErrorCode;
@@ -35,26 +36,28 @@ public class AuthenticationService {
     @Value("${jwt.expirationSec}")
     private long jwtExpirationSec;
 
-
     private final Set<String> blacklistedTokens = ConcurrentHashMap.newKeySet();
-
+    private final Map<String, Map<String, Object>> otpStore = new ConcurrentHashMap<>();
+    private final EmailService emailService; // Inject EmailService
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
-        Users user = userRepository.findByUsername(request.getUsername())
+        Users user = userRepository.findByUsername(request.getUsername()) // Thay username → email
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
         boolean authenticated = passwordEncoder.matches(request.getPassword(), user.getPassword());
-        if (!authenticated) throw new AppException(ErrorCode.UNAUTHENTICATED);
+        if (!authenticated)
+            throw new AppException(ErrorCode.UNAUTHENTICATED);
 
         String token = generateToken(user);
         return AuthenticationResponse.builder()
                 .token(token)
                 .authenticated(true)
-                .userId(user.getUserId())       // thêm
-                .username(user.getUsername())   // thêm
+                .userId(user.getUserId())
+                .username(user.getUsername())
+                .roleId(user.getRole().getRoleId())
+                .roleName(user.getRole().getRoleName())
                 .build();
     }
-
 
     private String generateToken(Users user) {
         try {
@@ -89,10 +92,12 @@ public class AuthenticationService {
             JWSVerifier verifier = new MACVerifier(jwtSecret.getBytes());
 
             boolean valid = signedJWT.verify(verifier);
-            if (!valid) throw new AppException(ErrorCode.UNAUTHENTICATED);
+            if (!valid)
+                throw new AppException(ErrorCode.UNAUTHENTICATED);
 
             Date expiry = signedJWT.getJWTClaimsSet().getExpirationTime();
-            if (expiry.before(new Date())) throw new AppException(ErrorCode.UNAUTHENTICATED);
+            if (expiry.before(new Date()))
+                throw new AppException(ErrorCode.UNAUTHENTICATED);
 
             String username = signedJWT.getJWTClaimsSet().getSubject();
             return userRepository.findByUsername(username)
@@ -106,6 +111,69 @@ public class AuthenticationService {
     /** Logout: đưa token vào blacklist */
     public void logout(String token) {
         blacklistedTokens.add(token);
+    }
+
+    public UserResponse getUserFromToken(String token) {
+        Users user = verifyAndParseToken(token);
+        return UserResponse.builder()
+                .userId(user.getUserId())
+                .username(user.getUsername())
+                .email(user.getEmail())
+                .phone(user.getPhone())
+                .roleName(user.getRole().getRoleName())
+                .build();
+    }
+
+    // : Gửi OTP khi quên mật khẩu
+    public void sendOtpForReset(String email) {
+        Users user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        // Generate OTP 6 chữ số
+        String otp = String.format("%06d", new Random().nextInt(999999));
+        long expiry = System.currentTimeMillis() + 300000; // 5 phút
+
+        // Lưu vào store
+        Map<String, Object> otpData = new HashMap<>();
+        otpData.put("otp", otp);
+        otpData.put("expiry", expiry);
+        otpStore.put(email, otpData);
+
+        // Gửi email
+        emailService.sendOtpEmail(email, otp);
+    }
+
+    // : Verify OTP
+    public boolean verifyOtp(String email, String otp) {
+        Map<String, Object> otpData = otpStore.get(email);
+        if (otpData == null)
+            return false;
+
+        String storedOtp = (String) otpData.get("otp");
+        long expiry = (long) otpData.get("expiry");
+
+        if (System.currentTimeMillis() > expiry) {
+            otpStore.remove(email);
+            return false;
+        }
+
+        boolean valid = storedOtp.equals(otp);
+        if (valid)
+            otpStore.remove(email); // Xóa sau khi verify thành công
+        return valid;
+    }
+
+    // : Reset password sau khi verify OTP
+    public void resetPassword(String email, String newPassword, String otp) {
+        if (!verifyOtp(email, otp)) {
+            throw new AppException(ErrorCode.INVALID_KEY); // OTP invalid or expired
+        }
+
+        Users user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
     }
 
 }

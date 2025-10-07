@@ -2,6 +2,7 @@ package com.swp391.dichvuchuyennha.service;
 
 import com.swp391.dichvuchuyennha.dto.request.CustomerCompanyRequest;
 import com.swp391.dichvuchuyennha.dto.request.UserCreateRequest;
+import com.swp391.dichvuchuyennha.dto.request.UserUpdateRequest;
 import com.swp391.dichvuchuyennha.dto.response.UserResponse;
 import com.swp391.dichvuchuyennha.entity.CustomerCompany;
 import com.swp391.dichvuchuyennha.entity.Roles;
@@ -16,6 +17,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
 public class UserService {
@@ -25,7 +29,40 @@ public class UserService {
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
+    public UserResponse updateUser(Integer userId, UserUpdateRequest request) {
+        Users user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
+        if (request.getUsername() != null) user.setUsername(request.getUsername());
+        if (request.getEmail() != null) user.setEmail(request.getEmail());
+        if (request.getPhone() != null) user.setPhone(request.getPhone());
+        if (request.getPassword() != null && !request.getPassword().isBlank()) {
+            user.setPassword(passwordEncoder.encode(request.getPassword()));
+        }
+
+        Users saved = userRepository.save(user);
+        return new UserResponse(
+                saved.getUserId(),
+                saved.getUsername(),
+                saved.getEmail(),
+                saved.getPhone(),
+                saved.getRole().getRoleName()
+        );
+    }
+
+    public List<UserResponse> getAllUsers() {
+        List<Users> users = userRepository.findAll();
+
+        return users.stream().map(user ->
+                UserResponse.builder()
+                        .userId(user.getUserId())
+                        .username(user.getUsername())
+                        .email(user.getEmail())
+                        .phone(user.getPhone())
+                        .roleName(user.getRole() != null ? user.getRole().getRoleName() : null)
+                        .build()
+        ).collect(Collectors.toList());
+    }
     public UserResponse createUser(UserCreateRequest request) {
         // check duplicate username & email
         if (userRepository.existsByUsername(request.getUsername())) {
@@ -39,7 +76,7 @@ public class UserService {
                 .orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_EXISTED));
 
         // map từ request sang entity
-        Users user = userMapper.toUsers(request);
+        Users user = userMapper.toUsersCreateRequest(request);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setRole(role);
 
@@ -81,4 +118,39 @@ public class UserService {
 
         return userMapper.toUserResponse(savedUser);
     }
+    public UserResponse updateUser(Integer userId, UserCreateRequest request) {
+        Users user = userRepository.findById(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        // Check duplicate email nếu khác user hiện tại
+        if (!user.getEmail().equals(request.getEmail())
+                && userRepository.existsByEmail(request.getEmail())) {
+            throw new AppException(ErrorCode.EMAIL_EXISTED);
+        }
+
+        Roles role = roleRepository.findById(request.getRoleId())
+                .orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_EXISTED));
+
+        user.setUsername(request.getUsername());
+        user.setEmail(request.getEmail());
+        user.setPhone(request.getPhone());
+        user.setRole(role);
+
+        // Nếu có password mới thì encode lại
+        if (request.getPassword() != null && !request.getPassword().isBlank()) {
+            user.setPassword(passwordEncoder.encode(request.getPassword()));
+        }
+
+        Users updatedUser = userRepository.save(user);
+        return userMapper.toUserResponse(updatedUser);
+    }
+
+    public void deleteUser(Integer userId) {
+        Users user = userRepository.findById(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        userRepository.delete(user);
+    }
+
+
 }

@@ -12,6 +12,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -29,7 +31,12 @@ public class RequestService {
             request.setBusiness(currentUser.getCustomerCompany());
         }
         request.setRequestTime(LocalDateTime.now());
+        if (requestDto.getMovingDay() != null) {
+            request.setMovingDay(requestDto.getMovingDay());
+        }
         request.setDescription(requestDto.getDescription());
+        request.setPickupAddress(requestDto.getPickupAddress());
+        request.setDestinationAddress(requestDto.getDestinationAddress());
         request.setStatus("PENDING");
         requestRepository.save(request);
 
@@ -50,8 +57,29 @@ public class RequestService {
         return RequestResponse.builder()
                 .requestId(request.getRequestId())
                 .status(request.getStatus())
+                .description(request.getDescription())
+                .requestTime(request.getRequestTime())
+                .pickupAddress(request.getPickupAddress())
+                .destinationAddress(request.getDestinationAddress())
+                .movingDay(request.getMovingDay())
                 .build();
     }
+
+    public List<RequestResponse> getMyRequests(Users currentUser) {
+        List<Requests> requests = requestRepository.findByUserOrderByRequestTimeDesc(currentUser);
+        return requests.stream()
+                .map(r -> RequestResponse.builder()
+                        .requestId(r.getRequestId())
+                        .status(r.getStatus())
+                        .description(r.getDescription())
+                        .requestTime(r.getRequestTime())
+                        .pickupAddress(r.getPickupAddress())
+                        .destinationAddress(r.getDestinationAddress())
+                        .movingDay(r.getMovingDay())
+                        .build())
+                .collect(Collectors.toList());
+    }
+
 }
 
 

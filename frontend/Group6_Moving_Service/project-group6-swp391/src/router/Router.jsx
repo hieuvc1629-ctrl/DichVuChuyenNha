@@ -1,52 +1,119 @@
-// src/router/Router.jsx
 import React from "react";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import ManagerAssignmentPage from "../manager/ManagerAssignmentPage";
-
 import Layout from "../components/Layout";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import LoginPage from "../HomePage/LoginPage";
+import HomePage from "../HomePage/HomePage";
+
 import CustomerRegisterForm from "../customer/CustomerRegisterForm";
 import UserContractsPage from "../customer/UserContractPage";
+import UserRequestsPage from "../customer/UserRequestsPage";
 import CustomerPage from "../customer/CustomerPage";
 import CreateAdminUser from "../admin/CreateAdminUser";
+import AnimatedPage from "../components/AnimatedPage";
+
+
+import LandingPage from "../HomePage/LandingPage";
+import ProtectedRoute from "../auth/ProtectRoute";
+import AccessDeniedPage from "../auth/AccessDeniedPage";
+import AdminDashboard from "../admin/AdminDashBoard";
+import ContractAssignment from "../manager/ContractAssigment";
+import CustomerProfile from "../auth/ProfilePage";
+import ProfilePage from "../auth/ProfilePage";
+import SurveyDashboard from "../staff/SurveyDashboard";
+import PriceTable from "../HomePage/PriceTable";
+
 import WorkProgressPage from "../employee/WorkProgressPage";
-import WorkProgressCustomerPage from "../customer/WorkProgressCustomerPage";
+
+
 const Router = () => {
   const router = createBrowserRouter([
     {
       path: "/",
       element: <Layout />,
       children: [
+        { index: true, element: <LandingPage /> },
+
+        {
+          path: "",
+          element: <HomePage/>
+        },
+        {
+  path: "contract-assignment",
+  element: (
+    <ProtectedRoute allowedRoles={["manager"]}>
+      <ContractAssignment />
+    </ProtectedRoute>
+  ),
+},
+        {
+          path:"user-profile",
+          element: <ProfilePage/>
+        },
+        {
+          path:"survey-dashboard",
+          element: <SurveyDashboard/>
+        },
+     
+      {
+          path:"price-service",
+          element: <PriceTable/>
+        },
+
+
+
         {
           path: "login",
-          element: <LoginPage />,
+          element: (
+            <AnimatedPage>
+              <LoginPage />
+            </AnimatedPage>
+          ),
         },
+
         {
           path: "customer-register",
-          element: <CustomerRegisterForm />,
+          element: (
+            <AnimatedPage>
+              <CustomerRegisterForm />
+            </AnimatedPage>
+          ),
         },
-        {
-          path: "customer-page",
-          element: <CustomerPage />,
-        },
-        {
-          path: "list-contract-unsigned",
-          element: <UserContractsPage />,
-        },
+
+        { path: "customer-page", element: <CustomerPage /> },
+  
+        { path: "list-contract-unsigned", element: <UserContractsPage /> },
+
+        // Admin routes
         {
           path: "admin-create-user",
-          element: <CreateAdminUser />,
-        },
-        {
-          path: "employee/work-progress",
-          element: <WorkProgressPage />,
-        },
-        {
-          path: "customer/work-progress", // 👈 thêm route này
-          element: <WorkProgressCustomerPage />,
-        },
-    
+          element: (
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <CreateAdminUser />
+            </ProtectedRoute>
+          ),
 
+        },
+
+        {
+          path: "admin-dashboard",
+          element: (
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <AdminDashboard />
+            </ProtectedRoute>
+          ),
+
+        },
+        {
+          path:"my-requests",
+          element:<UserRequestsPage/>
+
+        },
+
+        // user requests (customer)
+        { path: "my-requests", element: <UserRequestsPage /> },
+
+        { path: "access-denied", element: <AccessDeniedPage /> },
+        { path: "employee/work-progress", element: <WorkProgressPage />}
       ],
     },
   ]);
@@ -55,3 +122,5 @@ const Router = () => {
 };
 
 export default Router;
+
+

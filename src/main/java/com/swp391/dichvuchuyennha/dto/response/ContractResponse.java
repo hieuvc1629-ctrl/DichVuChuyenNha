@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @Builder
@@ -23,10 +24,14 @@ public class ContractResponse {
     private LocalDateTime signedDate;
 
     // Thông tin user owner
-    private Integer ownerId;
-    private String ownerUsername;
+
 
     // Thông tin người đã ký
     private Integer signedById;
     private String signedByUsername;
+
+    // Thông tin bổ sung
+    private String startLocation; // địa chỉ đi
+    private String endLocation;   // địa chỉ đến
 }
+

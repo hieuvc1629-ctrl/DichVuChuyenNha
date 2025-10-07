@@ -1,12 +1,15 @@
 package com.swp391.dichvuchuyennha.service;
 
 import com.swp391.dichvuchuyennha.dto.response.ContractResponse;
+import com.swp391.dichvuchuyennha.dto.response.EmployeeDTO;
 import com.swp391.dichvuchuyennha.entity.Contract;
 import com.swp391.dichvuchuyennha.entity.Users;
+import com.swp391.dichvuchuyennha.mapper.ContractMapper;
 import com.swp391.dichvuchuyennha.repository.ContractRepository;
 import com.swp391.dichvuchuyennha.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -18,37 +21,19 @@ public class ContractService {
 
     private final ContractRepository contractRepository;
     private final UserRepository userRepository;
+    private final ContractMapper contractMapper; // inject mapper
 
-
-    public ContractResponse toResponse(Contract contract) {
-        return ContractResponse.builder()
-                .contractId(contract.getContractId())
-                .startDate(contract.getStartDate())
-                .endDate(contract.getEndDate())
-                .depositAmount(contract.getDepositAmount())
-                .totalAmount(contract.getTotalAmount())
-                .status(contract.getStatus())
-                .signedDate(contract.getSignedDate())
-                .ownerId(contract.getOwner().getUserId())
-                .ownerUsername(contract.getOwner().getUsername())
-                .signedById(contract.getSignedBy() != null ? contract.getSignedBy().getUserId() : null)
-                .signedByUsername(contract.getSignedBy() != null ? contract.getSignedBy().getUsername() : null)
-                .build();
-    }
-
-    // Lấy danh sách hợp đồng chưa ký của user
+    @Transactional(readOnly = true)
     public List<ContractResponse> getUnsignedContracts(Integer userId) {
-        Users user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
-        List<Contract> contracts = contractRepository.findByOwnerAndStatus(user, "unsigned");
+        List<Contract> contracts =
+                contractRepository.findByQuotation_Survey_Request_User_UserIdAndStatus(userId, "UNSIGNED");
 
         return contracts.stream()
-                .map(this::toResponse)
-                .collect(Collectors.toList());
+                .map(contractMapper::toResponse)  // dùng mapper
+                .toList();
     }
 
-    // Ký hợp đồng
+    @Transactional
     public ContractResponse signContract(Integer contractId, Integer userId) {
         Users user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -56,15 +41,22 @@ public class ContractService {
         Contract contract = contractRepository.findById(contractId)
                 .orElseThrow(() -> new RuntimeException("Contract not found"));
 
-        if (!contract.getOwner().getUserId().equals(userId)) {
+        Users owner = contract.getQuotation().getSurvey().getRequest().getUser();
+        if (!owner.getUserId().equals(userId)) {
             throw new RuntimeException("User not authorized to sign this contract");
         }
 
-        contract.setStatus("signed");
+        if (!"UNSIGNED".equalsIgnoreCase(contract.getStatus())) {
+            throw new RuntimeException("Contract already signed or invalid status");
+        }
+
+        contract.setStatus("SIGNED");
         contract.setSignedBy(user);
         contract.setSignedDate(LocalDateTime.now());
 
         Contract saved = contractRepository.save(contract);
-        return toResponse(saved);
+        return contractMapper.toResponse(saved); // mapper xử lý
     }
 }
+
+
