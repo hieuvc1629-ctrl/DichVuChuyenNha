@@ -9,12 +9,12 @@ const LoginPage = () => {
   const navigate = useNavigate();
 
   const initialValues = {
-    username: "",
+    email: "",
     password: "",
   };
 
   const validationSchema = Yup.object({
-    username: Yup.string().required("Username is required"),
+    email: Yup.string().required("Email is required"),
     password: Yup.string().required("Password is required"),
   });
 
@@ -65,12 +65,12 @@ const LoginPage = () => {
               <label>Email</label>
               <Field
                 type="email"
-                name="username"
+                name="email"
                 className="form-input"
                 placeholder="Enter your email"
               />
               <ErrorMessage
-                name="username"
+                name="email"
                 component="div"
                 className="error-text"
               />
