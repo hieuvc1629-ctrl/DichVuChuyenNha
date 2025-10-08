@@ -17,12 +17,14 @@ public enum ErrorCode {
     UNAUTHORIZED(1007, "You do not have permission", HttpStatus.FORBIDDEN),
     INVALID_DOB(1008, "Your age must be at least {min}", HttpStatus.BAD_REQUEST),
     ROLE_NOT_EXISTED(1009, "Role not existed", HttpStatus.NOT_FOUND),
-    USERNAME_EXISTED(1010,"Username is existed",HttpStatus.BAD_REQUEST),
-    EMAIL_EXISTED(1011,"Email is existed!",HttpStatus.BAD_REQUEST),
-    PHONE_EXISTED(1012,"Phone is existed!",HttpStatus.BAD_REQUEST),
-    CONTRACT_NOT_FOUND(1013,"Contract not found",HttpStatus.NOT_FOUND),
-    WORK_PROGRESS_NOT_FOUND(1014,"Work progress not found",HttpStatus.NOT_FOUND),
-    INVALID_REQUEST(1015, "Invalid request", HttpStatus.BAD_REQUEST),
+
+    USERNAME_EXISTED(1010, "Username is existed", HttpStatus.BAD_REQUEST),
+    EMAIL_EXISTED(1011, "Email is existed!", HttpStatus.BAD_REQUEST),
+    PHONE_EXISTED(1012, "Phone is existed!", HttpStatus.BAD_REQUEST),
+    WORK_PROGRESS_NOT_FOUND(1013, "Workprogress not found!", HttpStatus.NOT_FOUND),
+    CONTRACT_NOT_FOUND(1014, "Contract not found!", HttpStatus.NOT_FOUND),
+    EMPLOYEE_NOT_FOUND(1015, "Employee not found!", HttpStatus.NOT_FOUND),
+    VEHICLE_NOT_FOUND(1016, "Vehicle not found!", HttpStatus.NOT_FOUND)
 
     ;
 
