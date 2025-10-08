@@ -40,10 +40,27 @@ public class SecurityConfig {
         private String jwtSecret;
 
         private final String[] PUBLIC_URL = {
-                        "/api/auth/**", // Login/logout
-                        "/api/users/customer-company", // Đăng ký customer
-                        "/api/users/roles" // Get roles cho register
-        };
+
+
+                "/api/auth/**", // Login/logout
+                "/api/users/customer-company",
+                "/api/auth/**",
+                "/api/public/**",
+                "/api/test/public",
+                "/api/users/**",
+                "/api/manager/contracts/**",
+                "/api/manager/view-contracts",
+                "/api/employees/**",
+                "/api/assignments/**",
+                "/api/contracts/**",
+                "/api/surveys/**",
+                "/api/requests/**",
+                "/api/prices/**",
+                "/api/quotations/**",
+        "/api/quotation-services/**"};
+
+
+
 
         @Bean
         public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
