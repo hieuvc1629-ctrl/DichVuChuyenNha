@@ -5,17 +5,17 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class PriceDTO {
-    private Integer priceId;
+public class ListQuotationServicesResponse {
+    private Integer id;
+    private String username;
+    private String companyName;
+    private String serviceName;
     private String priceType;
-    private Double amount;
-    private Integer quantity; // Thêm quantity
+    private Integer quantity;
+    private Double subtotal;
 
 }
-

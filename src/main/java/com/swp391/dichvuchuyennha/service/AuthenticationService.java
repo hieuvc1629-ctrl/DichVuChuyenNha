@@ -41,7 +41,7 @@ public class AuthenticationService {
     private final EmailService emailService; // Inject EmailService
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
-        Users user = userRepository.findByEmail(request.getUsername()) // Thay username → email
+        Users user = userRepository.findByUsername(request.getUsername()) // Thay username → email
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
         boolean authenticated = passwordEncoder.matches(request.getPassword(), user.getPassword());

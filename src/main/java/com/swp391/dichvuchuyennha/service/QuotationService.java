@@ -26,7 +26,9 @@ public class QuotationService {
         // Gán survey từ DB theo surveyId
         Surveys survey = surveyRepository.findById(request.getSurveyId())
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy khảo sát với ID: " + request.getSurveyId()));
+
         quotation.setSurvey(survey);
+        quotation.setTotalPrice(0.0);
 
         // Lưu vào DB
         return quotationRepository.save(quotation);

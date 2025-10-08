@@ -21,6 +21,8 @@ import CustomerProfile from "../auth/ProfilePage";
 import ProfilePage from "../auth/ProfilePage";
 import SurveyDashboard from "../staff/SurveyDashboard";
 import PriceTable from "../HomePage/PriceTable";
+import QuotationServiceManager from "../staff/QuotationServiceManager";
+import QuotationServiceList from "../staff/QuotationServiceList";
 
 
 
@@ -57,6 +59,14 @@ const Router = () => {
       {
           path:"price-service",
           element: <PriceTable/>
+        },
+        {
+          path:"quotations-services",
+          element: <QuotationServiceManager/>
+        },
+        {
+          path:"quotations-services-list",
+          element: <QuotationServiceList/>
         },
 
 
