@@ -1,20 +1,25 @@
 package com.swp391.dichvuchuyennha.controller;
 
+import java.util.List;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.swp391.dichvuchuyennha.dto.response.ContractDTO;
 import com.swp391.dichvuchuyennha.dto.response.ContractResponse;
-import com.swp391.dichvuchuyennha.entity.Contract;
 import com.swp391.dichvuchuyennha.entity.Users;
 import com.swp391.dichvuchuyennha.repository.ContractRepository;
 import com.swp391.dichvuchuyennha.repository.UserRepository;
 import com.swp391.dichvuchuyennha.service.AuthenticationService;
 import com.swp391.dichvuchuyennha.service.ContractService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/contracts")
@@ -29,7 +34,6 @@ public class ContractController {
 
     /** Lấy danh sách hợp đồng chưa ký của user đang login */
     @GetMapping("/unsigned/me")
-    @PreAuthorize("hasAnyRole('customer_individual', 'customer_company')") // Chỉ customer xem unsigned của mình
     public ResponseEntity<List<ContractResponse>> getUnsignedContracts() {
         // Lấy username từ context
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -45,7 +49,6 @@ public class ContractController {
 
     /** Ký hợp đồng */
     @PutMapping("/sign/{contractId}")
-    @PreAuthorize("hasAnyRole('customer_individual', 'customer_company')") // Chỉ customer ký
     public ResponseEntity<ContractResponse> signContract(@PathVariable Integer contractId) {
         // Lấy username từ context
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -61,7 +64,6 @@ public class ContractController {
 
     // GET tất cả hợp đồng (dùng DTO)
     @GetMapping
-    @PreAuthorize("hasAnyRole('manager', 'admin')") // Manager/admin xem all
     public List<ContractDTO> getUnsignedContractsForManager() {
         return contractRepository.findByStatus("UNSIGNED").stream()
                 .map(c -> new ContractDTO(c.getContractId(), c.getStatus()))

@@ -1,5 +1,19 @@
 package com.swp391.dichvuchuyennha.controller;
 
+import java.util.List;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.swp391.dichvuchuyennha.dto.request.ApiResponse;
 import com.swp391.dichvuchuyennha.dto.request.CustomerCompanyRequest;
 import com.swp391.dichvuchuyennha.dto.request.UserCreateRequest;
@@ -10,12 +24,8 @@ import com.swp391.dichvuchuyennha.entity.Users;
 import com.swp391.dichvuchuyennha.repository.RoleRepository;
 import com.swp391.dichvuchuyennha.service.AuthenticationService;
 import com.swp391.dichvuchuyennha.service.UserService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/users")
@@ -29,7 +39,6 @@ public class UserController {
 
         // Lấy profile của user đang đăng nhập
         @GetMapping("/me")
-        @PreAuthorize("isAuthenticated()") // Bất kỳ auth user nào cũng xem profile mình
         public ResponseEntity<UserResponse> getProfile(@RequestHeader("Authorization") String authHeader) {
                 String token = authHeader.substring(7); // bỏ "Bearer "
                 UserResponse user = authService.getUserFromToken(token);
@@ -38,7 +47,6 @@ public class UserController {
 
         // Cập nhật profile
         @PutMapping("/me")
-        @PreAuthorize("isAuthenticated()") // Bất kỳ auth user nào cũng update profile mình
         public ResponseEntity<ApiResponse<UserResponse>> updateProfile(
                         @RequestHeader("Authorization") String authHeader,
                         @RequestBody UserUpdateRequest request) {
@@ -65,7 +73,6 @@ public class UserController {
         }
 
         @PostMapping("/create")
-        @PreAuthorize("hasRole('admin')") // Chỉ admin tạo user
         public ResponseEntity<ApiResponse<UserResponse>> createUser(@RequestBody UserCreateRequest request) {
                 UserResponse user = userService.createUser(request);
                 return ResponseEntity.ok(
@@ -77,7 +84,6 @@ public class UserController {
         }
 
         @GetMapping("/roles")
-        @PreAuthorize("isAuthenticated()") // Auth user xem roles (có thể public nếu cần)
         public ResponseEntity<ApiResponse<List<RoleResponse>>> getCustomerRoles() {
                 List<RoleResponse> roles = roleRepository.findByRoleIdIn(List.of(4, 5))
                                 .stream()
@@ -105,7 +111,6 @@ public class UserController {
         }
 
         @GetMapping
-        @PreAuthorize("hasRole('admin')") // Chỉ admin xem all users
         public ResponseEntity<ApiResponse<List<UserResponse>>> getAllUsers() {
                 List<UserResponse> users = userService.getAllUsers();
                 return ResponseEntity.ok(
@@ -117,7 +122,6 @@ public class UserController {
         }
 
         @PutMapping("/{userId}")
-        @PreAuthorize("hasRole('admin')") // Chỉ admin update user khác
         public ResponseEntity<ApiResponse<UserResponse>> updateUser(
                         @PathVariable Integer userId,
                         @RequestBody UserCreateRequest request) {
@@ -131,7 +135,6 @@ public class UserController {
         }
 
         @DeleteMapping("/{userId}")
-        @PreAuthorize("hasRole('admin')") // Chỉ admin xóa
         public ResponseEntity<ApiResponse<Void>> deleteUser(@PathVariable Integer userId) {
                 userService.deleteUser(userId);
                 return ResponseEntity.ok(

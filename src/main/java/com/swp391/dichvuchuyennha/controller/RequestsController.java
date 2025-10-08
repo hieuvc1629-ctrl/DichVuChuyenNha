@@ -1,22 +1,27 @@
 package com.swp391.dichvuchuyennha.controller;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.swp391.dichvuchuyennha.dto.request.ApiResponse;
 import com.swp391.dichvuchuyennha.dto.request.RequestCreateRequest;
 import com.swp391.dichvuchuyennha.dto.response.RequestDto;
 import com.swp391.dichvuchuyennha.dto.response.RequestResponse;
 import com.swp391.dichvuchuyennha.entity.Users;
 import com.swp391.dichvuchuyennha.repository.RequestRepository;
-import com.swp391.dichvuchuyennha.service.RequestService;
 import com.swp391.dichvuchuyennha.repository.UserRepository;
+import com.swp391.dichvuchuyennha.service.RequestService;
+
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.context.SecurityContextHolder;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/requests")
@@ -28,7 +33,6 @@ public class RequestsController {
     private final RequestRepository requestRepository;
 
     @PostMapping("/create")
-    @PreAuthorize("hasAnyRole('customer_individual', 'customer_company')") // Chỉ customer tạo
     public ResponseEntity<ApiResponse<RequestResponse>> create(@Valid @RequestBody RequestCreateRequest requestDto) {
         String context = SecurityContextHolder.getContext().getAuthentication().getName();
 
@@ -38,7 +42,6 @@ public class RequestsController {
     }
 
     @GetMapping("/my")
-    @PreAuthorize("hasAnyRole('customer_individual', 'customer_company')") // Chỉ customer xem của mình
     public ResponseEntity<ApiResponse<List<RequestResponse>>> getMyRequests() {
         String context = SecurityContextHolder.getContext().getAuthentication().getName();
         Users user = userRepository.findByUsername(context).orElseThrow();
@@ -47,7 +50,6 @@ public class RequestsController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('manager', 'admin')") // Manager/ admin xem all
     public List<RequestDto> getAllRequests() {
         return requestRepository.findAll()
                 .stream()
