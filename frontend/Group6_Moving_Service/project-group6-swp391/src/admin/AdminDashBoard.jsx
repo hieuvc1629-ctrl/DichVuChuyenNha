@@ -12,8 +12,8 @@ import {
   Select,
 } from "antd";
 import axios from "axios";
+import moment from "moment"; // Import moment để format date
 import CreateAdminUser from "./CreateAdminUser";
-import api from "../service/api.js";
 const { TabPane } = Tabs;
 
 export default function AdminDashboard() {
@@ -24,6 +24,16 @@ export default function AdminDashboard() {
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
   const [form] = Form.useForm();
+
+  // State cho history
+  const [historyVisible, setHistoryVisible] = useState(false);
+  const [historyLoading, setHistoryLoading] = useState(false); // Loading riêng cho history
+  const [userHistory, setUserHistory] = useState({
+    requests: [],
+    contracts: [],
+    feedbacks: [],
+  });
+  const [selectedUser, setSelectedUser] = useState(null); // Để hiển thị tên user trong modal title
 
   const token = localStorage.getItem("token");
 
@@ -42,6 +52,21 @@ export default function AdminDashboard() {
         message.error("Không load được danh sách người dùng!");
       })
       .finally(() => setLoading(false));
+  };
+
+  // Fetch lịch sử của user
+  const fetchHistory = async (userId) => {
+    setHistoryLoading(true);
+    try {
+      const res = await axios.get(`http://localhost:8080/api/users/${userId}/history`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setUserHistory(res.data);
+    } catch (err) {
+      message.error("Không tải được lịch sử!");
+    } finally {
+      setHistoryLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -90,7 +115,7 @@ export default function AdminDashboard() {
       });
   };
 
-  // Cấu hình bảng
+  // Cấu hình bảng users
   const columns = [
     {
       title: "ID",
@@ -135,9 +160,61 @@ export default function AdminDashboard() {
               Xóa
             </Button>
           </Popconfirm>
+          <Button type="link" onClick={() => {
+            setSelectedUser(record);
+            fetchHistory(record.userId);
+            setHistoryVisible(true);
+          }}>
+            Xem lịch sử
+          </Button>
         </>
       ),
     },
+  ];
+
+  // Cấu hình columns cho requests trong history modal
+  const requestColumns = [
+    { title: "ID", dataIndex: "requestId", key: "requestId" },
+    {
+      title: "Ngày yêu cầu",
+      dataIndex: "requestTime",
+      key: "requestTime",
+      render: (time) => moment(time).format("DD/MM/YYYY HH:mm"),
+    },
+    { title: "Mô tả", dataIndex: "description", key: "description" },
+    { title: "Trạng thái", dataIndex: "status", key: "status" },
+  ];
+
+  // Cấu hình columns cho contracts trong history modal
+  const contractColumns = [
+    { title: "ID", dataIndex: "contractId", key: "contractId" },
+    {
+      title: "Ngày bắt đầu",
+      dataIndex: "startDate",
+      key: "startDate",
+      render: (date) => moment(date).format("DD/MM/YYYY"),
+    },
+    {
+      title: "Ngày kết thúc",
+      dataIndex: "endDate",
+      key: "endDate",
+      render: (date) => moment(date).format("DD/MM/YYYY"),
+    },
+    { title: "Tổng tiền", dataIndex: "totalAmount", key: "totalAmount" },
+    { title: "Trạng thái", dataIndex: "status", key: "status" },
+  ];
+
+  // Cấu hình columns cho feedbacks trong history modal
+  const feedbackColumns = [
+    { title: "ID", dataIndex: "feedbackId", key: "feedbackId" },
+    {
+      title: "Ngày gửi",
+      dataIndex: "createdAt",
+      key: "createdAt",
+      render: (time) => moment(time).format("DD/MM/YYYY HH:mm"),
+    },
+    { title: "Bình luận", dataIndex: "comment", key: "comment" },
+    { title: "Đánh giá", dataIndex: "rating", key: "rating" },
   ];
 
   return (
@@ -197,6 +274,49 @@ export default function AdminDashboard() {
             </Select>
           </Form.Item>
         </Form>
+      </Modal>
+
+      {/* Modal xem lịch sử */}
+      <Modal
+        title={`Lịch sử của user ${selectedUser?.username || ""}`}
+        open={historyVisible}
+        onCancel={() => {
+          setHistoryVisible(false);
+          setUserHistory({ requests: [], contracts: [], feedbacks: [] });
+          setSelectedUser(null);
+        }}
+        footer={null}
+        width={800}
+      >
+        <Tabs defaultActiveKey="requests">
+          <TabPane tab="Requests" key="requests">
+            <Table
+              rowKey="requestId"
+              columns={requestColumns}
+              dataSource={userHistory.requests}
+              loading={historyLoading}
+              pagination={{ pageSize: 5 }}
+            />
+          </TabPane>
+          <TabPane tab="Contracts" key="contracts">
+            <Table
+              rowKey="contractId"
+              columns={contractColumns}
+              dataSource={userHistory.contracts}
+              loading={historyLoading}
+              pagination={{ pageSize: 5 }}
+            />
+          </TabPane>
+          <TabPane tab="Feedbacks" key="feedbacks">
+            <Table
+              rowKey="feedbackId"
+              columns={feedbackColumns}
+              dataSource={userHistory.feedbacks}
+              loading={historyLoading}
+              pagination={{ pageSize: 5 }}
+            />
+          </TabPane>
+        </Tabs>
       </Modal>
     </Card>
   );

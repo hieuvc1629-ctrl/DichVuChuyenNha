@@ -26,7 +26,8 @@ const LoginPage = () => {
       );
 
       // Lấy dữ liệu từ backend (AuthenticationResponse)
-      const { token, userId, username, roleId, roleName } = response.data.result;
+      const { token, userId, username, roleId, roleName } =
+        response.data.result;
 
       // Lưu vào localStorage
       localStorage.setItem("token", token);
@@ -61,8 +62,13 @@ const LoginPage = () => {
         {({ isSubmitting }) => (
           <Form>
             <div className="form-group">
-              <label>Username</label>
-              <Field type="text" name="username" className="form-input" />
+              <label>Email</label>
+              <Field
+                type="email"
+                name="username"
+                className="form-input"
+                placeholder="Enter your email"
+              />
               <ErrorMessage
                 name="username"
                 component="div"
