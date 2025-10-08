@@ -23,6 +23,8 @@ import SurveyDashboard from "../staff/SurveyDashboard";
 import PriceTable from "../HomePage/PriceTable";
 
 import WorkProgressPage from "../employee/WorkProgressPage";
+import WorkProgressCustomerPage from "../customer/WorkProgressCustomerPage";
+import DamagesPage from "../employee/DamagesPage";
 
 
 const Router = () => {
@@ -113,7 +115,13 @@ const Router = () => {
         { path: "my-requests", element: <UserRequestsPage /> },
 
         { path: "access-denied", element: <AccessDeniedPage /> },
-        { path: "employee/work-progress", element: <WorkProgressPage />}
+        { path: "employee/work-progress", element: <WorkProgressPage />},
+        { path: "customer/work-progress", element: <WorkProgressCustomerPage />},
+        {
+  path: "employee/damages",
+  element: <DamagesPage />,
+}
+
       ],
     },
   ]);

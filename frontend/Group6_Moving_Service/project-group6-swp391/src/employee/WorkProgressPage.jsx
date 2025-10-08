@@ -1,7 +1,6 @@
-// src/employee/WorkProgressPage.jsx
 import React, { useEffect, useState } from "react";
 import workProgressApi from "../service/workprogress";
-// import "./WorkProgressPage.css";
+import "./WorkProgressPage.css";
 
 const WorkProgressPage = () => {
   const [progressList, setProgressList] = useState([]);
@@ -26,7 +25,7 @@ const WorkProgressPage = () => {
     fetchProgressList();
   }, []);
 
-  // ✅ Cập nhật toàn bộ (mô tả + trạng thái)
+  // ✅ Cập nhật tiến độ
   const updateWorkProgress = async (progressId, newStatus, newDesc) => {
     try {
       await workProgressApi.update(progressId, {
@@ -40,13 +39,11 @@ const WorkProgressPage = () => {
     }
   };
 
-  // ✅ Thay đổi trạng thái
   const handleStatusChange = (progressId, newStatus) => {
     const current = progressList.find((p) => p.progressId === progressId);
     updateWorkProgress(progressId, newStatus, current.taskDescription);
   };
 
-  // ✅ Thay đổi mô tả
   const handleDescriptionChange = (progressId, newDesc) => {
     const current = progressList.find((p) => p.progressId === progressId);
     updateWorkProgress(progressId, current.progressStatus, newDesc);
