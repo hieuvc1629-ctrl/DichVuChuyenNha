@@ -1,5 +1,6 @@
 package com.swp391.dichvuchuyennha.controller;
 
+import com.swp391.dichvuchuyennha.dto.request.ApiResponse;
 import com.swp391.dichvuchuyennha.dto.request.ChatAiRequest;
 import com.swp391.dichvuchuyennha.service.ChatAiService;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +16,12 @@ public class ChatAiController {
     private final ChatAiService chatAiService;
 
     @PostMapping("/chat-ai")
-    public String ChatAi(@RequestBody ChatAiRequest chatAiRequest) {
-        return chatAiService.sendMessage(chatAiRequest);
+    public ApiResponse<Object> ChatAi(@RequestBody ChatAiRequest chatAiRequest) {
+
+        return ApiResponse.builder()
+                .code(1000)
+                .result(chatAiService.sendMessage(chatAiRequest))
+                .build();
+
     }
 }
