@@ -27,7 +27,7 @@ function WorkProgressCustomerPage() {
 
   return (
     <div className="customer-progress-container">
-      <h1 className="page-title">📦 Tiến độ công việc của bạn</h1>
+      <h1 className="page-title">📦 Tiến Độ Quá Trình Chuyển Đồ</h1>
 
       {progressList.length === 0 ? (
         <p className="empty-text">Hiện tại chưa có tiến độ công việc nào.</p>
@@ -36,7 +36,7 @@ function WorkProgressCustomerPage() {
           {progressList.map((item) => (
             <div key={item.progressId} className="progress-card">
               <div className="card-header">
-                <h2>Hợp đồng #{item.contractId}</h2>
+                {/* <h2>Hợp đồng #{item.contractId}</h2> */}
                 <span className={`status ${item.progressStatus}`}>
                   {item.progressStatus}
                 </span>
