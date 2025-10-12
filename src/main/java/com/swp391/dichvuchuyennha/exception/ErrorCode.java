@@ -24,8 +24,8 @@ public enum ErrorCode {
     WORK_PROGRESS_NOT_FOUND(1013, "Workprogress not found!", HttpStatus.NOT_FOUND),
     CONTRACT_NOT_FOUND(1014, "Contract not found!", HttpStatus.NOT_FOUND),
     EMPLOYEE_NOT_FOUND(1015, "Employee not found!", HttpStatus.NOT_FOUND),
-    VEHICLE_NOT_FOUND(1016, "Vehicle not found!", HttpStatus.NOT_FOUND)
-
+    VEHICLE_NOT_FOUND(1016, "Vehicle not found!", HttpStatus.NOT_FOUND),
+    EMPLOYEE_NOT_EXISTED(1017, "Employee not existed!", HttpStatus.NOT_FOUND)
     ;
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {
