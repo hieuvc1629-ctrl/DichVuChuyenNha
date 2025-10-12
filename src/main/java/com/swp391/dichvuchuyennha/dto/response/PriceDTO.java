@@ -15,5 +15,7 @@ public class PriceDTO {
     private Integer priceId;
     private String priceType;
     private Double amount;
+    private Integer quantity; // Thêm quantity
+
 }
 

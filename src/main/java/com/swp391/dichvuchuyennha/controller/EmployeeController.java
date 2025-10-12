@@ -1,10 +1,19 @@
 package com.swp391.dichvuchuyennha.controller;
 
+import java.util.List;
+
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.swp391.dichvuchuyennha.dto.request.ApiResponse;
 import com.swp391.dichvuchuyennha.dto.request.EmployeeUpdateRequest;
 import com.swp391.dichvuchuyennha.dto.response.EmployeeDTO;
 import com.swp391.dichvuchuyennha.dto.response.EmployeeDetailResponse;
 import com.swp391.dichvuchuyennha.service.EmployeeService;
+import com.swp391.dichvuchuyennha.repository.EmployeeRepository;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

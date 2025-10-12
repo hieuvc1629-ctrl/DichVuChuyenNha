@@ -10,6 +10,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class QuotationServiceRequest {
-    private int quotationId;
-    private int serviceId;
+    private Integer id;
+    private Integer quotationId;
+    private Integer serviceId;
+    private Integer priceId;
+    private Integer quantity;
+
 }

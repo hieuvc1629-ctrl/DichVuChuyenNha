@@ -53,4 +53,6 @@ public interface EmployeeRepository extends JpaRepository<Employee, Integer> {
         ORDER BY e.employeeId
     """)
     List<Employee> findAllWithUser();
+    // 🔎 Thêm hàm này để tìm nhân viên từ userId trong JWT
+    Optional<Employee> findByUser_UserId(Long userId);
 }

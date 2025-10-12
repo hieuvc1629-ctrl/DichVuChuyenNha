@@ -23,8 +23,10 @@ import CustomerProfile from "../auth/ProfilePage";
 import ProfilePage from "../auth/ProfilePage";
 import SurveyDashboard from "../staff/SurveyDashboard";
 import PriceTable from "../HomePage/PriceTable";
+import QuotationServiceManager from "../staff/QuotationServiceManager";
+import QuotationServiceList from "../staff/QuotationServiceList";
 
-
+import WorkProgressPage from "../employee/WorkProgressPage";
 
 
 const Router = () => {
@@ -60,6 +62,14 @@ const Router = () => {
           path:"price-service",
           element: <PriceTable/>
         },
+        {
+          path:"quotations-services",
+          element: <QuotationServiceManager/>
+        },
+        {
+          path:"quotations-services-list",
+          element: <QuotationServiceList/>
+        },
 
 
 
@@ -93,6 +103,7 @@ const Router = () => {
               <CreateAdminUser />
             </ProtectedRoute>
           ),
+
         },
 
         {
@@ -131,6 +142,7 @@ const Router = () => {
         { path: "my-requests", element: <UserRequestsPage /> },
 
         { path: "access-denied", element: <AccessDeniedPage /> },
+        { path: "employee/work-progress", element: <WorkProgressPage />}
       ],
     },
   ]);

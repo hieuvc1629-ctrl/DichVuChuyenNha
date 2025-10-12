@@ -9,12 +9,12 @@ const LoginPage = () => {
   const navigate = useNavigate();
 
   const initialValues = {
-    username: "",
+    email: "",
     password: "",
   };
 
   const validationSchema = Yup.object({
-    username: Yup.string().required("Username is required"),
+    email: Yup.string().required("Email is required"),
     password: Yup.string().required("Password is required"),
   });
 
@@ -26,7 +26,8 @@ const LoginPage = () => {
       );
 
       // Lấy dữ liệu từ backend (AuthenticationResponse)
-      const { token, userId, username, roleId, roleName } = response.data.result;
+      const { token, userId, username, roleId, roleName } =
+        response.data.result;
 
       // Lưu vào localStorage
       localStorage.setItem("token", token);
@@ -61,10 +62,15 @@ const LoginPage = () => {
         {({ isSubmitting }) => (
           <Form>
             <div className="form-group">
-              <label>Username</label>
-              <Field type="text" name="username" className="form-input" />
+              <label>Email</label>
+              <Field
+                type="email"
+                name="email"
+                className="form-input"
+                placeholder="Enter your email"
+              />
               <ErrorMessage
-                name="username"
+                name="email"
                 component="div"
                 className="error-text"
               />
