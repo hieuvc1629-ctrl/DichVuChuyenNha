@@ -10,7 +10,7 @@ import UserRequestsPage from "../customer/UserRequestsPage";
 import CustomerPage from "../customer/CustomerPage";
 import CreateAdminUser from "../admin/CreateAdminUser";
 import EmployeeManagement from "../admin/EmployeeManagement";
-import VehicleManagement from "../admin/VehicleManagement";
+import VehicleManagement from "../vehicles/VehiclesPage";
 import AnimatedPage from "../components/AnimatedPage";
 
 

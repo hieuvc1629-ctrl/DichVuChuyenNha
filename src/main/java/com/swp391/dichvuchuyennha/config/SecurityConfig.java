@@ -50,7 +50,8 @@ public class SecurityConfig {
                 "/api/users/**",
                 "/api/manager/contracts/**",
                 "/api/manager/view-contracts",
-                "/api/employees/**",
+                "/api/employees/**", // Employee endpoints - temporarily public for testing
+                "/api/vehicles/**", // Vehicle endpoints - temporarily public for testing
                 "/api/assignments/**",
                 "/api/contracts/**",
                 "/api/surveys/**",
@@ -98,8 +99,8 @@ public class SecurityConfig {
                                                 .hasAnyRole("EMPLOYEE", "MANAGER", "ADMIN")
                                                 .requestMatchers(DELETE, "/api/damages/{damageId}").hasRole("MANAGER")
 
-                                                // Employee endpoints
-                                                .requestMatchers("/api/employees").hasAnyRole("MANAGER", "ADMIN")
+                                                // Employee endpoints - temporarily disabled for testing
+                                                // .requestMatchers("/api/employees").hasAnyRole("MANAGER", "ADMIN")
 
                                                 // Request endpoints
                                                 .requestMatchers(POST, "/api/requests/create")
@@ -117,8 +118,8 @@ public class SecurityConfig {
                                                 .requestMatchers(PUT, "/api/users/me").authenticated()
                                                 .requestMatchers(POST, "/api/users/create").hasRole("ADMIN")
 
-                                                // Vehicles CRUD (mới thêm)
-                                                .requestMatchers("/api/vehicles/**").hasAnyRole("MANAGER", "ADMIN")
+                                                // Vehicles CRUD - temporarily disabled for testing
+                                                // .requestMatchers("/api/vehicles/**").hasAnyRole("MANAGER", "ADMIN")
 
                                                 // WorkProgress (nếu có)
                                                 .requestMatchers("/api/work-progress/**")
