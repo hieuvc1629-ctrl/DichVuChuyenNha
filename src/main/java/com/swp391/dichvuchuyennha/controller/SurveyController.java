@@ -1,15 +1,17 @@
 package com.swp391.dichvuchuyennha.controller;
 
+import java.util.List;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
 import com.swp391.dichvuchuyennha.dto.request.SurveyRequest;
 import com.swp391.dichvuchuyennha.dto.response.SurveyResponse;
 import com.swp391.dichvuchuyennha.entity.Surveys;
 import com.swp391.dichvuchuyennha.mapper.SurveyMapper;
 import com.swp391.dichvuchuyennha.service.SurveyService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/surveys")
@@ -25,6 +27,7 @@ public class SurveyController {
         Surveys savedSurvey = surveyService.createSurvey(dto);
         return ResponseEntity.ok(surveyMapper.toResponse(savedSurvey));
     }
+
     @GetMapping
     public ResponseEntity<List<SurveyResponse>> listAllSurveys() {
         List<SurveyResponse> surveys = surveyService.getAllSurveys();

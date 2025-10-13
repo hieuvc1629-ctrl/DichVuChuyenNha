@@ -1,19 +1,25 @@
 package com.swp391.dichvuchuyennha.controller;
 
+import java.util.List;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.swp391.dichvuchuyennha.dto.response.ContractDTO;
 import com.swp391.dichvuchuyennha.dto.response.ContractResponse;
-import com.swp391.dichvuchuyennha.entity.Contract;
 import com.swp391.dichvuchuyennha.entity.Users;
 import com.swp391.dichvuchuyennha.repository.ContractRepository;
 import com.swp391.dichvuchuyennha.repository.UserRepository;
 import com.swp391.dichvuchuyennha.service.AuthenticationService;
 import com.swp391.dichvuchuyennha.service.ContractService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/contracts")
@@ -25,7 +31,6 @@ public class ContractController {
     private final ContractService contractService;
     private final AuthenticationService authService;
     private final UserRepository userRepository;
-
 
     /** Lấy danh sách hợp đồng chưa ký của user đang login */
     @GetMapping("/unsigned/me")
@@ -56,6 +61,7 @@ public class ContractController {
 
         return ResponseEntity.ok(signed);
     }
+
     // GET tất cả hợp đồng (dùng DTO)
     @GetMapping
     public List<ContractDTO> getUnsignedContractsForManager() {
