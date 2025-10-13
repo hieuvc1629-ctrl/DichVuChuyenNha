@@ -1,19 +1,19 @@
 package com.swp391.dichvuchuyennha.dto.request;
 
-import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.experimental.FieldDefaults;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@FieldDefaults(level = AccessLevel.PRIVATE)
-public class AuthenticationRequest {
+public class QuotationServiceRequest {
+    private Integer id;
+    private Integer quotationId;
+    private Integer serviceId;
+    private Integer priceId;
+    private Integer quantity;
 
-    String email;
-    String password;
 }

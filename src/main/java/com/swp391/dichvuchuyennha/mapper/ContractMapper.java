@@ -14,5 +14,7 @@ public interface ContractMapper {
     @Mapping(target = "signedByUsername", source = "signedBy.username")
     @Mapping(target = "startLocation", source = "quotation.survey.addressFrom")
     @Mapping(target = "endLocation", source = "quotation.survey.addressTo")
+
     ContractResponse toResponse(Contract contract);
+
 }

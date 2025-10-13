@@ -68,6 +68,7 @@ public class AuthenticationService {
                     .expirationTime(Date.from(Instant.now().plusSeconds(jwtExpirationSec)))
                     .jwtID(UUID.randomUUID().toString())
                     .claim("roles", List.of(user.getRole().getRoleName()))
+                    .claim("userId", user.getUserId())
                     .build();
 
             JWSHeader header = new JWSHeader(JWSAlgorithm.HS256);
