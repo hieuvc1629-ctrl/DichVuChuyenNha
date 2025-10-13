@@ -14,8 +14,13 @@ public class ChatAiService {
     }
 
     public ChatAiResponse sendMessage(ChatAiRequest request) {
+
+        if (request.getMessage() == null || request.getMessage().trim().isEmpty()) {
+            throw new IllegalArgumentException("Message không được để trống");
+        }
+        
         return ChatAiResponse.builder()
-                .answer(chatClient.prompt(" Bạn là một hệ thống của dịch vụ vận chuyển nhà với các gói dịch vụ cơ bản")
+                .answer(chatClient.prompt("Bạn là một hệ thống của dịch vụ vận chuyển nhà với các gói dịch vụ cơ bản")
                         .user(request.getMessage())
                         .call()
                         .content())

@@ -28,8 +28,8 @@ public enum ErrorCode {
     SURVEY_NOT_FOUND(1017,"Survey does not exist",HttpStatus.NOT_FOUND),
     EMPLOYEE_NOT_FOUND(1015, "Employee not found!", HttpStatus.NOT_FOUND),
     VEHICLE_NOT_FOUND(1016, "Vehicle not found!", HttpStatus.NOT_FOUND),
-    EMPLOYEE_NOT_EXISTED(1017, "Employee not existed!", HttpStatus.NOT_FOUND)
-
+    EMPLOYEE_NOT_EXISTED(1017, "Employee not existed!", HttpStatus.NOT_FOUND),
+    EMPLOYEE_HAS_ASSIGNMENTS(1018,"Employee has assignment",HttpStatus.BAD_REQUEST)
     ;
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {

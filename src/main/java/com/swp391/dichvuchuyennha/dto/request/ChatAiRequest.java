@@ -1,5 +1,6 @@
 package com.swp391.dichvuchuyennha.dto.request;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
 @Data
@@ -9,5 +10,6 @@ import lombok.*;
 @Getter
 @Setter
 public class ChatAiRequest {
+    @NotBlank(message = "Message không được để trống")
     private String message;
 }
