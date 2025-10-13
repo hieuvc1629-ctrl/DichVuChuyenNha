@@ -57,7 +57,8 @@ public class SecurityConfig {
                 "/api/requests/**",
                 "/api/prices/**",
                 "/api/quotations/**",
-        "/api/quotation-services/**"};
+                "/api/quotation-services/**",
+                "/api/chat-ai"};
 
 
 
@@ -124,7 +125,7 @@ public class SecurityConfig {
                                                 .hasAnyRole("EMPLOYEE", "MANAGER", "ADMIN")
 
                                                 // Default
-                                                .anyRequest().authenticated())
+                                                )
                                 .sessionManagement(session -> session
                                                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                                 .oauth2ResourceServer(oauth2 -> oauth2
@@ -157,8 +158,9 @@ public class SecurityConfig {
                 corsConfiguration.addAllowedHeader("*");
                 corsConfiguration.addAllowedMethod("*");
                 corsConfiguration.addAllowedOrigin("http://localhost:5173");
+            corsConfiguration.setAllowCredentials(true); // quan trọng nếu gửi JWT qua cookie
 
-                UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+            UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
                 source.registerCorsConfiguration("/**", corsConfiguration);
                 return new CorsFilter(source);
         }
