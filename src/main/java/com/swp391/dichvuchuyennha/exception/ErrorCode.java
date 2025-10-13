@@ -23,7 +23,8 @@ public enum ErrorCode {
     CONTRACT_NOT_FOUND(1013,"Contract not found",HttpStatus.NOT_FOUND),
     WORK_PROGRESS_NOT_FOUND(1014,"Work progress not found",HttpStatus.NOT_FOUND),
     INVALID_REQUEST(1015, "Invalid request", HttpStatus.BAD_REQUEST),
-
+    QUOTATION_NOT_FOUND(1016,"Quotation does not exist",HttpStatus.NOT_FOUND),
+    SURVEY_NOT_FOUND(1017,"Survey does not exist",HttpStatus.NOT_FOUND),
     ;
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {

@@ -4,6 +4,8 @@ import com.swp391.dichvuchuyennha.dto.request.SurveyRequest;
 import com.swp391.dichvuchuyennha.dto.response.SurveyResponse;
 import com.swp391.dichvuchuyennha.entity.Requests;
 import com.swp391.dichvuchuyennha.entity.Surveys;
+import com.swp391.dichvuchuyennha.exception.AppException;
+import com.swp391.dichvuchuyennha.exception.ErrorCode;
 import com.swp391.dichvuchuyennha.external.DistanceCalculator;
 import com.swp391.dichvuchuyennha.mapper.SurveyMapper;
 import com.swp391.dichvuchuyennha.repository.RequestRepository;
@@ -25,7 +27,7 @@ public class SurveyService {
         Surveys survey = surveyMapper.toEntity(dto);
 
         Requests request = requestRepository.findById(dto.getRequestId())
-                .orElseThrow(() -> new RuntimeException("Request không tồn tại"));
+                .orElseThrow(() -> new AppException(ErrorCode.SURVEY_NOT_FOUND));
 
         survey.setRequest(request);
         // Có thể set mặc định status nếu muốn
