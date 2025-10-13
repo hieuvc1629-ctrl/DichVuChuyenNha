@@ -5,6 +5,8 @@ import com.swp391.dichvuchuyennha.dto.response.QuotationResponse;
 import com.swp391.dichvuchuyennha.entity.QuotationServices;
 import com.swp391.dichvuchuyennha.entity.Quotations;
 import com.swp391.dichvuchuyennha.entity.Surveys;
+import com.swp391.dichvuchuyennha.exception.AppException;
+import com.swp391.dichvuchuyennha.exception.ErrorCode;
 import com.swp391.dichvuchuyennha.mapper.QuotationMapper;
 import com.swp391.dichvuchuyennha.repository.QuotationRepository;
 import com.swp391.dichvuchuyennha.repository.QuotationServiceRepository;
@@ -28,7 +30,7 @@ public class QuotationService {
 
         // Gán survey từ DB theo surveyId
         Surveys survey = surveyRepository.findById(request.getSurveyId())
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy khảo sát với ID: " + request.getSurveyId()));
+                .orElseThrow(() -> new AppException(ErrorCode.QUOTATION_NOT_FOUND));
 
         quotation.setSurvey(survey);
         quotation.setTotalPrice(0.0);

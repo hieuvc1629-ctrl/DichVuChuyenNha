@@ -44,9 +44,9 @@ const Router = () => {
         {
   path: "contract-assignment",
   element: (
-    <ProtectedRoute allowedRoles={["manager"]}>
+   
       <ContractAssignment />
-    </ProtectedRoute>
+   
   ),
 },
         {

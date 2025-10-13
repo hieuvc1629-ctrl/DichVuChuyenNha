@@ -65,7 +65,7 @@ public class ContractController {
     // GET tất cả hợp đồng (dùng DTO)
     @GetMapping
     public List<ContractDTO> getUnsignedContractsForManager() {
-        return contractRepository.findByStatus("UNSIGNED").stream()
+        return contractRepository.findByStatus("SIGNED").stream()
                 .map(c -> new ContractDTO(c.getContractId(), c.getStatus()))
                 .toList();
     }
