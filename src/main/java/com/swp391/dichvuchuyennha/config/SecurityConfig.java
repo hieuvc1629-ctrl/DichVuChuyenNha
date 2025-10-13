@@ -158,8 +158,9 @@ public class SecurityConfig {
                 corsConfiguration.addAllowedHeader("*");
                 corsConfiguration.addAllowedMethod("*");
                 corsConfiguration.addAllowedOrigin("http://localhost:5173");
+            corsConfiguration.setAllowCredentials(true); // quan trọng nếu gửi JWT qua cookie
 
-                UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+            UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
                 source.registerCorsConfiguration("/**", corsConfiguration);
                 return new CorsFilter(source);
         }
@@ -183,6 +184,7 @@ public class SecurityConfig {
 
         @Bean
         public PasswordEncoder passwordEncoder() {
-                return new BCryptPasswordEncoder(); // Đổi sang BCrypt
+                return new BCryptPasswordEncoder();
+//            return org.springframework.security.crypto.password.NoOpPasswordEncoder.getInstance();// Đổi sang BCrypt
         }
 }
