@@ -6,7 +6,8 @@ import com.swp391.dichvuchuyennha.entity.Quotations;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring",
+        uses = {QuotationServiceInfoMapper.class} )
 
 public interface QuotationMapper {
     @Mapping(target = "quotationId",ignore =true)
@@ -17,6 +18,8 @@ public interface QuotationMapper {
     @Mapping(target = "addressTo",source = "survey.addressTo")
     @Mapping(target = "username",source = "survey.request.user.username")
     @Mapping(target = "companyName",source = "survey.request.user.customerCompany.companyName")
+    @Mapping(target = "services", source = "quotationServices") // 👈 map list dịch vụ
+
     QuotationResponse toResponse(Quotations quotations);
 }
 

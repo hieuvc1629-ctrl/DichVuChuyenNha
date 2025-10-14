@@ -21,6 +21,10 @@ public class QuotationResponse {
     private String addressTo;
     private String username;
     private String companyName;
+    private String status;
+
+    private List<QuotationServiceInfo> services;
+
 
 }
 
