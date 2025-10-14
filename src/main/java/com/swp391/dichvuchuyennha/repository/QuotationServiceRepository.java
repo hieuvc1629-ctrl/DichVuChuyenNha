@@ -5,8 +5,6 @@ import com.swp391.dichvuchuyennha.entity.QuotationServices;
 import com.swp391.dichvuchuyennha.entity.Quotations;
 import com.swp391.dichvuchuyennha.entity.Services;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -20,8 +18,6 @@ public interface QuotationServiceRepository extends JpaRepository<QuotationServi
             Services service,
             Prices price
     );
-    
-//    @Query("SELECT qs FROM QuotationServices qs WHERE qs.quotation.survey.request.user.userId = :userId AND qs.status = :status")
-//    List<QuotationServices> findByQuotation_Survey_Request_UserIdAndStatus(@Param("userId") Integer userId, @Param("status") String status);
+    List<QuotationServices> findByQuotation_Survey_Request_User_UserIdAndQuotation_Status(Integer userId, String status);
 
 }

@@ -27,6 +27,7 @@ import QuotationServiceManager from "../staff/QuotationServiceManager";
 import QuotationServiceList from "../staff/QuotationServiceList";
 
 import WorkProgressPage from "../employee/WorkProgressPage";
+import QuotationApproval from "../customer/QuotationApproval";
 
 
 const Router = () => {
@@ -69,6 +70,10 @@ const Router = () => {
         {
           path:"quotations-services-list",
           element: <QuotationServiceList/>
+        },
+          {
+          path: "quotation-for-customer",
+          element: <QuotationApproval/>
         },
 
 

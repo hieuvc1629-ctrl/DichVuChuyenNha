@@ -80,7 +80,7 @@ const SurveyDashboard = () => {
 
       const qs = {};
       for (let q of res.data) {
-        qs[q.quotationId] = q.quotationServices || [];
+        qs[q.quotationId] = q.services || [];
       }
       setQuotationServicesList(qs);
     } catch (err) {
@@ -387,6 +387,7 @@ const SurveyDashboard = () => {
                 onServiceChange={handleQuotationServiceChange}
                 onCreateService={handleCreateQuotationService}
                 onQuantityChange={handleQuantityChange}
+                fetchQuotations={fetchQuotations}
               />
             </Card>
           )}
