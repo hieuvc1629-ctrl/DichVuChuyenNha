@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import ContractAPI from "../service/contract"; // Import Contract API service
 
 export default function ContractAssignment() {
   const [contracts, setContracts] = useState([]);
@@ -14,7 +15,6 @@ export default function ContractAssignment() {
     // Lấy hợp đồng
     axios.get("http://localhost:8080/api/contracts")
       .then(res => {
-        // đảm bảo là mảng
         setContracts(Array.isArray(res.data) ? res.data : []);
       })
       .catch(err => {
@@ -22,8 +22,8 @@ export default function ContractAssignment() {
         setContracts([]);
       });
 
-    // Lấy nhân viên
-    axios.get("http://localhost:8080/api/employees")
+    // Lấy nhân viên "free"
+    axios.get("http://localhost:8080/api/employees/status/free")
       .then(res => {
         setEmployees(Array.isArray(res.data) ? res.data : []);
       })
@@ -42,16 +42,23 @@ export default function ContractAssignment() {
     }
 
     try {
-      const res = await axios.post("http://localhost:8080/api/assignments", {
-        contractId: parseInt(selectedContract),
-        employeeId: parseInt(selectedEmployee),
-        assignedTime: assignedDate
-      });
-      setMessage(`Assigned successfully! Assignment ID: ${res.data.id}`);
-      // reset form
+      // Call API to assign employee to contract
+      const res = await ContractAPI.assignEmployee(
+        selectedContract, 
+        selectedEmployee, 
+        assignedDate
+      );
+      setMessage(`Assigned successfully!`);
+
+      // Reset form fields
       setSelectedContract("");
       setSelectedEmployee("");
       setAssignedDate("");
+
+      // Cập nhật lại danh sách nhân viên sau khi gán
+      setEmployees((prevEmployees) =>
+        prevEmployees.filter((emp) => emp.employeeId !== parseInt(selectedEmployee))
+      );
     } catch (err) {
       console.error(err);
       setMessage(err.response?.data?.message || "Error assigning employee");
@@ -71,7 +78,7 @@ export default function ContractAssignment() {
             required
           >
             <option value="">-- Select contract --</option>
-            {(Array.isArray(contracts) ? contracts : []).map(c => (
+            {contracts.map(c => (
               <option key={c.contractId} value={c.contractId}>
                 {c.contractId} - {c.status}
               </option>
@@ -87,7 +94,7 @@ export default function ContractAssignment() {
             required
           >
             <option value="">-- Select employee --</option>
-            {(Array.isArray(employees) ? employees : []).map(emp => (
+            {employees.map(emp => (
               <option key={emp.employeeId} value={emp.employeeId}>
                 {emp.username || "No username"} - {emp.position || "No position"}
               </option>

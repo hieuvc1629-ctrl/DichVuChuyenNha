@@ -27,8 +27,8 @@ import QuotationServiceManager from "../staff/QuotationServiceManager";
 import QuotationServiceList from "../staff/QuotationServiceList";
 
 import WorkProgressPage from "../employee/WorkProgressPage";
-
-
+import WorkProgressCustomerPage from "../customer/WorkProgressCustomerPage";
+import EmployeeDashboard from "../employee/EmployeeDashboard";
 const Router = () => {
   const router = createBrowserRouter([
     {
@@ -142,7 +142,17 @@ const Router = () => {
         { path: "my-requests", element: <UserRequestsPage /> },
 
         { path: "access-denied", element: <AccessDeniedPage /> },
-        { path: "employee/work-progress", element: <WorkProgressPage />}
+        { path: "employee/work-progress", element: <WorkProgressPage />},
+         { path: "customer/work-progress", element: <WorkProgressCustomerPage />},
+         {
+          path: "employee/dashboard",
+          element: <EmployeeDashboard />,
+          children: [
+            // { index: true, element: <WorkProgressPage /> }, // mặc định khi vào /employee/dashboard
+            { path: "work-progress", element: <WorkProgressPage /> },
+          ],
+        },
+         
       ],
     },
   ]);

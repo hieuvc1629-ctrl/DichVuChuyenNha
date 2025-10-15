@@ -1,8 +1,9 @@
 // src/service/assignment.js
 import axios from "axios";
 
-const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:8080";
+const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:8080/api";
 
+// Hàm lấy header Authorization nếu có token
 function getAuthHeaders() {
   const token = localStorage.getItem("token");
   return {
@@ -12,39 +13,38 @@ function getAuthHeaders() {
 }
 
 export const assignmentApi = {
-  // NOTE: Bạn cần backend cung cấp endpoint này (hoặc đổi sang endpoint hiện có)
-  // Lấy danh sách các hợp đồng đã ký / có thể phân công
+  // ✅ Lấy danh sách hợp đồng đã ký (SIGNED) có thể gán nhân viên
   getAssignableContracts: () => {
-    return axios.get(`${API_BASE}/api/manager/contracts/assignable`, {
+    return axios.get(`${API_BASE}/contracts`, {
       headers: getAuthHeaders(),
     });
   },
 
-  // NOTE: Endpoint lấy danh sách nhân viên khả dụng. Nếu backend có endpoint khác, chỉnh lại.
+  // ✅ Lấy danh sách nhân viên đang "free"
   getEmployees: () => {
-    return axios.get(`${API_BASE}/api/manager/employees`, {
+    return axios.get(`${API_BASE}/employees/status/free`, {
       headers: getAuthHeaders(),
     });
   },
 
-  // Gán nhiều nhân viên cho một hợp đồng
-  assignEmployees: (payload) => {
-    // payload = { contractId: 1, employeeIds: [2,3], assignedTime: "2025-09-29" (opt) }
-    return axios.post(`${API_BASE}/api/manager/assignments`, payload, {
+  // ✅ Gán 1 nhân viên vào hợp đồng
+  assignEmployee: (payload) => {
+    // payload = { contractId, employeeId, assignedDate }
+    return axios.post(`${API_BASE}/assignments/assign`, payload, {
       headers: getAuthHeaders(),
     });
   },
 
-  // Lấy danh sách assignment của 1 contract
+  // ❓ Tuỳ chọn: Lấy danh sách nhân viên đã được gán cho hợp đồng
   getAssignmentsByContract: (contractId) => {
-    return axios.get(`${API_BASE}/api/manager/assignments/${contractId}`, {
+    return axios.get(`${API_BASE}/assignments/${contractId}`, {
       headers: getAuthHeaders(),
     });
   },
 
-  // Xóa 1 assignment (contractId + employeeId)
+  // ❓ Tuỳ chọn: Xoá 1 assignment nếu cần
   removeAssignment: (contractId, employeeId) => {
-    return axios.delete(`${API_BASE}/api/manager/assignments/${contractId}/${employeeId}`, {
+    return axios.delete(`${API_BASE}/assignments/${contractId}/${employeeId}`, {
       headers: getAuthHeaders(),
     });
   },

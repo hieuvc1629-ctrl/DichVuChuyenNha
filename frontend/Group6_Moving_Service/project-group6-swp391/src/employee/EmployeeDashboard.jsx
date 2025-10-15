@@ -1,6 +1,6 @@
 import React from "react";
 import { Link, Outlet } from "react-router-dom";
-// import "./style/EmployeeDashboard.css";
+import "./style/EmployeeDashboard.css";
 
 const EmployeeDashboard = () => {
   return (

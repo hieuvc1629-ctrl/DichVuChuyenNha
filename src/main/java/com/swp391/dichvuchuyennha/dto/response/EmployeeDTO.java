@@ -9,10 +9,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class EmployeeDTO {
     private Integer employeeId;
-    private Integer userId;
+
     private String username;
-    private String email;
-    private String phone;
+
     private String position;
-    private String status;
+
 }
+// employee sau khi bỏ của dũng
