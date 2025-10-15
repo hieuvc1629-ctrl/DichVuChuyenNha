@@ -1,5 +1,16 @@
-import React from "react";
-import { Table, Select, Button, Spin, Card, Row, Col, InputNumber, message } from "antd";
+import React, { useState } from "react";
+import {
+  Card,
+  Row,
+  Col,
+  Button,
+  Spin,
+  Select,
+  InputNumber,
+  message,
+  Tag,
+} from "antd";
+import axios from "axios";
 import dayjs from "dayjs";
 
 const { Option } = Select;
@@ -13,32 +24,57 @@ export const QuotationList = ({
   onServiceChange,
   onCreateService,
   onQuantityChange,
+  fetchQuotations,
 }) => {
-  const columns = [
-    { title: "Mã báo giá", dataIndex: "quotationId", width: 120 },
-    { title: "Mã khảo sát", dataIndex: "surveyId", width: 120 },
-    { title: "Khách hàng", dataIndex: "username", width: 150 },
-    { title: "Công ty", dataIndex: "companyName", width: 200 },
-    { title: "Địa chỉ từ", dataIndex: "addressFrom", width: 200 },
-    { title: "Địa chỉ đến", dataIndex: "addressTo", width: 200 },
-    {
-      title: "Tổng giá (VNĐ)",
-      dataIndex: "totalPrice",
-      render: (value) => value?.toLocaleString() || "0",
-      width: 150,
-    },
-    {
-      title: "Ngày tạo",
-      dataIndex: "createdAt",
-      render: (text) => (text ? dayjs(text).format("DD/MM/YYYY HH:mm") : "-"),
-      width: 150,
-    },
-  ];
+  const [selectedQuotation, setSelectedQuotation] = useState(null);
+  const [notification, setNotification] = useState({ show: false, message: "" });
 
-  const expandedRowRender = (record) => {
+  const showNotification = (messageText) => {
+    setNotification({ show: true, message: messageText });
+    setTimeout(() => setNotification({ show: false, message: "" }), 3500);
+  };
+
+  const statusColors = {
+    APPROVED: "green",
+    SENT: "blue",
+    DRAFT: "orange",
+    REJECTED: "red",
+  };
+
+  const statusText = {
+    APPROVED: "Đã chấp nhận",
+    PENDING: "Đã gửi",
+    
+    REJECTED: "Từ chối",
+  };
+
+  // 🧩 Hiển thị chi tiết báo giá (giữ nguyên logic thêm/xóa/cập nhật)
+  const renderQuotationDetails = (record) => {
+    if (!record) {
+      return (
+        <div
+          style={{
+            height: "75vh",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            color: "#888",
+            fontStyle: "italic",
+            background: "#fafafa",
+            borderRadius: 10,
+            border: "1px dashed #ccc",
+          }}
+        >
+          👈 Vui lòng chọn một báo giá để xem chi tiết
+        </div>
+      );
+    }
+
     const qid = record.quotationId;
     const data = quotationServiceForm[qid] || {};
-    const selectedService = serviceList.find((s) => s.serviceId === Number(data.serviceId));
+    const selectedService = serviceList.find(
+      (s) => s.serviceId === Number(data.serviceId)
+    );
     const prices = selectedService?.prices || [];
     const added = quotationServicesList[qid] || [];
     const quantity = data.quantity || 1;
@@ -48,221 +84,233 @@ export const QuotationList = ({
         message.warning("Vui lòng chọn dịch vụ, giá và số lượng hợp lệ!");
         return;
       }
-
       try {
-        // Call onCreateService, which handles create or update in parent
         await onCreateService(qid);
-
-        // Reset form selections after add
         onServiceChange(qid, "serviceId", undefined);
         onServiceChange(qid, "priceId", undefined);
         onServiceChange(qid, "quantity", 1);
-        message.success("Thêm hoặc cập nhật dịch vụ thành công!");
+        showNotification("Thêm hoặc cập nhật dịch vụ thành công!");
+        fetchQuotations?.();
       } catch (error) {
         console.error("Lỗi khi thêm dịch vụ:", error);
         message.error("Thêm dịch vụ thất bại!");
       }
     };
 
+    const handleUpdateQuantity = async (serviceId, newQuantity) => {
+      try {
+        await axios.put(
+          `http://localhost:8080/api/quotation-services/${serviceId}?quantity=${newQuantity}`
+        );
+        showNotification("Cập nhật số lượng thành công!");
+        fetchQuotations?.();
+      } catch (error) {
+        console.error("Lỗi cập nhật số lượng:", error);
+        message.error("Cập nhật thất bại!");
+      }
+    };
+
+    const handleDeleteService = async (serviceId) => {
+      try {
+        await axios.delete(
+          `http://localhost:8080/api/quotation-services/${serviceId}`
+        );
+        showNotification("Xóa dịch vụ thành công!");
+        fetchQuotations?.();
+      } catch (error) {
+        console.error("Lỗi xóa dịch vụ:", error);
+        message.error("Xóa thất bại!");
+      }
+    };
+
     return (
-      <div style={{ padding: 16, background: "#fafafa" }}>
-        <h4 style={{ marginBottom: 16, color: "#1890ff" }}>Chi tiết báo giá</h4>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 20 }}>
-          
-          <div><strong>Địa chỉ từ:</strong> {record.addressFrom || "N/A"}</div>
-          <div><strong>Địa chỉ đến:</strong> {record.addressTo || "N/A"}</div>
-          <div><strong>Tổng giá:</strong> {record.totalPrice?.toLocaleString() || "0"} VNĐ</div>
+      <div style={{ padding: 16 }}>
+        {/* Notification */}
+        {notification.show && (
+          <div
+            style={{
+              position: "fixed",
+              top: "16px",
+              right: "16px",
+              zIndex: 9999,
+              padding: "12px 24px",
+              borderRadius: "8px",
+              backgroundColor: "#28a745",
+              color: "white",
+              fontWeight: "500",
+              boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+              animation: "slideIn 0.3s ease-out",
+            }}
+          >
+            {notification.message}
+          </div>
+        )}
+
+        <h3 style={{ marginBottom: 12 }}>Chi Tiết Báo Giá</h3>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            marginBottom: 12,
+          }}
+        >
+          <h4>Thông tin khách hàng</h4>
+          <Tag color={statusColors[record.status]}>
+            {statusText[record.status]}
+          </Tag>
         </div>
 
+        <p>
+          <strong>Tên:</strong> {record.username}
+        </p>
        
+       
+        <p>
+          <strong>Từ:</strong> {record.addressFrom || "N/A"}
+        </p>
+        <p>
+          <strong>Đến:</strong> {record.addressTo || "N/A"}
+        </p>
+        <p>
+          <strong>Ngày chuyển:</strong>{" "}
+          {dayjs(record.surveyDate).format("DD/MM/YYYY")}
+        </p>
+        
+
+        {/* Dịch vụ đã thêm */}
+        <h4 style={{ marginTop: 20 }}>Chi tiết dịch vụ</h4>
         {added.length > 0 ? (
-          <div style={{ marginBottom: 20 }}>
-            {added.map((s, idx) => (
-              <div
-                key={s.id}
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  padding: "12px",
-                  background: "white",
-                  border: "1px solid #d9d9d9",
-                  borderRadius: 6,
-                  marginBottom: 8,
-                }}
-              >
-                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                  <img
-                    src={s.service?.imageUrl }
-                    alt={s.service?.serviceName || "N/A"}
-                    style={{ width: 40, height: 40, borderRadius: 4 }}
-                  />
-                  <div>
-                    <strong>{s.service?.serviceName || "N/A"}</strong>
-                    <span style={{ color: "#666", marginLeft: 8 }}>
-                      ({s.price?.priceType}) - {s.price?.amount?.toLocaleString()} × {s.quantity}
-                    </span>
-                  </div>
-                </div>
-                <div>
-                  <Button
-                    size="small"
-                    onClick={() => onQuantityChange(qid, idx, -1)}
-                    disabled={s.quantity <= 1}
-                  >
-                    −
-                  </Button>
-                  <span style={{ margin: "0 8px" }}>{s.quantity}</span>
-                  <Button size="small" onClick={() => onQuantityChange(qid, idx, 1)}>
-                    +
-                  </Button>
+          added.map((s) => (
+            <div
+              key={s?.id}
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                padding: "10px",
+                background: "white",
+                border: "1px solid #ddd",
+                borderRadius: 6,
+                marginBottom: 8,
+              }}
+            >
+              <div>
+                <strong>{s?.serviceName}</strong>
+                <div style={{ color: "#666" }}>
+                  ({s?.priceType}) - {s?.amount?.toLocaleString()} ×{" "}
+                  {s.quantity} ={" "}
+                  <strong>{s.subtotal?.toLocaleString()} đ</strong>
                 </div>
               </div>
-            ))}
-          </div>
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <Button
+                  size="small"
+                  onClick={() => handleUpdateQuantity(s.id, s.quantity - 1)}
+                  disabled={s.quantity <= 1}
+                >
+                  −
+                </Button>
+                <span>{s.quantity}</span>
+                <Button
+                  size="small"
+                  onClick={() => handleUpdateQuantity(s.id, s.quantity + 1)}
+                >
+                  +
+                </Button>
+                <Button
+                  danger
+                  type="primary"
+                  size="small"
+                  onClick={() => handleDeleteService(s.id)}
+                >
+                  Xóa
+                </Button>
+              </div>
+            </div>
+          ))
         ) : (
-          <p style={{ color: "#999", fontStyle: "italic" }}></p>
+          <p style={{ color: "#999", fontStyle: "italic" }}>
+            Chưa có dịch vụ nào được thêm.
+          </p>
         )}
 
-        <h5 style={{ marginBottom: 12 }}>Thêm dịch vụ mới:</h5>
-        {loadingServices ? (
-          <Spin tip="Đang tải dịch vụ..." />
-        ) : (
-          <Row gutter={[16, 16]}>
-            {(serviceList || [])
-              .filter((s) => s && s.serviceName)
-              .map((service, index, arr) => {
-                const isComingSoon = index === arr.length - 1; // ✅ dịch vụ cuối cùng
-                return (
-                  <Col span={8} key={service.serviceId}>
-                    <Card
-                      hoverable={!isComingSoon}
-                      cover={
-                        <div style={{ position: "relative" }}>
-                          <img
-                            alt={service.serviceName}
-                            src={
-                              isComingSoon
-                                ? "https://i.pinimg.com/736x/b4/17/db/b417db405339afa64154b829e49824cb.jpg"
-                                : service.imageUrl ||
-                                  `https://source.unsplash.com/150x150/?${encodeURIComponent(
-                                    service.serviceName
-                                  )}`
-                            }
-                            style={{
-                              height: 150,
-                              width: "100%",
-                              objectFit: "cover",
-                              filter: isComingSoon
-                                ? "grayscale(40%) brightness(0.8)"
-                                : "none",
-                            }}
-                          />
-                          {isComingSoon && (
-                            <div
-                              style={{
-                                position: "absolute",
-                                top: 0,
-                                left: 0,
-                                right: 0,
-                                bottom: 0,
-                                backgroundColor: "rgba(0,0,0,0.4)",
-                                color: "white",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                fontWeight: "bold",
-                                fontSize: 18,
-                                borderRadius: 4,
-                              }}
-                            >
-                              🚧 Coming Soon
-                            </div>
-                          )}
-                        </div>
-                      }
-                      onClick={() => {
-                        if (isComingSoon) return; // ❌ không cho click
-                        onServiceChange(qid, "serviceId", service.serviceId);
-                        onServiceChange(
-                          qid,
-                          "priceId",
-                          service.prices?.[0]?.priceId || null
-                        );
-                      }}
-                      style={{
-                        border:
-                          data.serviceId === service.serviceId
-                            ? "2px solid #1890ff"
-                            : "1px solid #d9d9d9",
-                        opacity: isComingSoon ? 0.6 : 1,
-                        pointerEvents: isComingSoon ? "none" : "auto",
-                      }}
-                    >
-                      <Card.Meta
-                        title={service.serviceName}
-                        description={
-                          isComingSoon
-                            ? "Sắp ra mắt..."
-                            : `Giá từ: ${
-                                service.prices?.[0]?.amount?.toLocaleString() ||
-                                "N/A"
-                              } VNĐ`
-                        }
-                      />
-                    </Card>
-                  </Col>
-                );
-              })}
-          </Row>
-        )}
-
-        {/* Chọn giá + số lượng */}
-        {data.serviceId && (
-          <div style={{ marginTop: 16 }}>
-            <h5>Chọn giá:</h5>
-            <Select
-              value={data.priceId}
-              onChange={(val) => onServiceChange(qid, "priceId", val)}
-              style={{ width: 300, marginBottom: 16 }}
-              placeholder="Chọn loại giá"
-            >
-              {prices.map((p) => (
-                <Option key={p.priceId} value={p.priceId}>
-                  {p.priceType} - {p.amount?.toLocaleString()} VNĐ
-                </Option>
-              ))}
-            </Select>
-
-            <h5>Số lượng:</h5>
-            <InputNumber
-              min={1}
-              value={quantity}
-              onChange={(val) => onServiceChange(qid, "quantity", val)}
-              style={{ width: 100, marginBottom: 16 }}
-            />
-
-            <Button
-              type="primary"
-              onClick={handleAddService}
-              disabled={!data.serviceId || !data.priceId || quantity < 1}
-            >
-              Thêm dịch vụ
-            </Button>
-          </div>
-        )}
+        {/* Tổng cộng */}
+        <div
+          style={{
+            background: "#f5f5f5",
+            padding: "12px 16px",
+            marginTop: 16,
+            borderRadius: 8,
+            textAlign: "right",
+          }}
+        >
+          <strong>Tổng cộng: </strong>
+          <span style={{ color: "#1677ff", fontSize: 16 }}>
+            {record.totalPrice?.toLocaleString() || 0} đ
+          </span>
+        </div>
       </div>
     );
   };
 
+  // 🧱 Giao diện chính — 2 cột
   return (
-    <Table
-      dataSource={quotations}
-      columns={columns}
-      rowKey="quotationId"
-      bordered
-      expandable={{ expandedRowRender }}
-      pagination={{ pageSize: 10 }}
-    />
+    <Row gutter={24}>
+      {/* Cột trái: danh sách báo giá */}
+      <Col span={10}>
+        <h3 style={{ marginBottom: 16 }}>Danh Sách Báo Giá</h3>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: 12,
+            maxHeight: "75vh",
+            overflowY: "auto",
+          }}
+        >
+          {quotations.map((q) => (
+            <Card
+              key={q.quotationId}
+              hoverable
+              onClick={() => setSelectedQuotation(q)}
+              style={{
+                border:
+                  selectedQuotation?.quotationId === q.quotationId
+                    ? "2px solid #1677ff"
+                    : "1px solid #ddd",
+                background:
+                  selectedQuotation?.quotationId === q.quotationId
+                    ? "#f0f8ff"
+                    : "white",
+                borderRadius: 10,
+                transition: "all 0.2s ease",
+              }}
+            >
+              <div
+                style={{ display: "flex", justifyContent: "space-between" }}
+              >
+                <strong>{q.quotationCode || q.quotationId}</strong>
+                <Tag color={statusColors[q.status]}>
+                  {statusText[q.status]}
+                </Tag>
+              </div>
+              <div>{q.username}</div>
+              <div>📞 {q.phone}</div>
+              <div>📅 {dayjs(q.createdAt).format("DD/MM/YYYY")}</div>
+              <div style={{ textAlign: "right", marginTop: 8 }}>
+                <strong style={{ color: "#1677ff" }}>
+                  {q.totalPrice?.toLocaleString() || 0} đ
+                </strong>
+              </div>
+            </Card>
+          ))}
+        </div>
+      </Col>
+
+      {/* Cột phải: chi tiết báo giá */}
+      <Col span={14}>
+        {renderQuotationDetails(selectedQuotation)}
+      </Col>
+    </Row>
   );
 };

@@ -27,8 +27,14 @@ import QuotationServiceManager from "../staff/QuotationServiceManager";
 import QuotationServiceList from "../staff/QuotationServiceList";
 
 import WorkProgressPage from "../employee/WorkProgressPage";
+<<<<<<< HEAD
 import WorkProgressCustomerPage from "../customer/WorkProgressCustomerPage";
 import EmployeeDashboard from "../employee/EmployeeDashboard";
+=======
+import QuotationApproval from "../customer/QuotationApproval";
+
+
+>>>>>>> 50d3ace9be4f20731befc6c501569bf0a7dae5b1
 const Router = () => {
   const router = createBrowserRouter([
     {
@@ -69,6 +75,10 @@ const Router = () => {
         {
           path:"quotations-services-list",
           element: <QuotationServiceList/>
+        },
+          {
+          path: "quotation-for-customer",
+          element: <QuotationApproval/>
         },
 
 

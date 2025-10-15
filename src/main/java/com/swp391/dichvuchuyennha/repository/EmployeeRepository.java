@@ -21,7 +21,10 @@ public interface EmployeeRepository extends JpaRepository<Employee, Integer> {
     LEFT JOIN e.user u
 """)
     List<EmployeeDTO> findAllEmployeeDTO();
+<<<<<<< HEAD
 
+=======
+>>>>>>> 50d3ace9be4f20731befc6c501569bf0a7dae5b1
     // 🔎 Thêm hàm này để tìm nhân viên từ userId trong JWT
     Optional<Employee> findByUser_UserId(Long userId);
 
