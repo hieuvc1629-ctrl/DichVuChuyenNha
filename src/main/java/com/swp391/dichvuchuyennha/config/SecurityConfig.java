@@ -59,6 +59,8 @@ public class SecurityConfig {
                 "/api/prices/**",
                 "/api/quotations/**",
                 "/api/quotation-services/**",
+                "/api/work-progress/**",
+                "/api/customer/work-progress/**",
                 "/api/chat-ai"};
 
 
@@ -81,13 +83,15 @@ public class SecurityConfig {
                                                                                                          // user
 
                                                 // Assignment endpoints
+                                                .requestMatchers(POST, "/api/assignments/assign").hasRole("MANAGER")
+
                                                 .requestMatchers("/api/assignments").hasRole("MANAGER")
 
                                                 // Contract endpoints
                                                 .requestMatchers("/api/contracts/unsigned/me")
                                                 .hasAnyRole("CUSTOMER_INDIVIDUAL", "CUSTOMER_COMPANY")
                                                 .requestMatchers("/api/contracts/sign/{contractId}")
-                                                .hasAnyRole("CUSTOMER_INDIVIDUAL", "CUSTOMER_COMPANY")
+                                                .hasAnyRole("CUSTOMER_INDIVIDUAL", "CUSTOMER_COMPANY", "MANAGER")
                                                 .requestMatchers("/api/contracts").hasAnyRole("MANAGER", "ADMIN")
 
                                                 // Damages endpoints
