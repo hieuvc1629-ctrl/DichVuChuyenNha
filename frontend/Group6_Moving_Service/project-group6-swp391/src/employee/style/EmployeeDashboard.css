@@ -1,0 +1,83 @@
+/* Employee Dashboard */
+.employee-dashboard {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* Sidebar Styling */
+.sidebar {
+  background-color: #001529;
+  color: white;
+  height: 100%;
+  padding: 20px;
+}
+
+.sidebar h2 {
+  color: #ffffff;
+  margin-bottom: 20px;
+}
+
+.sidebar ul {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+.sidebar li {
+  padding: 10px;
+  font-size: 18px;
+}
+
+.sidebar li a {
+  color: white;
+  text-decoration: none;
+}
+
+.sidebar li a:hover {
+  background-color: #1890ff;
+  border-radius: 4px;
+  padding: 5px;
+}
+
+/* Main Content */
+.header {
+  background-color: #fff;
+  padding: 10px 20px;
+  font-size: 18px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+h3 {
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.stats-container {
+  margin-bottom: 20px;
+}
+
+.card-title {
+  font-size: 16px;
+}
+
+.card-description {
+  font-size: 14px;
+}
+
+.ant-card-body {
+  padding: 10px;
+}
+
+.ant-statistic-title {
+  font-size: 16px;
+  color: #001529;
+}
+
+/* Work Log and Chart Section */
+.work-log-container {
+  margin-top: 30px;
+}
+
+.chart-container {
+  height: 300px;
+  background-color: #f9f9f9;
+}
