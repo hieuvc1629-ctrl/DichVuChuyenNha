@@ -25,4 +25,4 @@ public class AssignmentController {
         assignmentService.assignEmployeeToContract(contractId, employeeId, assignedDate);
         return ResponseEntity.ok("Gán nhân viên thành công");
     }
-}
+}//fix
