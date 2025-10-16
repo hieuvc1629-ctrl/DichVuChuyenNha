@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from '../service/api';
+import api from '../service/axiosInstance';
 import './ChatBot.css';
 
 const ChatBot = () => {

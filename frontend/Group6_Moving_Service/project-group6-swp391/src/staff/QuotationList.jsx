@@ -24,6 +24,8 @@ export const QuotationList = ({
   onServiceChange,
   onCreateService,
   onQuantityChange,
+  selectedQuotation,        // ✅ THÊM
+  setSelectedQuotation,
   fetchQuotations,
 }) => {
   const [selectedQuotation, setSelectedQuotation] = useState(null);
@@ -76,7 +78,8 @@ export const QuotationList = ({
       (s) => s.serviceId === Number(data.serviceId)
     );
     const prices = selectedService?.prices || [];
-    const added = quotationServicesList[qid] || [];
+const added = record.services || [];
+
     const quantity = data.quantity || 1;
 
     const handleAddService = async () => {
@@ -125,7 +128,7 @@ export const QuotationList = ({
 
     return (
       <div style={{ padding: 16 }}>
-        {/* Notification */}
+
         {notification.show && (
           <div
             style={{

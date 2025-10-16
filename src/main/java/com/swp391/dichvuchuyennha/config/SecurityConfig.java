@@ -60,8 +60,11 @@ public class SecurityConfig {
                 "/api/prices/**",
                 "/api/quotations/**",
                 "/api/quotation-services/**",
+                "/api/admin/**",
+                "/api/request-assignment/**",
                 "/api/work-progress/**",
                 "/api/customer/work-progress/**",
+
                 "/api/chat-ai"};
 
 

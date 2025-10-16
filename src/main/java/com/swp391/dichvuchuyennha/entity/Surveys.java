@@ -46,4 +46,6 @@ public class Surveys {
     private List<Quotations> quotations;
     @Column(name = "list_services")
     private String listService;
+
+
 }

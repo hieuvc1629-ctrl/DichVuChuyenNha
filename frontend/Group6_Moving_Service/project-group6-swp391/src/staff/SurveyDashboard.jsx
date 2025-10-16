@@ -12,13 +12,14 @@ import { CreateSurveyModal } from "./CreateSurveyModal";
 import { EditSurveyModal } from "./EditSurveyModal";
 import { CreateQuotationModal } from "./CreateQuotationModal";
 import { useNavigate } from "react-router-dom";
+import axiosInstance from "../service/axiosInstance"; // import instance
 
 
 const { Content, Sider } = Layout;
 
 const SurveyDashboard = () => {
   const navigate = useNavigate();
-
+const [selectedQuotation, setSelectedQuotation] = useState(null);
   const [form] = Form.useForm();
   const [editForm] = Form.useForm();
   const [quoteForm] = Form.useForm();
@@ -50,45 +51,46 @@ const SurveyDashboard = () => {
     fetchServices();
   }, []);
 
-  const fetchRequests = async () => {
-    try {
-      const res = await axios.get("http://localhost:8080/api/requests");
-      setRequests(res.data);
-    } catch (err) {
-      console.error(err);
-      message.error("Lỗi khi tải yêu cầu!");
-    }
-  };
+const fetchRequests = async () => {
+  try {
+    const res = await axiosInstance.get("/requests/my-requests");
+        console.log("Response requests:", res.data); // <--- kiểm tra
+
+setRequests(Array.isArray(res.data.result) ? res.data.result : res.data || []);
+  } catch (err) {
+    console.error(err);
+    message.error("Lỗi khi tải yêu cầu!");
+  }
+};
 
   const fetchSurveys = async () => {
-    try {
-      setLoading(true);
-      const res = await axios.get("http://localhost:8080/api/surveys");
-      setSurveys(res.data);
-    } catch (err) {
-      console.error(err);
-      message.error("Lỗi khi tải khảo sát!");
-    } finally {
-      setLoading(false);
-    }
-  };
+  try {
+    const res = await axiosInstance.get("/surveys/my");
+    console.log("Survey API response:", res.data);
+
+    const data =
+      Array.isArray(res.data) ? res.data :
+      Array.isArray(res.data.result) ? res.data.result :
+      [];
+
+    setSurveys(data);
+  } catch (err) {
+    console.error("❌ Lỗi khi tải khảo sát:", err);
+    message.error("Lỗi khi tải khảo sát!");
+  }
+};
 
   const fetchQuotations = async () => {
-    try {
-      const res = await axios.get("http://localhost:8080/api/quotations");
-      setQuotations(res.data);
+   try {
+    const res = await axiosInstance.get("/quotations/me");
+        console.log("Response requests:", res.data); 
 
-      const qs = {};
-      for (let q of res.data) {
-        qs[q.quotationId] = q.services || [];
-      }
-      setQuotationServicesList(qs);
-    } catch (err) {
-      console.error(err);
-      message.error("Lỗi khi tải báo giá!");
-    }
-  };
-
+setQuotations(Array.isArray(res.data.result) ? res.data.result : res.data || []);
+  } catch (err) {
+    console.error(err);
+    message.error("Lỗi khi tải yêu cầu!");
+  }
+};
   const fetchServices = async () => {
     try {
       setLoadingServices(true);
@@ -289,33 +291,56 @@ const SurveyDashboard = () => {
 };
 
 
-  const handleQuantityChange = async (quotationId, serviceIndex, delta) => {
-    const service = quotationServicesList[quotationId][serviceIndex];
-    const newQuantity = Math.max(0, service.quantity + delta);
+  // Sửa handleQuantityChange
+const handleQuantityChange = async (quotationId, serviceIndex, delta) => {
+  const service = quotationServicesList[quotationId][serviceIndex];
+  const newQuantity = Math.max(1, service.quantity + delta);
 
-    try {
-      const res = await axios.put(
-        `http://localhost:8080/api/quotation-services/${service.id}`,
-        {
-          ...service,
-          quantity: newQuantity,
-          subtotal: newQuantity * service.price.amount,
-        }
+  try {
+    const res = await axios.put(
+      `http://localhost:8080/api/quotation-services/${service.id}`,
+      {
+        ...service,
+        quantity: newQuantity,
+        subtotal: newQuantity * service.price.amount,
+      }
+    );
+
+    // ✅ 1️⃣ Cập nhật quotationServicesList NGAY LẬP TỨC
+    setQuotationServicesList((prev) => {
+      const updated = { ...prev };
+      const list = [...(prev[quotationId] || [])];
+      list[serviceIndex] = res.data;
+      updated[quotationId] = list;
+      return updated;
+    });
+
+    // ✅ 2️⃣ Cập nhật selectedQuotation NGAY LẬP TỨC (QUAN TRỌNG NHẤT)
+    setSelectedQuotation((prev) => {
+      if (!prev || prev.quotationId !== quotationId) return prev;
+      
+      const updatedServices = prev.services.map((s) =>
+        s.id === service.id ? res.data : s
+      );
+      
+      const newTotalPrice = updatedServices.reduce(
+        (sum, s) => sum + (s.subtotal || 0),
+        0
       );
 
-      setQuotationServicesList((prev) => {
-        const updated = [...prev[quotationId]];
-        updated[serviceIndex] = res.data;
-        return { ...prev, [quotationId]: updated };
-      });
+      return {
+        ...prev,
+        services: updatedServices,
+        totalPrice: newTotalPrice,
+      };
+    });
 
-      message.success("Cập nhật quantity thành công!");
-      fetchQuotations();
-    } catch (err) {
-      console.error(err);
-      message.error("Cập nhật quantity thất bại!");
-    }
-  };
+    message.success("Cập nhật số lượng thành công!");
+  } catch (err) {
+    console.error(err);
+    message.error("Cập nhật số lượng thất bại!");
+  }
+};
 
   return (
     <Layout style={{ minHeight: "100vh" }}>
@@ -388,6 +413,8 @@ const SurveyDashboard = () => {
                 onCreateService={handleCreateQuotationService}
                 onQuantityChange={handleQuantityChange}
                 fetchQuotations={fetchQuotations}
+                selectedQuotation={selectedQuotation}  // ✅ THÊM
+  setSelectedQuotation={setSelectedQuotation}
               />
             </Card>
           )}
