@@ -2,6 +2,7 @@ package com.swp391.dichvuchuyennha.service;
 
 import com.swp391.dichvuchuyennha.dto.request.QuotationCreateRequest;
 import com.swp391.dichvuchuyennha.dto.response.QuotationForCustomer;
+import com.swp391.dichvuchuyennha.dto.response.QuotationResponse;
 import com.swp391.dichvuchuyennha.entity.QuotationServices;
 import com.swp391.dichvuchuyennha.entity.Quotations;
 import com.swp391.dichvuchuyennha.entity.Surveys;
@@ -13,6 +14,7 @@ import com.swp391.dichvuchuyennha.repository.QuotationRepository;
 import com.swp391.dichvuchuyennha.repository.QuotationServiceRepository;
 import com.swp391.dichvuchuyennha.repository.SurveyRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -45,9 +47,14 @@ public class QuotationService {
         return quotationRepository.save(quotation);
     }
 
-    public List<Quotations> getAllQuotations() {
-        return quotationRepository.findAll();
+    public List<QuotationResponse> getQuotationsByCurrentEmployee() {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        return quotationRepository.findByAssignedEmployeeUsername(username)
+                .stream()
+                .map(quotationMapper::toResponse)
+                .collect(Collectors.toList());
     }
+
 
     public List<QuotationForCustomer> getPendingQuotationsByUserId(Integer userId) {
         // Lấy danh sách QuotationServices có trạng thái PENDING cho userId

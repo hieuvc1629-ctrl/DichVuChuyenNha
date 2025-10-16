@@ -1,4 +1,4 @@
-import api from './api';
+import api from './axiosInstance';
 
 const EMPLOYEE_API_BASE = '/api/employees';
 

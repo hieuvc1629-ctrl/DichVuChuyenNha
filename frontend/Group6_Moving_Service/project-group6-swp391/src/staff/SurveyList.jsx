@@ -60,12 +60,13 @@ export const SurveyList = ({ surveys, loading, onEdit, onDelete, onCreateQuotati
   ];
 
   return (
-    <Table
-      dataSource={surveys}
-      columns={columns}
-      rowKey="surveyId"
-      bordered
-      loading={loading}
-    />
+ <Table
+  dataSource={surveys}
+  columns={columns}
+  rowKey={(record) => record.surveyId ?? record.id ?? Math.random()} // tạm
+  bordered
+  loading={loading}
+/>
+
   );
 };

@@ -32,14 +32,12 @@ public class QuotationController {
         Quotations savedQuotation = quotationService.createQuotation(request);
         return ResponseEntity.ok(savedQuotation);
     }
-    @GetMapping
-    public ResponseEntity<List<QuotationResponse>> getAllQuotations() {
-        List<QuotationResponse> responses = quotationService.getAllQuotations()
-                .stream()
-                .map(mapper::toResponse)
-                .collect(Collectors.toList());
+    @GetMapping("/me")
+    public ResponseEntity<List<QuotationResponse>> getQuotationsByEmployee() {
+        List<QuotationResponse> responses = quotationService.getQuotationsByCurrentEmployee();
         return ResponseEntity.ok(responses);
     }
+
     @GetMapping("/pending/me")
     public ResponseEntity<List<QuotationForCustomer>> getPendingQuotationsForCurrentUser() {
         // Lấy username đang đăng nhập

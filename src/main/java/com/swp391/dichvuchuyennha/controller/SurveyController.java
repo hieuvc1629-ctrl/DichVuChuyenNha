@@ -28,10 +28,9 @@ public class SurveyController {
         return ResponseEntity.ok(surveyMapper.toResponse(savedSurvey));
     }
 
-    @GetMapping
-    public ResponseEntity<List<SurveyResponse>> listAllSurveys() {
-        List<SurveyResponse> surveys = surveyService.getAllSurveys();
-        return ResponseEntity.ok(surveys);
+    @GetMapping("/my")
+    public ResponseEntity<List<SurveyResponse>> getMySurveys() {
+        return ResponseEntity.ok(surveyService.getSurveysByCurrentEmployee());
     }
     @PutMapping("/{id}")
     public ResponseEntity<SurveyResponse> updateSurvey(@PathVariable Integer id,

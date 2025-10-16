@@ -28,6 +28,8 @@ import QuotationServiceList from "../staff/QuotationServiceList";
 
 import WorkProgressPage from "../employee/WorkProgressPage";
 import QuotationApproval from "../customer/QuotationApproval";
+import AssignSurveyer from "../manager/AssignSurveyer";
+import QuotationAddServices from "../staff/QuotationAddServices";
 
 
 const Router = () => {
@@ -54,6 +56,10 @@ const Router = () => {
           path:"user-profile",
           element: <ProfilePage/>
         },
+           {
+          path:"assign-surveyer",
+          element: <AssignSurveyer/>
+        },
         {
           path:"survey-dashboard",
           element: <SurveyDashboard/>
@@ -62,6 +68,10 @@ const Router = () => {
       {
           path:"price-service",
           element: <PriceTable/>
+        },
+           {
+          path:"add-services",
+          element: <QuotationAddServices/>
         },
         {
           path:"quotations-services",

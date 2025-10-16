@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Layout, Menu, Table, Tag, Modal, Pagination, Typography, Space, Button, Spin, Empty, Form, Input, InputNumber, message, DatePicker } from "antd";
 import { ProfileOutlined, FileTextOutlined, OrderedListOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
-import api from "../service/api";
+import api from "../service/axiosInstance";
 
 const { Sider, Content } = Layout;
 const { Title, Text } = Typography;
