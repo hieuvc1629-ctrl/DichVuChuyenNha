@@ -1,5 +1,6 @@
 package com.swp391.dichvuchuyennha.service;
 
+import com.swp391.dichvuchuyennha.dto.response.EmployeeDTO;
 import com.swp391.dichvuchuyennha.entity.AssignmentEmployee;
 import com.swp391.dichvuchuyennha.entity.Contract;
 import com.swp391.dichvuchuyennha.entity.Employee;
@@ -11,6 +12,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -46,4 +49,31 @@ public class AssignmentService {
         employee.setStatus("busy");
         employeeRepo.save(employee);
     }
-}
+    /** ✅ Lấy danh sách nhân viên đã gán theo hợp đồng */
+    @Transactional(readOnly = true)
+    public List<EmployeeDTO> getAssignedEmployeesByContract(Integer contractId) {
+        List<AssignmentEmployee> assignments = assignmentRepo.findByContractContractId(contractId);
+        return assignments.stream()
+                .map(ae -> new EmployeeDTO(
+                        ae.getEmployee().getEmployeeId(),
+                        ae.getEmployee().getUser().getUsername(),
+                        ae.getEmployee().getPosition()
+                ))
+                .collect(Collectors.toList());
+    }
+
+    /** ✅ Bỏ gán nhân viên khỏi hợp đồng */
+    @Transactional
+    public void unassignEmployee(Integer contractId, Integer employeeId) {
+        AssignmentEmployee assignment = assignmentRepo.findByContractContractId(contractId).stream()
+                .filter(ae -> ae.getEmployee().getEmployeeId().equals(employeeId))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Assignment not found"));
+
+        assignmentRepo.delete(assignment);
+
+        Employee employee = assignment.getEmployee();
+        employee.setStatus("free");
+        employeeRepo.save(employee);
+    }
+}//fix đủ

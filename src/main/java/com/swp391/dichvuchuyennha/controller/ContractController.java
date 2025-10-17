@@ -2,6 +2,7 @@ package com.swp391.dichvuchuyennha.controller;
 
 import java.util.List;
 
+import com.swp391.dichvuchuyennha.entity.Contract;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -63,10 +64,27 @@ public class ContractController {
     }
 
     // GET tất cả hợp đồng (dùng DTO)
+//    @GetMapping
+//    public List<ContractDTO> getUnsignedContractsForManager() {
+//        return contractRepository.findByStatus("SIGNED").stream()
+//                .map(c -> new ContractDTO(c.getContractId(), c.getStatus()))
+//                .toList();
+//    }
     @GetMapping
-    public List<ContractDTO> getUnsignedContractsForManager() {
+    public List<ContractDTO> getSignedContractsForManager() {
         return contractRepository.findByStatus("SIGNED").stream()
                 .map(c -> new ContractDTO(c.getContractId(), c.getStatus()))
                 .toList();
     }
-}
+
+    /** ✅ Lấy chi tiết hợp đồng theo ID (để hiển thị thông tin + nhân viên đã gán) */
+    @GetMapping("/{contractId}")
+    public ResponseEntity<ContractResponse> getContractDetail(@PathVariable Integer contractId) {
+        Contract contract = contractRepository.findById(contractId)
+                .orElseThrow(() -> new RuntimeException("Contract not found"));
+        ContractResponse response = contractService.buildContractDetail(contract);
+        return ResponseEntity.ok(response);
+    }
+
+
+}//fix đủ
