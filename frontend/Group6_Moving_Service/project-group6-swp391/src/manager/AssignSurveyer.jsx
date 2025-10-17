@@ -1,90 +1,220 @@
-import { useEffect, useState } from "react";
-import axios from "axios";
+import { useEffect, useState, useCallback } from "react";
+import { Table, Button, Select, message, Tag, Space, Typography, Card } from "antd";
+import { UserAddOutlined, SolutionOutlined, CheckCircleOutlined, SyncOutlined } from "@ant-design/icons";
+// Sử dụng axiosInstance đã được cấu hình từ file bạn cung cấp
+import axiosInstance from "../service/axiosInstance"; 
+
+const { Option } = Select;
+const { Text, Title } = Typography;
 
 export default function AssignSurveyer() {
-  const [requests, setRequests] = useState([]);
-  const [surveyers, setSurveyers] = useState([]);
-  const [selectedEmployee, setSelectedEmployee] = useState({}); // lưu employeeId cho mỗi request
+    const [requests, setRequests] = useState([]);
+    const [surveyers, setSurveyers] = useState([]);
+    // Lưu employeeId được chọn cho mỗi requestId
+    const [selectedEmployee, setSelectedEmployee] = useState({}); 
+    const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    // Lấy danh sách requests (sửa theo API trả ApiResponse hay List)
-    axios.get("http://localhost:8080/api/requests") // nếu dùng /my => axios.get("/api/requests/my")
-      .then(res => {
-        // Nếu backend trả ApiResponse { result: [...] }
-        const data = res.data.result || res.data;
-        setRequests(Array.isArray(data) ? data : []);
-      })
-      .catch(err => console.error(err));
+    // --- LOGIC GỌI API ---
 
-    // Lấy danh sách surveyer free
-    axios.get("http://localhost:8080/api/request-assignment/free-surveyers")
-      .then(res => {
-        setSurveyers(Array.isArray(res.data) ? res.data : []);
-      })
-      .catch(err => console.error(err));
-  }, []);
+    // Function Fetch Requests
+    const fetchRequests = useCallback(async () => {
+        setLoading(true);
+        try {
+            // Sửa URL để sử dụng baseURL đã được cấu hình trong axiosInstance
+            const res = await axiosInstance.get("/requests"); 
+            // Xử lý cả trường hợp API trả ApiResponse { result: [...] } hoặc List
+            const data = Array.isArray(res.data) ? res.data : res.data.result || [];
+            setRequests(data);
+        } catch (err) {
+            message.error("Lấy danh sách Request thất bại.");
+            console.error(err);
+        } finally {
+            setLoading(false);
+        }
+    }, []);
 
-  const handleAssign = (requestId) => {
-    const employeeId = selectedEmployee[requestId];
-    if (!employeeId) {
-      alert("Chọn nhân viên khảo sát trước khi gán!");
-      return;
-    }
+    // Function Fetch Surveyers
+    const fetchSurveyers = useCallback(async () => {
+        try {
+            // Sửa URL để sử dụng baseURL đã được cấu hình trong axiosInstance
+            const res = await axiosInstance.get("/request-assignment/free-surveyers");
+            const data = Array.isArray(res.data) ? res.data : res.data.result || [];
+            setSurveyers(data);
+        } catch (err) {
+            message.error("Lấy danh sách nhân viên khảo sát thất bại.");
+            console.error(err);
+        }
+    }, []);
 
-    axios.post(`http://localhost:8080/api/request-assignment/assign?requestId=${requestId}&employeeId=${employeeId}`)
-      .then(res => {
-        alert(`Request ${requestId} đã được gán nhân viên ${employeeId}`);
-        // update list surveyer free sau khi gán
-        return axios.get("/api/request-assignment/free-surveyers");
-      })
-      .then(res => setSurveyers(Array.isArray(res.data) ? res.data : []))
-      .catch(err => console.error(err));
-  };
+    useEffect(() => {
+        fetchRequests();
+        fetchSurveyers();
+    }, [fetchRequests, fetchSurveyers]);
 
-  return (
-    <div style={{ padding: "20px" }}>
-      <h2>Danh sách Request</h2>
-      <table border="1" cellPadding="10">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Username</th>
-            <th>Company</th>
-            <th>Time</th>
-            <th>Status</th>
-            <th>Assign Surveyer</th>
-          </tr>
-        </thead>
-        <tbody>
-          {Array.isArray(requests) && requests.length > 0 ? requests.map(r => (
-            <tr key={r.requestId}>
-              <td>{r.requestId}</td>
-              <td>{r.username}</td>
-              <td>{r.companyName}</td>
-              <td>{r.requestTime}</td>
-              <td>{r.status}</td>
-              <td>
-                <select
-                  value={selectedEmployee[r.requestId] || ""}
-                  onChange={e => setSelectedEmployee(prev => ({ ...prev, [r.requestId]: e.target.value }))}
-                >
-                  <option value="">--Chọn Surveyer--</option>
-                  {surveyers.map(s => (
-                    <option key={s.employeeId} value={s.employeeId}>
-                      {s.employeeId} - {s.username} - {s.position}
-                    </option>
-                  ))}
-                </select>
-                <button onClick={() => handleAssign(r.requestId)}>Gán</button>
-              </td>
-            </tr>
-          )) : (
-            <tr>
-              <td colSpan="6" style={{ textAlign: "center" }}>Không có Request nào</td>
-            </tr>
-          )}
-        </tbody>
-      </table>
-    </div>
-  );
+    // --- LOGIC XỬ LÝ GÁN NHÂN VIÊN ---
+    const handleAssign = async (requestId) => {
+        const employeeId = selectedEmployee[requestId];
+        if (!employeeId) {
+            message.warning("Vui lòng chọn nhân viên khảo sát trước khi gán!");
+            return;
+        }
+
+        try {
+            setLoading(true);
+            // Sử dụng axiosInstance với URL đã được sửa
+            await axiosInstance.post(
+                `/request-assignment/assign?requestId=${requestId}&employeeId=${employeeId}`
+            );
+            
+            message.success(`Request #${requestId} đã được gán thành công.`);
+            
+            // Cập nhật lại cả 2 danh sách sau khi gán
+            await Promise.all([fetchRequests(), fetchSurveyers()]);
+            
+            // Xóa nhân viên đã chọn khỏi state
+            setSelectedEmployee(prev => {
+                const newState = { ...prev };
+                delete newState[requestId];
+                return newState;
+            });
+            
+        } catch (err) {
+            message.error("Gán nhân viên thất bại.");
+            console.error(err);
+        } finally {
+            setLoading(false);
+        }
+    };
+    
+    // --- CẤU HÌNH CỘT TABLE ---
+
+    const getStatusTag = (status) => {
+        const statusColors = {
+            PENDING: 'processing', // Đang chờ
+            ASSIGNED: 'geekblue', // Đã gán
+            COMPLETED: 'success', // Hoàn thành
+            CANCELLED: 'error', // Đã hủy
+        };
+        const statusText = {
+            PENDING: 'Đang chờ xử lý',
+            ASSIGNED: 'Đã gán NV',
+            COMPLETED: 'Hoàn thành',
+            CANCELLED: 'Đã hủy',
+        };
+        return (
+            <Tag 
+                icon={status === 'PENDING' ? <SyncOutlined spin /> : <CheckCircleOutlined />} 
+                color={statusColors[status] || 'default'}
+                style={{ borderRadius: 4, fontWeight: 'bold' }}
+            >
+                {statusText[status] || status}
+            </Tag>
+        );
+    };
+
+    const columns = [
+        {
+            title: "ID",
+            dataIndex: "requestId",
+            key: "requestId",
+            render: (text) => <Text strong type="secondary">#{text}</Text>,
+            width: 80,
+            align: 'center',
+        },
+        {
+            title: "Khách hàng",
+            dataIndex: "username",
+            key: "username",
+        },
+        {
+            title: "Công ty",
+            dataIndex: "companyName",
+            key: "companyName",
+        },
+        {
+            title: "Thời gian yêu cầu",
+            dataIndex: "requestTime",
+            key: "requestTime",
+            render: (text) => text ? new Date(text).toLocaleString() : 'N/A',
+        },
+        {
+            title: "Trạng thái",
+            dataIndex: "status",
+            key: "status",
+            render: getStatusTag,
+            width: 150,
+        },
+        {
+            title: "Gán Surveyer",
+            key: "assign",
+            width: 350,
+            render: (_, record) => (
+                <Space>
+                    <Select
+                        showSearch
+                        placeholder="Chọn nhân viên khảo sát"
+                        optionFilterProp="children"
+                        style={{ width: 200 }}
+                        value={selectedEmployee[record.requestId]}
+                        onChange={value => setSelectedEmployee(prev => ({ ...prev, [record.requestId]: value }))}
+                        // Thêm icon cho Select
+                        suffixIcon={<SolutionOutlined />}
+                    >
+                        {surveyers.map(s => (
+                            <Option 
+                                key={s.employeeId} 
+                                value={s.employeeId}
+                                // Hiển thị thông tin đầy đủ hơn trong Select
+                            >
+                                <Text strong>{s.username}</Text> - <Text type="secondary">{s.position}</Text>
+                            </Option>
+                        ))}
+                    </Select>
+                    <Button 
+                        type="primary" 
+                        icon={<UserAddOutlined />}
+                        onClick={() => handleAssign(record.requestId)}
+                        disabled={!selectedEmployee[record.requestId]} // Disable nếu chưa chọn NV
+                        style={{ borderRadius: 6 }}
+                    >
+                        Gán
+                    </Button>
+                </Space>
+            ),
+        },
+    ];
+
+    // --- RENDER GIAO DIỆN ---
+    return (
+        <div style={{ padding: 24, backgroundColor: '#f0f2f5', minHeight: '100vh' }}>
+            <Title level={3} style={{ marginBottom: 20, borderLeft: '4px solid #1890ff', paddingLeft: 12 }}>
+                <UserAddOutlined style={{ marginRight: 8, color: '#1899ff' }} />
+                Gán Nhân Viên Khảo Sát cho Yêu Cầu
+            </Title>
+            
+            <Card 
+                title={
+                    <Space size="large">
+                        <Title level={4} style={{ margin: 0 }}>Danh sách Request</Title>
+                        <Tag color="green" style={{ fontSize: 14 }}>
+                            NV Khảo sát rảnh: {surveyers.length}
+                        </Tag>
+                    </Space>
+                }
+                bordered={false}
+                style={{ borderRadius: 12, boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}
+            >
+                <Table
+                    rowKey="requestId"
+                    dataSource={requests}
+                    columns={columns}
+                    loading={loading}
+                    pagination={{ pageSize: 10 }}
+                    // Thêm style cho Table
+                    style={{ borderRadius: 8, overflow: 'hidden' }}
+                    locale={{ emptyText: 'Không có yêu cầu nào cần xử lý' }}
+                />
+            </Card>
+        </div>
+    );
 }

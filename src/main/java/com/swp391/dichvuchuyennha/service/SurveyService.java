@@ -58,7 +58,7 @@ public class SurveyService {
         }
         String username = auth.getName();
 
-        List<Surveys> surveys = surveyRepository.findByAssignedEmployeeUsername(username);
+        List<Surveys> surveys = surveyRepository.findByRequest_AssignedEmployees_Employee_User_Username(username);
 
         return surveys.stream()
                 .map(surveyMapper::toResponse)

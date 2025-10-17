@@ -29,6 +29,7 @@ public class QuotationService {
     private final QuotationServiceRepository quotationServiceRepository;
     private final QuotationMapper quotationMapper;
     private final QuotationForCustomerMapper quotationForCustomerMapper;
+    private final NotificationService notificationService;
 
     public Quotations createQuotation(QuotationCreateRequest request) {
         // Map từ DTO -> Entity (chưa có survey)
@@ -49,7 +50,7 @@ public class QuotationService {
 
     public List<QuotationResponse> getQuotationsByCurrentEmployee() {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        return quotationRepository.findByAssignedEmployeeUsername(username)
+        return quotationRepository.findBySurvey_Request_AssignedEmployees_Employee_User_Username(username)
                 .stream()
                 .map(quotationMapper::toResponse)
                 .collect(Collectors.toList());
@@ -127,6 +128,14 @@ public class QuotationService {
         }
 
         return quotationForCustomerMapper.toInfo(services.get(0));
+    }
+
+
+
+    public List<QuotationResponse> getAllQuotations() {
+        return quotationRepository.findByStatus("APPROVED").stream()  // <- Lọc APPROVED
+                .map(quotationMapper::toResponse)
+                .collect(Collectors.toList());
     }
 
 }

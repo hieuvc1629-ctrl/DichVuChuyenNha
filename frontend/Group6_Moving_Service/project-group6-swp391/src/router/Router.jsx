@@ -33,6 +33,7 @@ import EmployeeDashboard from "../employee/EmployeeDashboard";
 import QuotationApproval from "../customer/QuotationApproval";
 import AssignSurveyer from "../manager/AssignSurveyer";
 import QuotationAddServices from "../staff/QuotationAddServices";
+import QuotationContractList from "../manager/QuotationContractList";
 
 
 
@@ -64,11 +65,15 @@ const Router = () => {
           path:"assign-surveyer",
           element: <AssignSurveyer/>
         },
-        {
-          path:"survey-dashboard",
-          element: <SurveyDashboard/>
-        },
-     
+       {
+  path:"survey-dashboard",
+  element: (
+    <ProtectedRoute allowedRoles={["employee"]} requiredPosition="Surveyer">
+      <SurveyDashboard />
+    </ProtectedRoute>
+  ),
+},
+      
       {
           path:"price-service",
           element: <PriceTable/>
@@ -89,8 +94,12 @@ const Router = () => {
           path: "quotation-for-customer",
           element: <QuotationApproval/>
         },
+                {
+          path: "contracts-list-manager",
+          element: <QuotationContractList/>
+        },
 
-
+  
 
         {
           path: "login",

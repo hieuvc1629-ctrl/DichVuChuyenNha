@@ -1,8 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { Layout, Card, Form, message, Menu, Button } from "antd";
-import { DollarOutlined, FileAddOutlined, AppstoreOutlined, } from "@ant-design/icons";
-import axios from "axios";
+import { Layout, Card, Form, message, Menu, Row, Col, Statistic, Badge } from "antd"; 
+import {
+    DollarOutlined,
+    FileAddOutlined,
+    AppstoreOutlined,
+    ContainerOutlined,
+    // Import thêm các icon khác nếu cần thiết để tăng tính thẩm mỹ
+} from "@ant-design/icons";
 import dayjs from "dayjs";
+import axiosInstance from "../service/axiosInstance";
 
 // Import components
 import { RequestList } from "./RequestList";
@@ -11,448 +17,389 @@ import { QuotationList } from "./QuotationList";
 import { CreateSurveyModal } from "./CreateSurveyModal";
 import { EditSurveyModal } from "./EditSurveyModal";
 import { CreateQuotationModal } from "./CreateQuotationModal";
-import { useNavigate } from "react-router-dom";
-import axiosInstance from "../service/axiosInstance"; // import instance
-
+import QuotationAddServices from "./QuotationAddServices";
 
 const { Content, Sider } = Layout;
 
+// Dữ liệu màu sắc hiện đại cho các Statistic Card
+const STAT_COLORS = {
+    requests: { color: '#1890ff', bg: '#e6f7ff' }, // Blue
+    surveys: { color: '#52c41a', bg: '#f6ffed' },  // Green
+    quotations: { color: '#faad14', bg: '#fffbe6' }, // Yellow/Orange
+};
+
 const SurveyDashboard = () => {
-  const navigate = useNavigate();
-const [selectedQuotation, setSelectedQuotation] = useState(null);
-  const [form] = Form.useForm();
-  const [editForm] = Form.useForm();
-  const [quoteForm] = Form.useForm();
+    const [form] = Form.useForm();
+    const [editForm] = Form.useForm();
+    const [quoteForm] = Form.useForm();
 
-  const [requests, setRequests] = useState([]);
-  const [surveys, setSurveys] = useState([]);
-  const [quotations, setQuotations] = useState([]);
-  const [serviceList, setServiceList] = useState([]);
-  const [activeMenu, setActiveMenu] = useState("survey");
+    const [requests, setRequests] = useState([]);
+    const [surveys, setSurveys] = useState([]);
+    const [quotations, setQuotations] = useState([]);
+    const [selectedQuotation, setSelectedQuotation] = useState(null);
 
-  const [createSurveyModalVisible, setCreateSurveyModalVisible] = useState(false);
-  const [editModalVisible, setEditModalVisible] = useState(false);
-  const [createQuotationModalVisible, setCreateQuotationModalVisible] = useState(false);
+    const [activeMenu, setActiveMenu] = useState("survey");
 
-  const [selectedRequestForSurvey, setSelectedRequestForSurvey] = useState(null);
-  const [editingSurvey, setEditingSurvey] = useState(null);
-  const [selectedSurveyForQuotation, setSelectedSurveyForQuotation] = useState(null);
+    // Modal states (Giữ nguyên)
+    const [createSurveyModalVisible, setCreateSurveyModalVisible] = useState(false);
+    const [editModalVisible, setEditModalVisible] = useState(false);
+    const [createQuotationModalVisible, setCreateQuotationModalVisible] = useState(false);
 
-  const [loading, setLoading] = useState(false);
-  const [loadingServices, setLoadingServices] = useState(false);
+    const [selectedRequestForSurvey, setSelectedRequestForSurvey] = useState(null);
+    const [editingSurvey, setEditingSurvey] = useState(null);
+    const [selectedSurveyForQuotation, setSelectedSurveyForQuotation] = useState(null);
 
-  const [quotationServiceForm, setQuotationServiceForm] = useState({});
-  const [quotationServicesList, setQuotationServicesList] = useState({});
+    // ====== FETCH API (Giữ nguyên) ======
+    useEffect(() => {
+        fetchRequests();
+        fetchSurveys();
+        fetchQuotations();
+    }, []);
 
-  useEffect(() => {
-    fetchRequests();
-    fetchSurveys();
-    fetchQuotations();
-    fetchServices();
-  }, []);
-
-const fetchRequests = async () => {
-  try {
-    const res = await axiosInstance.get("/requests/my-requests");
-        console.log("Response requests:", res.data); // <--- kiểm tra
-
-setRequests(Array.isArray(res.data.result) ? res.data.result : res.data || []);
-  } catch (err) {
-    console.error(err);
-    message.error("Lỗi khi tải yêu cầu!");
-  }
-};
-
-  const fetchSurveys = async () => {
-  try {
-    const res = await axiosInstance.get("/surveys/my");
-    console.log("Survey API response:", res.data);
-
-    const data =
-      Array.isArray(res.data) ? res.data :
-      Array.isArray(res.data.result) ? res.data.result :
-      [];
-
-    setSurveys(data);
-  } catch (err) {
-    console.error("❌ Lỗi khi tải khảo sát:", err);
-    message.error("Lỗi khi tải khảo sát!");
-  }
-};
-
-  const fetchQuotations = async () => {
-   try {
-    const res = await axiosInstance.get("/quotations/me");
-        console.log("Response requests:", res.data); 
-
-setQuotations(Array.isArray(res.data.result) ? res.data.result : res.data || []);
-  } catch (err) {
-    console.error(err);
-    message.error("Lỗi khi tải yêu cầu!");
-  }
-};
-  const fetchServices = async () => {
-    try {
-      setLoadingServices(true);
-      const res = await axios.get("http://localhost:8080/api/prices");
-      if (Array.isArray(res.data)) {
-        setServiceList(res.data.filter((s) => s && s.serviceName));
-      } else {
-        setServiceList([]);
-      }
-    } catch (err) {
-      console.error(err);
-      message.error("Lỗi khi tải dịch vụ!");
-    } finally {
-      setLoadingServices(false);
-    }
-  };
-
-  const handleOpenCreateSurvey = (request) => {
-    setSelectedRequestForSurvey(request);
-    form.setFieldsValue({
-      surveyDate: dayjs(),
-    });
-    setCreateSurveyModalVisible(true);
-  };
-
-  const handleSubmitSurvey = async (values) => {
-    try {
-      const payload = {
-        ...values,
-        requestId: selectedRequestForSurvey.requestId,
-        surveyDate: values.surveyDate.toISOString(),
-        status: "DONE",
-      };
-      await axios.post("http://localhost:8080/api/surveys", payload);
-      message.success("Tạo khảo sát thành công!");
-      form.resetFields();
-      setSelectedRequestForSurvey(null);
-      setCreateSurveyModalVisible(false);
-      fetchSurveys();
-    } catch {
-      message.error("Tạo khảo sát thất bại!");
-    }
-  };
-
-  const handleDelete = async (id) => {
-    try {
-      await axios.delete(`http://localhost:8080/api/surveys/${id}`);
-      message.success("Xóa khảo sát thành công!");
-      fetchSurveys();
-    } catch {
-      message.error("Không thể xóa khảo sát!");
-    }
-  };
-
-  const handleEdit = (record) => {
-    setEditingSurvey(record);
-    editForm.setFieldsValue({
-      ...record,
-      surveyDate: dayjs(record.surveyDate),
-    });
-    setEditModalVisible(true);
-  };
-
-  const handleUpdate = async () => {
-    try {
-      const values = await editForm.validateFields();
-      await axios.put(
-        `http://localhost:8080/api/surveys/${editingSurvey.surveyId}`,
-        {
-          ...values,
-          surveyDate: values.surveyDate.toISOString(),
+    useEffect(() => {
+        if (selectedQuotation) {
+            const updated = quotations.find(
+                (q) => q.quotationId === selectedQuotation.quotationId
+            );
+            if (updated) {
+                setSelectedQuotation(updated);
+            }
         }
-      );
-      message.success("Cập nhật khảo sát thành công!");
-      setEditModalVisible(false);
-      fetchSurveys();
-    } catch {
-      message.error("Lỗi khi cập nhật khảo sát!");
-    }
-  };
+    }, [quotations]);
 
-  const handleOpenCreateQuotation = (survey) => {
-    setSelectedSurveyForQuotation(survey);
-    quoteForm.setFieldsValue({
-      createdDate: dayjs(),
-    });
-    setCreateQuotationModalVisible(true);
-  };
+    useEffect(() => {
+        if (activeMenu === "quotation") {
+            fetchQuotations();
+        }
+    }, [activeMenu]);
 
-  const handleCreateQuotation = async (values) => {
-    try {
-      const payload = {
-        ...values,
-        surveyId: selectedSurveyForQuotation.surveyId,
-        createdDate: values.createdDate
-          ? dayjs(values.createdDate).format("YYYY-MM-DDTHH:mm:ss")
-          : null,
-      };
-      await axios.post("http://localhost:8080/api/quotations", payload);
-      message.success("Tạo báo giá thành công!");
-      quoteForm.resetFields();
-      setSelectedSurveyForQuotation(null);
-      setCreateQuotationModalVisible(false);
-      fetchQuotations();
-    } catch {
-      message.error("Tạo báo giá thất bại!");
-    }
-  };
-
-  const handleQuotationServiceChange = (quotationId, field, value) => {
-    setQuotationServiceForm((prev) => ({
-      ...prev,
-      [quotationId]: {
-        ...prev[quotationId],
-        [field]: value,
-      },
-    }));
-  };
-
- const handleCreateQuotationService = async (quotationId) => {
-  try {
-    const data = quotationServiceForm[quotationId];
-    if (!data?.serviceId || !data?.priceId || !data?.quantity) {
-      message.warning("Vui lòng chọn dịch vụ, giá và số lượng!");
-      return;
-    }
-
-    const payload = {
-      quotationId: Number(quotationId),
-      serviceId: Number(data.serviceId),
-      priceId: Number(data.priceId),
-      quantity: Number(data.quantity),
+    const fetchRequests = async () => {
+        try {
+            const res = await axiosInstance.get("/requests/my-requests");
+            setRequests(Array.isArray(res.data.result) ? res.data.result : res.data || []);
+        } catch (err) {
+            console.error(err);
+            message.error("Lỗi khi tải yêu cầu!");
+        }
     };
 
-    // ✅ Kiểm tra trùng service + price
-    const existingService = (quotationServicesList[quotationId] || []).find(
-      (item) =>
-        Number(item.service?.serviceId || item.serviceId) ===
-          Number(data.serviceId) &&
-        Number(item.price?.priceId || item.priceId) === Number(data.priceId)
-    );
-
-    let res;
-    if (existingService) {
-      // ✅ Nếu tồn tại thì cập nhật quantity thay vì thêm mới
-      const newQuantity =
-        Number(existingService.quantity || 0) + Number(data.quantity);
-
-      res = await axios.put(
-        `http://localhost:8080/api/quotation-services/${existingService.id}`,
-        {
-          ...existingService,
-          quantity: newQuantity,
-          subtotal:
-            newQuantity *
-            (existingService.price?.amount || existingService.amount || 0),
+    const fetchSurveys = async () => {
+        try {
+            const res = await axiosInstance.get("/surveys/my");
+            const data =
+                Array.isArray(res.data) ? res.data :
+                    Array.isArray(res.data.result) ? res.data.result : [];
+            setSurveys(data);
+        } catch (err) {
+            console.error("❌ Lỗi khi tải khảo sát:", err);
+            message.error("Lỗi khi tải khảo sát!");
         }
-      );
+    };
 
-      // Cập nhật lại danh sách trong state
-      setQuotationServicesList((prev) => {
-        const updated = { ...prev };
-        const list = [...(prev[quotationId] || [])];
-        const idx = list.findIndex((s) => s.id === existingService.id);
-        if (idx !== -1) list[idx] = res.data;
-        updated[quotationId] = list;
-        return updated;
-      });
+    const fetchQuotations = async () => {
+        try {
+            const res = await axiosInstance.get("/quotations/me");
+            setQuotations(Array.isArray(res.data.result) ? res.data.result : res.data || []);
+        } catch (err) {
+            console.error(err);
+            message.error("Lỗi khi tải báo giá!");
+        }
+    };
 
-      message.info("Cập nhật số lượng dịch vụ đã có!");
-    } else {
-      // ✅ Nếu chưa có thì thêm mới
-      res = await axios.post(
-        "http://localhost:8080/api/quotation-services",
-        payload
-      );
+    // ====== SURVEY & QUOTATION Handlers (Giữ nguyên) ======
+    const handleOpenCreateSurvey = (request) => {
+        setSelectedRequestForSurvey(request);
+        form.setFieldsValue({ surveyDate: dayjs() });
+        setCreateSurveyModalVisible(true);
+    };
 
-      setQuotationServicesList((prev) => ({
-        ...prev,
-        [quotationId]: [...(prev[quotationId] || []), res.data],
-      }));
+    const handleSubmitSurvey = async (values) => {
+        try {
+            const payload = {
+                ...values,
+                requestId: selectedRequestForSurvey.requestId,
+                surveyDate: values.surveyDate.toISOString(),
+                status: "DONE",
+            };
+            await axiosInstance.post("/surveys", payload);
+            message.success("Tạo khảo sát thành công!");
+            form.resetFields();
+            setSelectedRequestForSurvey(null);
+            setCreateSurveyModalVisible(false);
+            fetchSurveys();
+        } catch {
+            message.error("Tạo khảo sát thất bại!");
+        }
+    };
 
-      message.success("Thêm dịch vụ mới thành công!");
-    }
+    const handleDelete = async (id) => {
+        try {
+            await axiosInstance.delete(`/surveys/${id}`);
+            message.success("Xóa khảo sát thành công!");
+            fetchSurveys();
+        } catch {
+            message.error("Không thể xóa khảo sát!");
+        }
+    };
 
-    // Reset form input
-    setQuotationServiceForm((prev) => ({
-      ...prev,
-      [quotationId]: {},
-    }));
+    const handleEdit = (record) => {
+        setEditingSurvey(record);
+        editForm.setFieldsValue({
+            ...record,
+            surveyDate: dayjs(record.surveyDate),
+        });
+        setEditModalVisible(true);
+    };
 
-    // Load lại báo giá để đồng bộ backend
-    fetchQuotations();
-  } catch (err) {
-    console.error("❌ Lỗi khi thêm/cập nhật Quotation Service:", err);
-    message.error("Thêm hoặc cập nhật dịch vụ thất bại!");
-  }
-};
+    const handleUpdate = async () => {
+        try {
+            const values = await editForm.validateFields();
+            await axiosInstance.put(`/surveys/${editingSurvey.surveyId}`, {
+                ...values,
+                surveyDate: values.surveyDate.toISOString(),
+            });
+            message.success("Cập nhật khảo sát thành công!");
+            setEditModalVisible(false);
+            fetchSurveys();
+        } catch {
+            message.error("Lỗi khi cập nhật khảo sát!");
+        }
+    };
 
+    const handleOpenCreateQuotation = (survey) => {
+        setSelectedSurveyForQuotation(survey);
+        quoteForm.setFieldsValue({ createdDate: dayjs() });
+        setCreateQuotationModalVisible(true);
+    };
 
-  // Sửa handleQuantityChange
-const handleQuantityChange = async (quotationId, serviceIndex, delta) => {
-  const service = quotationServicesList[quotationId][serviceIndex];
-  const newQuantity = Math.max(1, service.quantity + delta);
+    const handleCreateQuotation = async (values) => {
+        try {
+            const payload = {
+                ...values,
+                surveyId: selectedSurveyForQuotation.surveyId,
+                createdDate: dayjs(values.createdDate).format("YYYY-MM-DDTHH:mm:ss"),
+            };
+            await axiosInstance.post("/quotations", payload);
+            message.success("Tạo báo giá thành công!");
+            quoteForm.resetFields();
+            setSelectedSurveyForQuotation(null);
+            setCreateQuotationModalVisible(false);
+            fetchQuotations();
+        } catch {
+            message.error("Tạo báo giá thất bại!");
+        }
+    };
 
-  try {
-    const res = await axios.put(
-      `http://localhost:8080/api/quotation-services/${service.id}`,
-      {
-        ...service,
-        quantity: newQuantity,
-        subtotal: newQuantity * service.price.amount,
-      }
+    // Hàm render card thống kê hiện đại
+    const renderStatCard = (title, value, IconComponent, colors) => (
+        <Card 
+            bordered={false} 
+            // Thêm hiệu ứng đổ bóng và bo tròn lớn hơn
+            style={{ 
+                borderRadius: 12, 
+                boxShadow: '0 4px 15px rgba(0, 0, 0, 0.08)',
+                transition: 'all 0.3s',
+            }}
+            // Thêm hiệu ứng hover
+            className="modern-stat-card"
+            hoverable
+        >
+            <Row align="middle" gutter={16}>
+                <Col>
+                    {/* Icon lớn hơn, bo tròn và có màu nền nhẹ */}
+                    <div style={{
+                        backgroundColor: colors.bg,
+                        padding: 12,
+                        borderRadius: 8,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                    }}>
+                        <IconComponent style={{ fontSize: '28px', color: colors.color }} />
+                    </div>
+                </Col>
+                <Col flex="auto">
+                    <Statistic
+                        title={<span style={{ fontWeight: 500, color: '#666' }}>{title}</span>}
+                        value={value}
+                        valueStyle={{ 
+                            color: colors.color, 
+                            fontWeight: 'bold', 
+                            fontSize: '24px' 
+                        }}
+                    />
+                </Col>
+            </Row>
+        </Card>
     );
+    
+    // ====== RENDER DASHBOARD ======
+    return (
+        <Layout style={{ minHeight: "100vh" }}>
+            {/* ========== SIDEBAR (Giữ nguyên) ========== */}
+            <Sider width={220} theme="light">
+                <div
+                    style={{
+                        padding: "20px",
+                        fontWeight: "bold",
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        borderBottom: '1px solid #f0f0f0',
+                    }}
+                >
+                    <span>Dashboard</span>
 
-    // ✅ 1️⃣ Cập nhật quotationServicesList NGAY LẬP TỨC
-    setQuotationServicesList((prev) => {
-      const updated = { ...prev };
-      const list = [...(prev[quotationId] || [])];
-      list[serviceIndex] = res.data;
-      updated[quotationId] = list;
-      return updated;
-    });
+                    {/* BADGE QUẢN LÝ BÁO GIÁ */}
+                    <Badge
+                        count={quotations.length}
+                        overflowCount={99}
+                        style={{
+                            backgroundColor: '#faad14',
+                            cursor: 'pointer',
+                            boxShadow: activeMenu === 'quotation' ? '0 0 5px #faad14' : 'none',
+                            marginLeft: 8, 
+                        }}
+                        onClick={() => setActiveMenu("quotation")} 
+                        title="Quản lý Báo Giá"
+                    >
+                        <DollarOutlined 
+                            style={{ 
+                                fontSize: '24px', 
+                                padding: 6,
+                                color: activeMenu === 'quotation' ? '#1890ff' : '#666',
+                                backgroundColor: activeMenu === 'quotation' ? '#e6f7ff' : 'transparent',
+                                borderRadius: 6,
+                                transition: 'all 0.2s',
+                                cursor: 'pointer',
+                            }} 
+                            onClick={() => setActiveMenu("quotation")}
+                        />
+                    </Badge>
+                </div>
 
-    // ✅ 2️⃣ Cập nhật selectedQuotation NGAY LẬP TỨC (QUAN TRỌNG NHẤT)
-    setSelectedQuotation((prev) => {
-      if (!prev || prev.quotationId !== quotationId) return prev;
-      
-      const updatedServices = prev.services.map((s) =>
-        s.id === service.id ? res.data : s
-      );
-      
-      const newTotalPrice = updatedServices.reduce(
-        (sum, s) => sum + (s.subtotal || 0),
-        0
-      );
-
-      return {
-        ...prev,
-        services: updatedServices,
-        totalPrice: newTotalPrice,
-      };
-    });
-
-    message.success("Cập nhật số lượng thành công!");
-  } catch (err) {
-    console.error(err);
-    message.error("Cập nhật số lượng thất bại!");
-  }
-};
-
-  return (
-    <Layout style={{ minHeight: "100vh" }}>
-      <Sider width={220} theme="light">
-        <div
-          style={{ padding: "20px", textAlign: "center", fontWeight: "bold" }}
-        >
-          Dashboard
-        </div>
-       
-        <Menu
-          mode="inline"
-          selectedKeys={[activeMenu]}
-          onClick={(e) => setActiveMenu(e.key)}
-          style={{ height: "100%", borderRight: 0 }}
-        >
-          <Menu.Item key="survey" icon={<FileAddOutlined />}>
-            Quản lý Khảo Sát
-          </Menu.Item>
-          <Menu.Item key="quotation" icon={<DollarOutlined />}>
-            Quản lý Báo Giá
-          </Menu.Item>
-            <Menu.Item
-    key="quotationService"
-    icon={<AppstoreOutlined />}
-    onClick={() => navigate("/quotations-services-list")}
-  >
-    Dịch vụ Báo Giá
-  </Menu.Item>
-
-        </Menu>
-      </Sider>
-
-      <Layout style={{ padding: "20px" }}>
-        <Content>
-          <h2 style={{ marginBottom: 20 }}>
-            {activeMenu === "survey" ? "Quản lý Khảo Sát" : "Quản lý Báo Giá"}
-          </h2>
-
-          {activeMenu === "survey" && (
-            <>
-              <Card title="Danh sách yêu cầu" style={{ marginBottom: 20 }}>
-                <RequestList
-                  requests={requests}
-                  onCreateSurvey={handleOpenCreateSurvey}
+                <Menu
+                    mode="inline"
+                    selectedKeys={[activeMenu]} 
+                    onClick={(e) => setActiveMenu(e.key)}
+                    style={{ height: "100%", borderRight: 0 }}
+                    items={[
+                        {
+                            key: "survey",
+                            icon: <FileAddOutlined />,
+                            label: "Quản lý Khảo Sát",
+                        },
+                        {
+                            key: "addService",
+                            icon: <AppstoreOutlined />,
+                            label: "Dịch vụ Báo Giá",
+                        },
+                    ]}
                 />
-              </Card>
+            </Sider>
 
-              <Card title="Danh sách khảo sát">
-                <SurveyList
-                  surveys={surveys}
-                  loading={loading}
-                  onEdit={handleEdit}
-                  onDelete={handleDelete}
-                  onCreateQuotation={handleOpenCreateQuotation}
-                />
-              </Card>
-            </>
-          )}
+            {/* ========== MAIN CONTENT ========== */}
+            <Layout style={{ padding: "20px" }}>
+                <Content>
+                    
+                    {/* ========== STATS CARDS MỚI ========== */}
+                    <Row gutter={24} style={{ marginBottom: 30 }}> {/* Tăng gutter và margin */}
+                        <Col span={8}>
+                            {renderStatCard("Tổng Yêu Cầu", requests.length, ContainerOutlined, STAT_COLORS.requests)}
+                        </Col>
+                        <Col span={8}>
+                            {renderStatCard("Tổng Khảo Sát", surveys.length, FileAddOutlined, STAT_COLORS.surveys)}
+                        </Col>
+                        <Col span={8}>
+                            {renderStatCard("Tổng Báo Giá", quotations.length, DollarOutlined, STAT_COLORS.quotations)}
+                        </Col>
+                    </Row>
+                    {/* ---------------------------------- */}
 
-          {activeMenu === "quotation" && (
-            <Card title="Danh sách báo giá">
-              <QuotationList
-                quotations={quotations}
-                serviceList={serviceList}
-                loadingServices={loadingServices}
-                quotationServiceForm={quotationServiceForm}
-                quotationServicesList={quotationServicesList}
-                onServiceChange={handleQuotationServiceChange}
-                onCreateService={handleCreateQuotationService}
-                onQuantityChange={handleQuantityChange}
-                fetchQuotations={fetchQuotations}
-                selectedQuotation={selectedQuotation}  // ✅ THÊM
-  setSelectedQuotation={setSelectedQuotation}
-              />
-            </Card>
-          )}
-        </Content>
-      </Layout>
 
-      <CreateSurveyModal
-        visible={createSurveyModalVisible}
-        form={form}
-        selectedRequest={selectedRequestForSurvey}
-        onCancel={() => {
-          setCreateSurveyModalVisible(false);
-          setSelectedRequestForSurvey(null);
-          form.resetFields();
-        }}
-        onSubmit={handleSubmitSurvey}
-      />
+                    <h2 style={{ marginBottom: 20 }}>
+                        {activeMenu === "survey"
+                            ? "Quản lý Khảo Sát"
+                            : activeMenu === "quotation"
+                                ? "Quản lý Báo Giá"
+                                : "Dịch vụ Báo Giá"}
+                    </h2>
 
-      <EditSurveyModal
-        visible={editModalVisible}
-        form={editForm}
-        onCancel={() => setEditModalVisible(false)}
-        onUpdate={handleUpdate}
-      />
+                    {/* ==== KHẢO SÁT ==== */}
+                    {activeMenu === "survey" && (
+                        <>
+                            <Card title="Danh sách yêu cầu" style={{ marginBottom: 20 }}>
+                                <RequestList
+                                    requests={requests}
+                                    onCreateSurvey={handleOpenCreateSurvey}
+                                />
+                            </Card>
 
-      <CreateQuotationModal
-        visible={createQuotationModalVisible}
-        form={quoteForm}
-        selectedSurvey={selectedSurveyForQuotation}
-        onCancel={() => {
-          setCreateQuotationModalVisible(false);
-          setSelectedSurveyForQuotation(null);
-          quoteForm.resetFields();
-        }}
-        onSubmit={handleCreateQuotation}
-      />
-    </Layout>
-  );
+                            <Card title="Danh sách khảo sát">
+                                <SurveyList
+                                    surveys={surveys}
+                                    onEdit={handleEdit}
+                                    onDelete={handleDelete}
+                                    onCreateQuotation={handleOpenCreateQuotation}
+                                />
+                            </Card>
+                        </>
+                    )}
+
+                    {/* ==== BÁO GIÁ ==== */}
+                    {activeMenu === "quotation" && (
+                        <Card title="Danh sách báo giá">
+                            <QuotationList
+                                quotations={quotations}
+                                fetchQuotations={fetchQuotations}
+                                selectedQuotation={selectedQuotation}
+                                setSelectedQuotation={setSelectedQuotation}
+                            />
+                        </Card>
+                    )}
+
+                    {/* ==== DỊCH VỤ BÁO GIÁ ==== */}
+                    {activeMenu === "addService" && (
+                        <Card title="Thêm dịch vụ vào báo giá">
+                            <QuotationAddServices />
+                        </Card>
+                    )}
+                </Content>
+            </Layout>
+
+            {/* ==== MODALS (Giữ nguyên) ==== */}
+            <CreateSurveyModal
+                visible={createSurveyModalVisible}
+                form={form}
+                selectedRequest={selectedRequestForSurvey}
+                onCancel={() => {
+                    setCreateSurveyModalVisible(false);
+                    setSelectedRequestForSurvey(null);
+                    form.resetFields();
+                }}
+                onSubmit={handleSubmitSurvey}
+            />
+
+            <EditSurveyModal
+                visible={editModalVisible}
+                form={editForm}
+                onCancel={() => setEditModalVisible(false)}
+                onUpdate={handleUpdate}
+            />
+
+            <CreateQuotationModal
+                visible={createQuotationModalVisible}
+                form={quoteForm}
+                selectedSurvey={selectedSurveyForQuotation}
+                onCancel={() => {
+                    setCreateQuotationModalVisible(false);
+                    setSelectedSurveyForQuotation(null);
+                    quoteForm.resetFields();
+                }}
+                onSubmit={handleCreateQuotation}
+            />
+        </Layout>
+    );
 };
 
 export default SurveyDashboard;

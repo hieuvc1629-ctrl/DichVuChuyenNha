@@ -1,11 +1,14 @@
 package com.swp391.dichvuchuyennha.service;
 
+import com.swp391.dichvuchuyennha.dto.request.ContractRequest;
 import com.swp391.dichvuchuyennha.dto.response.ContractResponse;
 //import com.swp391.dichvuchuyennha.dto.response.EmployeeDTO;
 import com.swp391.dichvuchuyennha.entity.Contract;
+import com.swp391.dichvuchuyennha.entity.Quotations;
 import com.swp391.dichvuchuyennha.entity.Users;
 import com.swp391.dichvuchuyennha.mapper.ContractMapper;
 import com.swp391.dichvuchuyennha.repository.ContractRepository;
+import com.swp391.dichvuchuyennha.repository.QuotationRepository;
 import com.swp391.dichvuchuyennha.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,7 +24,29 @@ public class ContractService {
 
     private final ContractRepository contractRepository;
     private final UserRepository userRepository;
-    private final ContractMapper contractMapper; // inject mapper
+    private final ContractMapper contractMapper;
+    private final QuotationRepository quotationRepository;
+// inject mapper
+public ContractResponse createContract(ContractRequest request) {
+    Quotations quotation = quotationRepository.findById(request.getQuotationId())
+            .orElseThrow(() -> new RuntimeException("Quotation not found"));
+
+    Contract contract = new Contract();
+    contract.setQuotation(quotation);
+    contract.setStartDate(request.getStartDate());
+    contract.setEndDate(request.getEndDate());
+    contract.setDepositAmount(request.getDepositAmount());
+    contract.setTotalAmount(quotation.getTotalPrice());
+    contract.setStatus("UNSIGNED");
+
+    Contract saved = contractRepository.save(contract);
+    quotation.setStatus("CREATED");
+    quotationRepository.save(quotation);
+
+    return contractMapper.toResponse(saved);
+}
+
+
 
     @Transactional(readOnly = true)
     public List<ContractResponse> getUnsignedContracts(Integer userId) {
@@ -56,6 +81,33 @@ public class ContractService {
 
         Contract saved = contractRepository.save(contract);
         return contractMapper.toResponse(saved); // mapper xử lý
+    }
+
+
+    public ContractResponse updateContract(Integer id, ContractRequest request) {
+        Contract contract = contractRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Contract not found"));
+
+        contract.setStartDate(request.getStartDate());
+        contract.setEndDate(request.getEndDate());
+        contract.setDepositAmount(request.getDepositAmount());
+        contractRepository.save(contract);
+
+        return contractMapper.toResponse(contract);
+    }
+
+    // Xóa hợp đồng
+    public void deleteContract(Integer id) {
+        if (!contractRepository.existsById(id)) throw new RuntimeException("Contract not found");
+        contractRepository.deleteById(id);
+    }
+
+    // Lấy danh sách hợp đồng
+    public List<ContractResponse> getAllContracts() {
+        return contractRepository.findAll()
+                .stream()
+                .map(contractMapper::toResponse)
+                .toList();
     }
 }
 

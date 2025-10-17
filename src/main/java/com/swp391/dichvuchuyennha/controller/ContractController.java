@@ -2,14 +2,10 @@ package com.swp391.dichvuchuyennha.controller;
 
 import java.util.List;
 
+import com.swp391.dichvuchuyennha.dto.request.ContractRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.swp391.dichvuchuyennha.dto.response.ContractDTO;
 import com.swp391.dichvuchuyennha.dto.response.ContractResponse;
@@ -68,5 +64,36 @@ public class ContractController {
         return contractRepository.findByStatus("SIGNED").stream()
                 .map(c -> new ContractDTO(c.getContractId(), c.getStatus()))
                 .toList();
+    }
+
+
+    @PostMapping
+    public ResponseEntity<ContractResponse> create(@RequestBody ContractRequest request) {
+        return ResponseEntity.ok(contractService.createContract(request));
+    }
+
+    @PutMapping("/{id}/sign")
+    public ResponseEntity<ContractResponse> sign(
+            @PathVariable Integer id,
+            @RequestParam Integer userId) {
+        return ResponseEntity.ok(contractService.signContract(id, userId));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ContractResponse> update(
+            @PathVariable Integer id,
+            @RequestBody ContractRequest request) {
+        return ResponseEntity.ok(contractService.updateContract(id, request));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Integer id) {
+        contractService.deleteContract(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/manager")
+    public ResponseEntity<List<ContractResponse>> getAll() {
+        return ResponseEntity.ok(contractService.getAllContracts());
     }
 }

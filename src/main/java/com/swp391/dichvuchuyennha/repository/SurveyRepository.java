@@ -10,15 +10,6 @@ import java.util.List;
 
 @Repository
 public interface SurveyRepository extends JpaRepository<Surveys, Integer> {
-    @Query("""
-        SELECT DISTINCT s
-        FROM Surveys s
-        JOIN s.request r
-        JOIN r.assignedEmployees ra
-        JOIN ra.employee e
-        JOIN e.user u
-        WHERE u.username = :username
-    """)
-    List<Surveys> findByAssignedEmployeeUsername(@Param("username") String username);
-    // Có thể thêm các query nếu cần lọc theo surveyStatus, requestId
+    List<Surveys> findByRequest_AssignedEmployees_Employee_User_Username(String username);
+
 }

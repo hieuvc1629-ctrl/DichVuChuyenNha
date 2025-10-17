@@ -8,10 +8,12 @@ import com.swp391.dichvuchuyennha.entity.Users;
 import com.swp391.dichvuchuyennha.mapper.QuotationMapper;
 import com.swp391.dichvuchuyennha.repository.QuotationRepository;
 import com.swp391.dichvuchuyennha.repository.UserRepository;
+import com.swp391.dichvuchuyennha.service.EmployeePositionService;
 import com.swp391.dichvuchuyennha.service.QuotationService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,12 +29,16 @@ public class QuotationController {
     private final QuotationMapper mapper;
     private final QuotationRepository quotationRepository;
     private final UserRepository userRepository;
+    private final EmployeePositionService employeePositionService;
+
     @PostMapping
     public ResponseEntity<Quotations> createQuotation(@RequestBody QuotationCreateRequest request) {
         Quotations savedQuotation = quotationService.createQuotation(request);
         return ResponseEntity.ok(savedQuotation);
     }
     @GetMapping("/me")
+    @PreAuthorize("hasRole('employee') and @employeePositionService.hasPositionSurveyer(authentication)")
+
     public ResponseEntity<List<QuotationResponse>> getQuotationsByEmployee() {
         List<QuotationResponse> responses = quotationService.getQuotationsByCurrentEmployee();
         return ResponseEntity.ok(responses);
@@ -83,6 +89,12 @@ public class QuotationController {
     }
 
 
-
+    @GetMapping
+    public List<QuotationResponse> getApprovedQuotations() {
+        List<Quotations> approvedQuotations = quotationRepository.findByStatus("APPROVED");
+        return approvedQuotations.stream()
+                .map(mapper::toResponse)
+                .collect(Collectors.toList());
+    }
 
 }
