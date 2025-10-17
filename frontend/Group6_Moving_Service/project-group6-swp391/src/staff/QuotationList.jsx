@@ -24,8 +24,7 @@ export const QuotationList = ({
   onServiceChange,
   onCreateService,
   onQuantityChange,
-  selectedQuotation,        // ✅ THÊM
-  setSelectedQuotation,
+  
   fetchQuotations,
 }) => {
   const [selectedQuotation, setSelectedQuotation] = useState(null);
