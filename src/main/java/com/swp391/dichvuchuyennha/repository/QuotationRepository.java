@@ -13,16 +13,8 @@ import java.util.Optional;
 public interface QuotationRepository extends JpaRepository<Quotations, Integer> {
     // Có thể thêm query theo surveyId nếu cần
 // QuotationRepository.java
-    @Query("""
-        SELECT DISTINCT q
-        FROM Quotations q
-        JOIN q.survey s
-        JOIN s.request r
-        JOIN r.assignedEmployees ra
-        JOIN ra.employee e
-        JOIN e.user u
-        WHERE u.username = :username
-    """)
-    List<Quotations> findByAssignedEmployeeUsername(@Param("username") String username);
+    List<Quotations> findBySurvey_Request_AssignedEmployees_Employee_User_Username(String username);
+    List<Quotations> findByStatus(String status);  // <- dùng trong service
+
 
 }
