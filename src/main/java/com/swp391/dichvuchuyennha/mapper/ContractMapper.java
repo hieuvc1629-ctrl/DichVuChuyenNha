@@ -20,6 +20,8 @@ public interface ContractMapper {
     @Mapping(target = "endLocation", source = "quotation.survey.addressTo")
     @Mapping(target = "services", expression = "java(mapQuotationServices(contract.getQuotation().getQuotationServices()))")
     @Mapping(target = "totalPrice",source = "quotation.totalPrice")
+    @Mapping(target = "username",source = "quotation.survey.request.user.username")
+    @Mapping(target = "companyName",source = "quotation.survey.request.user.customerCompany.companyName")
     ContractResponse toResponse(Contract contract);
 
     default List<QuotationServiceInfo> mapQuotationServices(List<QuotationServices> services) {
