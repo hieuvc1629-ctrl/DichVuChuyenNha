@@ -29,8 +29,8 @@ import QuotationServiceList from "../staff/QuotationServiceList";
 import WorkProgressPage from "../employee/WorkProgressPage";
 import WorkProgressCustomerPage from "../customer/WorkProgressCustomerPage";
 import EmployeeDashboard from "../employee/EmployeeDashboard";
-
 import QuotationApproval from "../customer/QuotationApproval";
+import ManagerDashboard from "../manager/ManagerDashboard";
 import AssignSurveyer from "../manager/AssignSurveyer";
 import QuotationAddServices from "../staff/QuotationAddServices";
 import QuotationContractList from "../manager/QuotationContractList";
@@ -178,6 +178,14 @@ const Router = () => {
           children: [
             // { index: true, element: <WorkProgressPage /> }, // mặc định khi vào /employee/dashboard
             { path: "work-progress", element: <WorkProgressPage /> },
+          ],
+        },
+        {
+          path: "manager/dashboard",
+          element: <ManagerDashboard />,
+          children: [
+            // { index: true, element: <ContractAssignment /> }, // mặc định khi vào /manager/dashboard
+            { path: "contract-assignment", element: <ContractAssignment /> },
           ],
         },
          
