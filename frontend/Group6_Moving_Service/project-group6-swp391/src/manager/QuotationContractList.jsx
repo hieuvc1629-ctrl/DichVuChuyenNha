@@ -21,8 +21,8 @@ const QuotationContractList = () => {
     };
 
     const getContractStatusTag = (status) => {
-        const color = status === 'ACTIVE' ? 'success' : status === 'PENDING' ? 'processing' : 'error';
-        const text = status === 'ACTIVE' ? 'Đã kích hoạt' : status === 'PENDING' ? 'Đang chờ' : 'Đã hủy';
+        const color = status === 'ACTIVE' ? 'warning' : status === 'UNSIGNED' ? 'processing' : 'success';
+        const text = status === 'ACTIVE' ? 'Đã kích hoạt' : status === 'UNSIGNED' ? 'Đang chờ' : 'Khách hàng đã kí';
         return <Tag color={color} style={{ fontWeight: 'bold', borderRadius: 4 }}>{text}</Tag>;
     };
 
@@ -30,7 +30,7 @@ const QuotationContractList = () => {
     const fetchData = async () => {
         try {
             // Giả định API trả về res.data.result hoặc res.data
-            const qRes = await axiosInstance.get("/quotations"); 
+            const qRes = await axiosInstance.get("/quotations");
             const cRes = await axiosInstance.get("/contracts/manager");
             
             setQuotations(Array.isArray(qRes.data.result) ? qRes.data.result : qRes.data || []);
@@ -132,9 +132,8 @@ const QuotationContractList = () => {
             title: "Thành tiền", 
             dataIndex: "subtotal", 
             key: "subtotal",
-            render: formatCurrency,
             align: 'right',
-            // Sử dụng font đậm cho tổng tiền
+            // Chỉ giữ lại một lần định nghĩa render
             render: (text) => <Text strong type="success">{formatCurrency(text)}</Text>
         },
     ];
@@ -180,6 +179,18 @@ const QuotationContractList = () => {
             title: "Mã HĐ", 
             dataIndex: "contractId", 
             key: "contractId", 
+            render: (text) => <Text strong type="secondary">#{text}</Text>
+        },
+          { 
+            title: " Tên khách hàng ", 
+            dataIndex: "username", 
+            key: "username", 
+            render: (text) => <Text strong type="secondary">#{text}</Text>
+        },
+           { 
+            title: " Thuộc công ty (nếu có) ", 
+            dataIndex: "companyName", 
+            key: "companyName", 
             render: (text) => <Text strong type="secondary">#{text}</Text>
         },
         { 
@@ -300,8 +311,14 @@ const QuotationContractList = () => {
                 footer={[
                     <Button key="back" onClick={() => setCreatingContract(null)}>Hủy</Button>,
                     <Button key="submit" type="primary" onClick={async () => {
-                        const values = await createForm.validateFields();
-                        await handleCreate(values);
+                        try {
+                            const values = await createForm.validateFields();
+                            await handleCreate(values);
+                        } catch (error) {
+                            // Bỏ qua lỗi validate của antd
+                            if (error.errorFields) return;
+                            console.error(error);
+                        }
                     }}>Tạo Hợp đồng</Button>,
                 ]}
             >
@@ -353,8 +370,14 @@ const QuotationContractList = () => {
                 footer={[
                     <Button key="back" onClick={() => setEditingContract(null)}>Hủy</Button>,
                     <Button key="submit" type="primary" onClick={async () => {
-                        const values = await editForm.validateFields();
-                        await handleUpdate(values);
+                        try {
+                            const values = await editForm.validateFields();
+                            await handleUpdate(values);
+                        } catch (error) {
+                            // Bỏ qua lỗi validate của antd
+                            if (error.errorFields) return;
+                            console.error(error);
+                        }
                     }}>Cập nhật</Button>,
                 ]}
             >
