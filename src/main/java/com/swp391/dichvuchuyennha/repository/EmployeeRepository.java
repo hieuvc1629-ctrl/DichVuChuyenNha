@@ -25,7 +25,10 @@ public interface EmployeeRepository extends JpaRepository<Employee, Integer> {
     // 🔎 Thêm hàm này để tìm nhân viên từ userId trong JWT
     Optional<Employee> findByUser_UserId(Long userId);
 
-    // employee sau khi bỏ của dũng
+    List<Employee> findByPositionAndStatus(String position, String status);
+    Optional<Employee> findByUser_Username(String username);
+
+ 
     @Query("""
     SELECT new com.swp391.dichvuchuyennha.dto.response.EmployeeDTO(
         e.employeeId,
@@ -37,4 +40,5 @@ public interface EmployeeRepository extends JpaRepository<Employee, Integer> {
     WHERE e.status = 'free'
 """)
     List<EmployeeDTO> findFreeEmployeeDTO();
+
 }

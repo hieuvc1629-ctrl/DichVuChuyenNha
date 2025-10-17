@@ -48,4 +48,7 @@ public class Requests {
 
     @OneToMany(mappedBy = "request", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Surveys> surveys;
+    @OneToMany(mappedBy = "request", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<RequestAssignment> assignedEmployees;
+
 }

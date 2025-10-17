@@ -18,7 +18,7 @@ public interface QuotationMapper {
     @Mapping(target = "addressTo",source = "survey.addressTo")
     @Mapping(target = "username",source = "survey.request.user.username")
     @Mapping(target = "companyName",source = "survey.request.user.customerCompany.companyName")
-    @Mapping(target = "services", source = "quotationServices") // 👈 map list dịch vụ
+    @Mapping(target = "services", source = "quotationServices") //
 
     QuotationResponse toResponse(Quotations quotations);
 }
