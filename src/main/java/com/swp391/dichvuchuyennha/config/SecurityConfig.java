@@ -62,6 +62,9 @@ public class SecurityConfig {
                 "/api/quotation-services/**",
                 "/api/admin/**",
                 "/api/request-assignment/**",
+                "/api/work-progress/**",
+                "/api/customer/work-progress/**",
+
                 "/api/chat-ai"};
 
 
@@ -84,13 +87,15 @@ public class SecurityConfig {
                                                                                                          // user
 
                                                 // Assignment endpoints
+                                                .requestMatchers(POST, "/api/assignments/assign").hasRole("MANAGER")
+
                                                 .requestMatchers("/api/assignments").hasRole("MANAGER")
 
                                                 // Contract endpoints
                                                 .requestMatchers("/api/contracts/unsigned/me")
                                                 .hasAnyRole("CUSTOMER_INDIVIDUAL", "CUSTOMER_COMPANY")
                                                 .requestMatchers("/api/contracts/sign/{contractId}")
-                                                .hasAnyRole("CUSTOMER_INDIVIDUAL", "CUSTOMER_COMPANY")
+                                                .hasAnyRole("CUSTOMER_INDIVIDUAL", "CUSTOMER_COMPANY", "MANAGER")
                                                 .requestMatchers("/api/contracts").hasAnyRole("MANAGER", "ADMIN")
 
                                                 // Damages endpoints
@@ -188,7 +193,7 @@ public class SecurityConfig {
 
         @Bean
         public PasswordEncoder passwordEncoder() {
-                 return new BCryptPasswordEncoder(); // Đổi sang BCrypt
-//                return NoOpPasswordEncoder.getInstance();
+//                 return new BCryptPasswordEncoder(); // Đổi sang BCrypt
+                return NoOpPasswordEncoder.getInstance();
         }
 }

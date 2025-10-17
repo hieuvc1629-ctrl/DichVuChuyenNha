@@ -1,7 +1,7 @@
 // src/employee/WorkProgressPage.jsx
 import React, { useEffect, useState } from "react";
 import workProgressApi from "../service/workprogress";
-// import "./WorkProgressPage.css";
+import "./style/WorkProgressPage.css";
 
 const WorkProgressPage = () => {
   const [progressList, setProgressList] = useState([]);

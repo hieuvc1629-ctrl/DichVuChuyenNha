@@ -27,9 +27,13 @@ import QuotationServiceManager from "../staff/QuotationServiceManager";
 import QuotationServiceList from "../staff/QuotationServiceList";
 
 import WorkProgressPage from "../employee/WorkProgressPage";
+import WorkProgressCustomerPage from "../customer/WorkProgressCustomerPage";
+import EmployeeDashboard from "../employee/EmployeeDashboard";
+
 import QuotationApproval from "../customer/QuotationApproval";
 import AssignSurveyer from "../manager/AssignSurveyer";
 import QuotationAddServices from "../staff/QuotationAddServices";
+
 
 
 const Router = () => {
@@ -157,7 +161,17 @@ const Router = () => {
         { path: "my-requests", element: <UserRequestsPage /> },
 
         { path: "access-denied", element: <AccessDeniedPage /> },
-        { path: "employee/work-progress", element: <WorkProgressPage />}
+        { path: "employee/work-progress", element: <WorkProgressPage />},
+         { path: "customer/work-progress", element: <WorkProgressCustomerPage />},
+         {
+          path: "employee/dashboard",
+          element: <EmployeeDashboard />,
+          children: [
+            // { index: true, element: <WorkProgressPage /> }, // mặc định khi vào /employee/dashboard
+            { path: "work-progress", element: <WorkProgressPage /> },
+          ],
+        },
+         
       ],
     },
   ]);
