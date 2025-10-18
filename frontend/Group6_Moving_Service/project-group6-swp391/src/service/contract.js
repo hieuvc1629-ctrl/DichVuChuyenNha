@@ -24,5 +24,6 @@ const ContractAPI = {
     });
     return res.data;
   },
+  
 };
 export default ContractAPI;

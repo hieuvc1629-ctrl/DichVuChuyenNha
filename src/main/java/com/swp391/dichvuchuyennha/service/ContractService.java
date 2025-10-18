@@ -1,5 +1,6 @@
 package com.swp391.dichvuchuyennha.service;
 
+import com.swp391.dichvuchuyennha.dto.response.ContractDTO;
 import com.swp391.dichvuchuyennha.dto.response.ContractResponse;
 //import com.swp391.dichvuchuyennha.dto.response.EmployeeDTO;
 import com.swp391.dichvuchuyennha.dto.response.QuotationServiceInfo;
@@ -119,6 +120,36 @@ public class ContractService {
             throw new RuntimeException("Error building contract detail: " + e.getMessage());
         }
     }
+    public List<ContractDTO> getContractsSignedWithEmployees() {
+        return contractRepository.findByStatus("SIGNED").stream()
+                .filter(c -> c.getAssignmentEmployees() != null && !c.getAssignmentEmployees().isEmpty())
+                .map(c -> new ContractDTO(c.getContractId(), c.getStatus()))
+                .toList();
+    }
+    @Transactional(readOnly = true)
+    public List<ContractResponse> getEligibleContractsForWorkProgress() {
+        List<Contract> contracts = contractRepository.findByStatus("SIGNED");
+
+        return contracts.stream()
+                .filter(c -> c.getAssignmentEmployees() != null && !c.getAssignmentEmployees().isEmpty())
+                .map(c -> ContractResponse.builder()
+                        .contractId(c.getContractId())
+                        .startDate(c.getStartDate())
+                        .endDate(c.getEndDate())
+                        .totalAmount(c.getTotalAmount())
+                        .depositAmount(c.getDepositAmount())
+                        .status(c.getStatus())
+                        .startLocation(c.getQuotation() != null && c.getQuotation().getSurvey() != null
+                                ? c.getQuotation().getSurvey().getAddressFrom()
+                                : null)
+                        .endLocation(c.getQuotation() != null && c.getQuotation().getSurvey() != null
+                                ? c.getQuotation().getSurvey().getAddressTo()
+                                : null)
+                        .build())
+                .toList();
+    }
+
+
 
 }//fix đủ
 

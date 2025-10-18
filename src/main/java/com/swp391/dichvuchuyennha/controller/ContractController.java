@@ -84,7 +84,14 @@ public class ContractController {
                 .orElseThrow(() -> new RuntimeException("Contract not found"));
         ContractResponse response = contractService.buildContractDetail(contract);
         return ResponseEntity.ok(response);
+    }//moi them
+    @GetMapping("/eligible")
+    public ResponseEntity<List<ContractResponse>> getEligibleContracts() {
+        List<ContractResponse> eligibleContracts = contractService.getEligibleContractsForWorkProgress();
+        return ResponseEntity.ok(eligibleContracts);
     }
+
+
 
 
 }//fix đủ

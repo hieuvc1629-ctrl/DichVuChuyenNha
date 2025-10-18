@@ -26,12 +26,12 @@ const ManagerDashboard = () => {
     {
       key: "contract-assignment",
       icon: <FileTextOutlined />,
-      label: <Link to="contract-assignment">Contracts</Link>,
+      label: <Link to="contract-assignment">AssignToContract</Link>,
     },
     {
-      key: "assignments",
+      key: "manager/work-progress",
       icon: <UserAddOutlined />,
-      label: <Link to="assignments">Assign Employee</Link>,
+      label: <Link to="manager/work-progress">CreateWorkProgress</Link>,
     },
     {
       key: "payments",

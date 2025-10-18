@@ -32,7 +32,7 @@ import EmployeeDashboard from "../employee/EmployeeDashboard";
 
 import QuotationApproval from "../customer/QuotationApproval";
 import ManagerDashboard from "../manager/ManagerDashboard";
-
+import ManagerWorkProgressPage from "../manager/ManagerWorkProgressPage";
 
 const Router = () => {
   const router = createBrowserRouter([
@@ -146,6 +146,11 @@ const Router = () => {
           element:<UserRequestsPage/>
 
         },
+        {
+          path:"manager/work-progress",
+          element:<ManagerWorkProgressPage/>
+
+        },
 
         // user requests (customer)
         { path: "my-requests", element: <UserRequestsPage /> },
@@ -159,6 +164,7 @@ const Router = () => {
           children: [
             // { index: true, element: <WorkProgressPage /> }, // mặc định khi vào /employee/dashboard
             { path: "work-progress", element: <WorkProgressPage /> },
+            
           ],
         },
         {
@@ -167,6 +173,7 @@ const Router = () => {
           children: [
             // { index: true, element: <ContractAssignment /> }, // mặc định khi vào /manager/dashboard
             { path: "contract-assignment", element: <ContractAssignment /> },
+            { path: "manager/work-progress", element: <ManagerWorkProgressPage /> },
           ],
         },
          
