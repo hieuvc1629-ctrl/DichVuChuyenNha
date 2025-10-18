@@ -13,6 +13,8 @@ import com.swp391.dichvuchuyennha.repository.ContractRepository;
 import com.swp391.dichvuchuyennha.repository.QuotationRepository;
 import com.swp391.dichvuchuyennha.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -85,7 +87,32 @@ public ContractResponse createContract(ContractRequest request) {
 
         Contract saved = contractRepository.save(contract);
         return contractMapper.toResponse(saved); // mapper xử lý
-    }//detail
+
+    }
+    @Transactional(readOnly = true)
+    public List<ContractResponse> getSignedContractsOfCurrentUser() {
+        // Lấy thông tin user hiện tại từ Spring Security
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || auth.getName() == null) {
+            throw new RuntimeException("User not authenticated");
+        }
+
+        String username = auth.getName(); // giả sử username là unique
+        Users user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // Lấy hợp đồng đã ký của user
+        List<Contract> contracts = contractRepository.findByQuotation_Survey_Request_User_UserIdAndStatus(
+                user.getUserId(), "SIGNED"
+        );
+
+        return contracts.stream()
+                .map(contractMapper::toResponse)
+                .toList();
+    }
+
+   
+
 
 
 

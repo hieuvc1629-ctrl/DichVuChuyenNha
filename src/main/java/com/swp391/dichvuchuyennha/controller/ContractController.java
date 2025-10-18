@@ -103,6 +103,15 @@ public class ContractController {
         return ResponseEntity.ok(contractService.getAllContracts());
     }
 
+    @GetMapping("/my-signed")
+    public List<ContractResponse> getMySignedContracts() {
+        return contractService.getSignedContractsOfCurrentUser();
+    }
+
+
+}
+
+
     /** ✅ Lấy chi tiết hợp đồng theo ID (để hiển thị thông tin + nhân viên đã gán) */
     @GetMapping("/{contractId}")
     public ResponseEntity<ContractResponse> getContractDetail(@PathVariable Integer contractId) {
@@ -121,3 +130,4 @@ public class ContractController {
 
 
 }//fix đủ
+
