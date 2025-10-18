@@ -26,7 +26,14 @@ public enum ErrorCode {
     QUOTATION_NOT_FOUND(1016,"Quotation does not exist",HttpStatus.NOT_FOUND),
     SURVEY_NOT_FOUND(1017,"Survey does not exist",HttpStatus.NOT_FOUND),
     INVALID_STATUS(1018,"Invalid status",HttpStatus.NOT_FOUND),
-    QUOTATION_SERVICE_NOT_FOUND(1019,"Quotation service does not exist",HttpStatus.NOT_FOUND)
+    QUOTATION_SERVICE_NOT_FOUND(1019,"Quotation service does not exist",HttpStatus.NOT_FOUND),
+    EMPLOYEE_NOT_FREE(1020, "Employee not free", HttpStatus.BAD_REQUEST),
+    INVALID_CONTRACT_STATUS(1021,"Contract Invalid",HttpStatus.BAD_REQUEST),
+    NO_EMPLOYEES_ASSIGNED(1022, "No employees assigned", HttpStatus.BAD_REQUEST),
+    EMPLOYEE_NOT_ASSIGNED_TO_CONTRACT(1023, "Employee not assigned to contract", HttpStatus.BAD_REQUEST),
+    INVALID_EMPLOYEE_STATUS(1024,"Invalid employeeStatus",HttpStatus.BAD_REQUEST),
+    WORK_PROGRESS_ALREADY_EXISTS(1025,"Work progress already exists",HttpStatus.BAD_REQUEST),
+    MISSING_PARAMETER(1026,"Missing parameter",HttpStatus.BAD_REQUEST),
     ;
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {

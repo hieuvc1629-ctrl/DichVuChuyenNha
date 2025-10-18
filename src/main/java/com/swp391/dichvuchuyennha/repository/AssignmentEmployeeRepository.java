@@ -27,4 +27,6 @@ public interface AssignmentEmployeeRepository extends JpaRepository<AssignmentEm
         ORDER BY ae.assignedTime DESC
     """)
     List<AssignmentEmployee> findByEmployeeEmployeeIdWithDetails(@Param("employeeId") Integer employeeId);
+    List<AssignmentEmployee> findByContract_ContractId(Integer contractId);
+    boolean existsByContract_ContractId(Integer contractId);
 }
