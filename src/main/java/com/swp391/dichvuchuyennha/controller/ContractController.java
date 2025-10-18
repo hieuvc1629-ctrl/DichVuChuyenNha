@@ -75,33 +75,16 @@ public class ContractController {
                 .map(c -> new ContractDTO(c.getContractId(), c.getStatus()))
                 .toList();
     }
-
-
-    /** ✅ Lấy chi tiết hợp đồng theo ID (để hiển thị thông tin + nhân viên đã gán) */
-    @GetMapping("/{contractId}")
-    public ResponseEntity<ContractResponse> getContractDetail(@PathVariable Integer contractId) {
-        Contract contract = contractRepository.findById(contractId)
-                .orElseThrow(() -> new RuntimeException("Contract not found"));
-        ContractResponse response = contractService.buildContractDetail(contract);
-        return ResponseEntity.ok(response);
-    }
-
-
-}/
-
-
     @PostMapping
     public ResponseEntity<ContractResponse> create(@RequestBody ContractRequest request) {
         return ResponseEntity.ok(contractService.createContract(request));
     }
-
     @PutMapping("/{id}/sign")
     public ResponseEntity<ContractResponse> sign(
             @PathVariable Integer id,
             @RequestParam Integer userId) {
         return ResponseEntity.ok(contractService.signContract(id, userId));
     }
-
     @PutMapping("/{id}")
     public ResponseEntity<ContractResponse> update(
             @PathVariable Integer id,
@@ -119,5 +102,22 @@ public class ContractController {
     public ResponseEntity<List<ContractResponse>> getAll() {
         return ResponseEntity.ok(contractService.getAllContracts());
     }
-}
 
+    /** ✅ Lấy chi tiết hợp đồng theo ID (để hiển thị thông tin + nhân viên đã gán) */
+    @GetMapping("/{contractId}")
+    public ResponseEntity<ContractResponse> getContractDetail(@PathVariable Integer contractId) {
+        Contract contract = contractRepository.findById(contractId)
+                .orElseThrow(() -> new RuntimeException("Contract not found"));
+        ContractResponse response = contractService.buildContractDetail(contract);
+        return ResponseEntity.ok(response);
+    }//moi them
+    @GetMapping("/eligible")
+    public ResponseEntity<List<ContractResponse>> getEligibleContracts() {
+        List<ContractResponse> eligibleContracts = contractService.getEligibleContractsForWorkProgress();
+        return ResponseEntity.ok(eligibleContracts);
+    }
+
+
+
+
+}//fix đủ

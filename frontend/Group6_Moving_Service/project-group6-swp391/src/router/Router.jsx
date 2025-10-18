@@ -34,7 +34,7 @@ import ManagerDashboard from "../manager/ManagerDashboard";
 import AssignSurveyer from "../manager/AssignSurveyer";
 import QuotationAddServices from "../staff/QuotationAddServices";
 import QuotationContractList from "../manager/QuotationContractList";
-
+import ManagerWorkProgressPage from "../manager/ManagerWorkProgressPage";
 
 
 const Router = () => {
@@ -165,6 +165,11 @@ const Router = () => {
           element:<UserRequestsPage/>
 
         },
+        {
+          path:"manager/work-progress",
+          element:<ManagerWorkProgressPage/>
+
+        },
 
         // user requests (customer)
         { path: "my-requests", element: <UserRequestsPage /> },
@@ -178,6 +183,7 @@ const Router = () => {
           children: [
             // { index: true, element: <WorkProgressPage /> }, // mặc định khi vào /employee/dashboard
             { path: "work-progress", element: <WorkProgressPage /> },
+            
           ],
         },
         {
@@ -186,6 +192,7 @@ const Router = () => {
           children: [
             // { index: true, element: <ContractAssignment /> }, // mặc định khi vào /manager/dashboard
             { path: "contract-assignment", element: <ContractAssignment /> },
+            { path: "manager/work-progress", element: <ManagerWorkProgressPage /> },
           ],
         },
          

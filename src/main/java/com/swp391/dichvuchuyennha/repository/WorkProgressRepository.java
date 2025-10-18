@@ -26,5 +26,6 @@ public interface WorkProgressRepository extends JpaRepository<WorkProgress, Inte
     """)
     List<WorkProgress> findByContractAndCustomer(@Param("contractId") Integer contractId,
                                                  @Param("userId") Integer userId);
+    boolean existsByContract_ContractIdAndEmployee_EmployeeId(Integer contractId, Integer employeeId);
 //h
 }

@@ -1,6 +1,7 @@
 package com.swp391.dichvuchuyennha.service;
 
 import com.swp391.dichvuchuyennha.dto.request.ContractRequest;
+import com.swp391.dichvuchuyennha.dto.response.ContractDTO;
 import com.swp391.dichvuchuyennha.dto.response.ContractResponse;
 //import com.swp391.dichvuchuyennha.dto.response.EmployeeDTO;
 import com.swp391.dichvuchuyennha.dto.response.QuotationServiceInfo;
@@ -21,6 +22,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+
 @RequiredArgsConstructor
 public class ContractService {
 
@@ -84,6 +86,34 @@ public ContractResponse createContract(ContractRequest request) {
         Contract saved = contractRepository.save(contract);
         return contractMapper.toResponse(saved); // mapper xử lý
     }//detail
+
+
+
+    public ContractResponse updateContract(Integer id, ContractRequest request) {
+        Contract contract = contractRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Contract not found"));
+
+        contract.setStartDate(request.getStartDate());
+        contract.setEndDate(request.getEndDate());
+        contract.setDepositAmount(request.getDepositAmount());
+        contractRepository.save(contract);
+
+        return contractMapper.toResponse(contract);
+    }
+
+    // Xóa hợp đồng
+    public void deleteContract(Integer id) {
+        if (!contractRepository.existsById(id)) throw new RuntimeException("Contract not found");
+        contractRepository.deleteById(id);
+    }
+
+    // Lấy danh sách hợp đồng
+    public List<ContractResponse> getAllContracts() {
+        return contractRepository.findAll()
+                .stream()
+                .map(contractMapper::toResponse)
+                .toList();
+    }
     /** ✅ Xây ContractResponse chi tiết an toàn (kể cả thiếu dữ liệu) */
     @Transactional(readOnly = true)
     public ContractResponse buildContractDetail(Contract contract) {
@@ -144,35 +174,37 @@ public ContractResponse createContract(ContractRequest request) {
             throw new RuntimeException("Error building contract detail: " + e.getMessage());
         }
     }
-
-
-
-    public ContractResponse updateContract(Integer id, ContractRequest request) {
-        Contract contract = contractRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Contract not found"));
-
-        contract.setStartDate(request.getStartDate());
-        contract.setEndDate(request.getEndDate());
-        contract.setDepositAmount(request.getDepositAmount());
-        contractRepository.save(contract);
-
-        return contractMapper.toResponse(contract);
-    }
-
-    // Xóa hợp đồng
-    public void deleteContract(Integer id) {
-        if (!contractRepository.existsById(id)) throw new RuntimeException("Contract not found");
-        contractRepository.deleteById(id);
-    }
-
-    // Lấy danh sách hợp đồng
-    public List<ContractResponse> getAllContracts() {
-        return contractRepository.findAll()
-                .stream()
-                .map(contractMapper::toResponse)
+    public List<ContractDTO> getContractsSignedWithEmployees() {
+        return contractRepository.findByStatus("SIGNED").stream()
+                .filter(c -> c.getAssignmentEmployees() != null && !c.getAssignmentEmployees().isEmpty())
+                .map(c -> new ContractDTO(c.getContractId(), c.getStatus()))
                 .toList();
     }
-}
+    @Transactional(readOnly = true)
+    public List<ContractResponse> getEligibleContractsForWorkProgress() {
+        List<Contract> contracts = contractRepository.findByStatus("SIGNED");
 
+        return contracts.stream()
+                .filter(c -> c.getAssignmentEmployees() != null && !c.getAssignmentEmployees().isEmpty())
+                .map(c -> ContractResponse.builder()
+                        .contractId(c.getContractId())
+                        .startDate(c.getStartDate())
+                        .endDate(c.getEndDate())
+                        .totalAmount(c.getTotalAmount())
+                        .depositAmount(c.getDepositAmount())
+                        .status(c.getStatus())
+                        .startLocation(c.getQuotation() != null && c.getQuotation().getSurvey() != null
+                                ? c.getQuotation().getSurvey().getAddressFrom()
+                                : null)
+                        .endLocation(c.getQuotation() != null && c.getQuotation().getSurvey() != null
+                                ? c.getQuotation().getSurvey().getAddressTo()
+                                : null)
+                        .build())
+                .toList();
+    }
+
+
+
+}//fix đủ
 
 
