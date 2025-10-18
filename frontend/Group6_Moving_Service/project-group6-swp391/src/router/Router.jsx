@@ -29,10 +29,13 @@ import QuotationServiceList from "../staff/QuotationServiceList";
 import WorkProgressPage from "../employee/WorkProgressPage";
 import WorkProgressCustomerPage from "../customer/WorkProgressCustomerPage";
 import EmployeeDashboard from "../employee/EmployeeDashboard";
-
 import QuotationApproval from "../customer/QuotationApproval";
 import ManagerDashboard from "../manager/ManagerDashboard";
-import ManagerWorkProgressPage from "../manager/ManagerWorkProgressPage";
+import AssignSurveyer from "../manager/AssignSurveyer";
+import QuotationAddServices from "../staff/QuotationAddServices";
+import QuotationContractList from "../manager/QuotationContractList";
+
+
 
 const Router = () => {
   const router = createBrowserRouter([
@@ -58,14 +61,26 @@ const Router = () => {
           path:"user-profile",
           element: <ProfilePage/>
         },
-        {
-          path:"survey-dashboard",
-          element: <SurveyDashboard/>
+           {
+          path:"assign-surveyer",
+          element: <AssignSurveyer/>
         },
-     
+       {
+  path:"survey-dashboard",
+  element: (
+    <ProtectedRoute allowedRoles={["employee"]} requiredPosition="Surveyer">
+      <SurveyDashboard />
+    </ProtectedRoute>
+  ),
+},
+      
       {
           path:"price-service",
           element: <PriceTable/>
+        },
+           {
+          path:"add-services",
+          element: <QuotationAddServices/>
         },
         {
           path:"quotations-services",
@@ -79,8 +94,12 @@ const Router = () => {
           path: "quotation-for-customer",
           element: <QuotationApproval/>
         },
+                {
+          path: "contracts-list-manager",
+          element: <QuotationContractList/>
+        },
 
-
+  
 
         {
           path: "login",

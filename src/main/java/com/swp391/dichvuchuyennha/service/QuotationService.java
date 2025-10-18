@@ -2,6 +2,7 @@ package com.swp391.dichvuchuyennha.service;
 
 import com.swp391.dichvuchuyennha.dto.request.QuotationCreateRequest;
 import com.swp391.dichvuchuyennha.dto.response.QuotationForCustomer;
+import com.swp391.dichvuchuyennha.dto.response.QuotationResponse;
 import com.swp391.dichvuchuyennha.entity.QuotationServices;
 import com.swp391.dichvuchuyennha.entity.Quotations;
 import com.swp391.dichvuchuyennha.entity.Surveys;
@@ -13,6 +14,7 @@ import com.swp391.dichvuchuyennha.repository.QuotationRepository;
 import com.swp391.dichvuchuyennha.repository.QuotationServiceRepository;
 import com.swp391.dichvuchuyennha.repository.SurveyRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -27,6 +29,7 @@ public class QuotationService {
     private final QuotationServiceRepository quotationServiceRepository;
     private final QuotationMapper quotationMapper;
     private final QuotationForCustomerMapper quotationForCustomerMapper;
+    private final NotificationService notificationService;
 
     public Quotations createQuotation(QuotationCreateRequest request) {
         // Map từ DTO -> Entity (chưa có survey)
@@ -45,9 +48,14 @@ public class QuotationService {
         return quotationRepository.save(quotation);
     }
 
-    public List<Quotations> getAllQuotations() {
-        return quotationRepository.findAll();
+    public List<QuotationResponse> getQuotationsByCurrentEmployee() {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        return quotationRepository.findBySurvey_Request_AssignedEmployees_Employee_User_Username(username)
+                .stream()
+                .map(quotationMapper::toResponse)
+                .collect(Collectors.toList());
     }
+
 
     public List<QuotationForCustomer> getPendingQuotationsByUserId(Integer userId) {
         // Lấy danh sách QuotationServices có trạng thái PENDING cho userId
@@ -120,6 +128,14 @@ public class QuotationService {
         }
 
         return quotationForCustomerMapper.toInfo(services.get(0));
+    }
+
+
+
+    public List<QuotationResponse> getAllQuotations() {
+        return quotationRepository.findByStatus("APPROVED").stream()  // <- Lọc APPROVED
+                .map(quotationMapper::toResponse)
+                .collect(Collectors.toList());
     }
 
 }

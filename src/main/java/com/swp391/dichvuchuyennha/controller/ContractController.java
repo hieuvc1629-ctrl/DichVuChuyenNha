@@ -2,15 +2,14 @@ package com.swp391.dichvuchuyennha.controller;
 
 import java.util.List;
 
+
 import com.swp391.dichvuchuyennha.entity.Contract;
+
+import com.swp391.dichvuchuyennha.dto.request.ContractRequest;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.swp391.dichvuchuyennha.dto.response.ContractDTO;
 import com.swp391.dichvuchuyennha.dto.response.ContractResponse;
@@ -76,6 +75,7 @@ public class ContractController {
                 .map(c -> new ContractDTO(c.getContractId(), c.getStatus()))
                 .toList();
     }
+
 
     /** ✅ Lấy chi tiết hợp đồng theo ID (để hiển thị thông tin + nhân viên đã gán) */
     @GetMapping("/{contractId}")

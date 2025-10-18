@@ -3,7 +3,9 @@ package com.swp391.dichvuchuyennha.controller;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.swp391.dichvuchuyennha.service.RequestAssignmentService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -36,6 +38,7 @@ public class RequestsController {
     private final RequestService requestService;
     private final UserRepository userRepository;
     private final RequestRepository requestRepository;
+    private final RequestAssignmentService requestAssignmentService;
     @PostMapping("/create")
     public ResponseEntity<ApiResponse<RequestResponse>> create(@Valid @RequestBody RequestCreateRequest requestDto) {
         String context = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -65,6 +68,13 @@ public class RequestsController {
                         .status(r.getStatus())
                         .build()
                 ).collect(Collectors.toList());
+    }
+    @GetMapping("/my-requests")
+    @PreAuthorize("hasRole('employee') and @employeePositionService.hasPositionSurveyer(authentication)")
+
+    public ResponseEntity<List<RequestDto>> getMyAssignedRequests() {
+        List<RequestDto> requests = requestAssignmentService.getRequestsForLoggedInSurveyer();
+        return ResponseEntity.ok(requests);
     }
 
 }
