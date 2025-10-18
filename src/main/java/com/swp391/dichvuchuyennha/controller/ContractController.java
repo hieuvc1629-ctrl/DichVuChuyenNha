@@ -96,4 +96,10 @@ public class ContractController {
     public ResponseEntity<List<ContractResponse>> getAll() {
         return ResponseEntity.ok(contractService.getAllContracts());
     }
+    @GetMapping("/my-signed")
+    public List<ContractResponse> getMySignedContracts() {
+        return contractService.getSignedContractsOfCurrentUser();
+    }
+
+
 }
