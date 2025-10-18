@@ -1,5 +1,6 @@
 package com.swp391.dichvuchuyennha.service;
 
+import com.swp391.dichvuchuyennha.dto.request.ContractRequest;
 import com.swp391.dichvuchuyennha.dto.response.ContractDTO;
 import com.swp391.dichvuchuyennha.dto.response.ContractResponse;
 //import com.swp391.dichvuchuyennha.dto.response.EmployeeDTO;
@@ -21,6 +22,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+
 @RequiredArgsConstructor
 public class ContractService {
 
@@ -84,6 +86,34 @@ public ContractResponse createContract(ContractRequest request) {
         Contract saved = contractRepository.save(contract);
         return contractMapper.toResponse(saved); // mapper xử lý
     }//detail
+
+
+
+    public ContractResponse updateContract(Integer id, ContractRequest request) {
+        Contract contract = contractRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Contract not found"));
+
+        contract.setStartDate(request.getStartDate());
+        contract.setEndDate(request.getEndDate());
+        contract.setDepositAmount(request.getDepositAmount());
+        contractRepository.save(contract);
+
+        return contractMapper.toResponse(contract);
+    }
+
+    // Xóa hợp đồng
+    public void deleteContract(Integer id) {
+        if (!contractRepository.existsById(id)) throw new RuntimeException("Contract not found");
+        contractRepository.deleteById(id);
+    }
+
+    // Lấy danh sách hợp đồng
+    public List<ContractResponse> getAllContracts() {
+        return contractRepository.findAll()
+                .stream()
+                .map(contractMapper::toResponse)
+                .toList();
+    }
     /** ✅ Xây ContractResponse chi tiết an toàn (kể cả thiếu dữ liệu) */
     @Transactional(readOnly = true)
     public ContractResponse buildContractDetail(Contract contract) {

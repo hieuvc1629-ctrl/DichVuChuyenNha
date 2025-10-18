@@ -34,7 +34,7 @@ import ManagerDashboard from "../manager/ManagerDashboard";
 import AssignSurveyer from "../manager/AssignSurveyer";
 import QuotationAddServices from "../staff/QuotationAddServices";
 import QuotationContractList from "../manager/QuotationContractList";
-
+import ManagerWorkProgressPage from "../manager/ManagerWorkProgressPage";
 
 
 const Router = () => {
