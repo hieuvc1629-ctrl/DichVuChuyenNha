@@ -68,22 +68,29 @@ const QuotationAddServices = () => {
             }
         },
         {
-            title: "Hành động",
-            key: "action",
-            render: (_, record) => (
-                <Button
-                    type="primary"
-                    // Thêm style hiện đại
-                    style={{ borderRadius: 6, transition: 'all 0.3s' }}
-                    onClick={() => {
-                        setSelectedQuotation(record);
-                        setOpen(true);
-                    }}
-                >
-                    Thêm dịch vụ
-                </Button>
-            ),
-        },
+    title: "Hành động",
+    key: "action",
+    render: (_, record) => (
+        <Button
+            type="primary"
+            disabled={record.status === "CREATED"}
+            style={{
+                borderRadius: 6,
+                transition: "all 0.3s",
+                opacity: record.status === "CREATED" ? 0.5 : 1, 
+                cursor: record.status === "CREATED" ? "not-allowed" : "pointer",
+            }}
+            onClick={() => {
+                if (record.status !== "CREATED") {
+                    setSelectedQuotation(record);
+                    setOpen(true);
+                }
+            }}
+        >
+            Thêm dịch vụ
+        </Button>
+    ),
+},
     ];
 
     return (

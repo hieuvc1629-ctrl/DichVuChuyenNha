@@ -22,6 +22,7 @@ public interface SurveyMapper {
     @Mapping(target = "requestTime",source = "request.requestTime")
     @Mapping(target = "username", source = "request.user.username", defaultValue = "N/A")
     @Mapping(target = "companyName", source = "request.business.companyName", defaultValue = "N/A")
+
     SurveyResponse toResponse(Surveys survey);
 
 }

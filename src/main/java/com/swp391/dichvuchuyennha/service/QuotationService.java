@@ -43,7 +43,7 @@ public class QuotationService {
         quotation.setTotalPrice(0.0);
         // Cập nhật trạng thái thành PENDING
         quotation.setStatus("PENDING");
-
+        survey.setStatus("QUOTED");
         // Lưu vào DB
         return quotationRepository.save(quotation);
     }

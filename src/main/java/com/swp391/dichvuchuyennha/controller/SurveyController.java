@@ -46,5 +46,9 @@ public class SurveyController {
         surveyService.deleteSurvey(id);
         return ResponseEntity.noContent().build();
     }
+    @GetMapping
+    public List<SurveyResponse> getAllSurveys() {
+        return surveyService.getAllSurveys();
+    }
 
 }

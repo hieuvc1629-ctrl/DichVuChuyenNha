@@ -3,6 +3,7 @@ package com.swp391.dichvuchuyennha.controller;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.swp391.dichvuchuyennha.entity.RequestAssignment;
 import com.swp391.dichvuchuyennha.service.RequestAssignmentService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -60,14 +61,23 @@ public class RequestsController {
     public List<RequestDto> getAllRequests() {
         return requestRepository.findAll()
                 .stream()
-                .map(r -> RequestDto.builder()
-                        .requestId(r.getRequestId())
-                        .username(r.getUser() != null ? r.getUser().getUsername() : "N/A")
-                        .companyName(r.getBusiness() != null ? r.getBusiness().getCompanyName() : "N/A")
-                        .requestTime(r.getRequestTime())
-                        .status(r.getStatus())
-                        .build()
-                ).collect(Collectors.toList());
+                .map(r -> {
+                    // Lấy assignment gần nhất nếu có
+                    RequestAssignment assignment = r.getAssignedEmployees() != null && !r.getAssignedEmployees().isEmpty()
+                            ? r.getAssignedEmployees().get(0)  // nếu nhiều assignment, có thể sort theo date
+                            : null;
+
+                    return RequestDto.builder()
+                            .requestId(r.getRequestId())
+                            .username(r.getUser() != null ? r.getUser().getUsername() : "N/A")
+                            .companyName(r.getBusiness() != null ? r.getBusiness().getCompanyName() : "N/A")
+                            .requestTime(r.getRequestTime())
+                            .status(r.getStatus())
+                            .assignmentStatus(assignment != null ? assignment.getStatus() : "NOT_ASSIGNED")
+                            .pickupAddress(r.getPickupAddress())
+                            .build();
+                })
+                .collect(Collectors.toList());
     }
     @GetMapping("/my-requests")
     @PreAuthorize("hasRole('employee') and @employeePositionService.hasPositionSurveyer(authentication)")

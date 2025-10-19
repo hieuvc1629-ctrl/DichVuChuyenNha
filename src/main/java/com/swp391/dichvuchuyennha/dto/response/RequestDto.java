@@ -13,5 +13,8 @@ public class RequestDto {
     private String companyName;
     private LocalDateTime requestTime;
     private String status;
+    private String pickupAddress;
+    private String assignmentStatus; // status của RequestAssignment
+
 }
 
