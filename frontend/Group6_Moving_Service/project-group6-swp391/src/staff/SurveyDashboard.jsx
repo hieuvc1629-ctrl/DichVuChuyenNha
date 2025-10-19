@@ -119,7 +119,7 @@ const SurveyDashboard = () => {
                 ...values,
                 requestId: selectedRequestForSurvey.requestId,
                 surveyDate: values.surveyDate.toISOString(),
-                status: "DONE",
+               
             };
             await axiosInstance.post("/surveys", payload);
             message.success("Tạo khảo sát thành công!");
@@ -127,6 +127,7 @@ const SurveyDashboard = () => {
             setSelectedRequestForSurvey(null);
             setCreateSurveyModalVisible(false);
             fetchSurveys();
+
         } catch {
             message.error("Tạo khảo sát thất bại!");
         }
@@ -181,6 +182,9 @@ const SurveyDashboard = () => {
             };
             await axiosInstance.post("/quotations", payload);
             message.success("Tạo báo giá thành công!");
+                    
+       
+
             quoteForm.resetFields();
             setSelectedSurveyForQuotation(null);
             setCreateQuotationModalVisible(false);
