@@ -7,6 +7,7 @@ import com.swp391.dichvuchuyennha.entity.Employee;
 import com.swp391.dichvuchuyennha.repository.AssignmentEmployeeRepository;
 import com.swp391.dichvuchuyennha.repository.ContractRepository;
 import com.swp391.dichvuchuyennha.repository.EmployeeRepository;
+import com.swp391.dichvuchuyennha.repository.WorkProgressRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,7 +23,7 @@ public class AssignmentService {
     private final AssignmentEmployeeRepository assignmentRepo;
     private final EmployeeRepository employeeRepo;
     private final ContractRepository contractRepo;
-
+    private final WorkProgressRepository workProgressRepository;
     @Transactional
     public void assignEmployeeToContract(Integer contractId, Integer employeeId, LocalDate assignedDate) {
         // Lấy thông tin hợp đồng và nhân viên
@@ -71,7 +72,7 @@ public class AssignmentService {
                 .orElseThrow(() -> new RuntimeException("Assignment not found"));
 
         assignmentRepo.delete(assignment);
-
+        workProgressRepository.deleteByEmployee_EmployeeIdAndContract_ContractId(employeeId, contractId);
         Employee employee = assignment.getEmployee();
         employee.setStatus("free");
         employeeRepo.save(employee);

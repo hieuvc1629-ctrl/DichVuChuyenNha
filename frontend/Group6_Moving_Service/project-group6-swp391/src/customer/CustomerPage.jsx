@@ -11,6 +11,7 @@ import { useNavigate } from "react-router-dom";
 import QuotationApproval from "./QuotationApproval";
 import UserRequestsPage from "./UserRequestsPage"; 
 import UserContractsPage from "./UserContractPage";
+import CustpmerWorkProgressPage from "./WorkProgressCustomerPage";
 
 const { Sider, Content } = Layout;
 const { Title } = Typography;
@@ -30,8 +31,12 @@ const CustomerDashboard = () => {
         // Trang Báo giá chờ duyệt
         return <QuotationApproval />;
       case "unsigned-contracts":
+      
         // Trang Hợp đồng chờ ký
         return <UserContractsPage />;
+        // Trang Tiến độ công việc của khách hàng
+          case"customer/work-progress":
+        return <CustpmerWorkProgressPage />;
       default:
         return (
           <Title level={4}>Chào mừng đến với Bảng điều khiển Khách hàng!</Title>
@@ -55,6 +60,7 @@ const CustomerDashboard = () => {
             { key: "my-requests", icon: <OrderedListOutlined />, label: "📝 Danh sách yêu cầu" },
             { key: "quotation-approval", icon: <FileTextOutlined />, label: "💰 Báo giá chờ duyệt" },
             { key: "unsigned-contracts", icon: <ScheduleOutlined />, label: "✍️ Hợp đồng chờ ký" },
+            { key: "customer/work-progress", icon: <ScheduleOutlined />, label: "Tiến trình chuyển đồ" },
             // Mục "Thông tin cá nhân" đã được loại bỏ
             { type: 'divider' }, 
             { key: "logout", label: "Đăng xuất", danger: true, onClick: () => { /* Logic đăng xuất */ } },
