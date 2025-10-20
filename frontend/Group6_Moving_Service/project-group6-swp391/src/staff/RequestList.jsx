@@ -27,8 +27,8 @@ export const RequestList = ({ requests, onCreateSurvey }) => {
     },
     {
       title: "Địa chỉ",
-      dataIndex: "address",
-      key: "address",
+      dataIndex: "pickupAddress",
+      key: "pickupAddress",
       render: (address) => (
         <Tooltip title={address}>
           <Text ellipsis={{ tooltip: address }} style={{ maxWidth: 250 }}>

@@ -5,14 +5,12 @@ import com.swp391.dichvuchuyennha.dto.response.ContractDTO;
 import com.swp391.dichvuchuyennha.dto.response.ContractResponse;
 //import com.swp391.dichvuchuyennha.dto.response.EmployeeDTO;
 import com.swp391.dichvuchuyennha.dto.response.QuotationServiceInfo;
-import com.swp391.dichvuchuyennha.entity.Contract;
-import com.swp391.dichvuchuyennha.entity.Quotations;
-import com.swp391.dichvuchuyennha.entity.Users;
+import com.swp391.dichvuchuyennha.entity.*;
 import com.swp391.dichvuchuyennha.mapper.ContractMapper;
-import com.swp391.dichvuchuyennha.repository.ContractRepository;
-import com.swp391.dichvuchuyennha.repository.QuotationRepository;
-import com.swp391.dichvuchuyennha.repository.UserRepository;
+import com.swp391.dichvuchuyennha.repository.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,7 +28,11 @@ public class ContractService {
     private final UserRepository userRepository;
     private final ContractMapper contractMapper;
     private final QuotationRepository quotationRepository;
-// inject mapper
+    private final RequestAssignmentRepository requestAssignmentRepository;
+    private final EmployeeRepository employeeRepository;
+
+
+    // inject mapper
 public ContractResponse createContract(ContractRequest request) {
     Quotations quotation = quotationRepository.findById(request.getQuotationId())
             .orElseThrow(() -> new RuntimeException("Quotation not found"));
@@ -46,6 +48,15 @@ public ContractResponse createContract(ContractRequest request) {
     Contract saved = contractRepository.save(contract);
     quotation.setStatus("CREATED");
     quotationRepository.save(quotation);
+    List<RequestAssignment> assignments = requestAssignmentRepository.findByRequest(quotation.getSurvey().getRequest());
+    for (RequestAssignment assignment : assignments) {
+        Employee emp = assignment.getEmployee();
+        if (emp != null) {
+            emp.setStatus("FREE");
+            employeeRepository.save(emp);
+        }
+    }
+
 
     return contractMapper.toResponse(saved);
 }
@@ -85,7 +96,32 @@ public ContractResponse createContract(ContractRequest request) {
 
         Contract saved = contractRepository.save(contract);
         return contractMapper.toResponse(saved); // mapper xử lý
-    }//detail
+
+    }
+    @Transactional(readOnly = true)
+    public List<ContractResponse> getSignedContractsOfCurrentUser() {
+        // Lấy thông tin user hiện tại từ Spring Security
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || auth.getName() == null) {
+            throw new RuntimeException("User not authenticated");
+        }
+
+        String username = auth.getName(); // giả sử username là unique
+        Users user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // Lấy hợp đồng đã ký của user
+        List<Contract> contracts = contractRepository.findByQuotation_Survey_Request_User_UserIdAndStatus(
+                user.getUserId(), "SIGNED"
+        );
+
+        return contracts.stream()
+                .map(contractMapper::toResponse)
+                .toList();
+    }
+
+   
+
 
 
 

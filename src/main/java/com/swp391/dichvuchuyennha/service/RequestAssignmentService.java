@@ -91,6 +91,8 @@ public class RequestAssignmentService {
                                 : "N/A")
                         .requestTime(ra.getRequest().getRequestTime())
                         .status(ra.getRequest().getStatus())
+
+                        .pickupAddress(ra.getRequest().getPickupAddress())
                         .build())
                 .collect(Collectors.toList());
     }
