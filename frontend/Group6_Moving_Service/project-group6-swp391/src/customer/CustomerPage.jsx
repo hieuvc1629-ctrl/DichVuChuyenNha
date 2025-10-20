@@ -15,6 +15,7 @@ import axiosInstance from "../service/axiosInstance";
 import QuotationApproval from "./QuotationApproval";
 import UserRequestsPage from "./UserRequestsPage"; 
 import UserContractsPage from "./UserContractPage";
+import CustpmerWorkProgressPage from "./WorkProgressCustomerPage";
 
 const { Sider, Content } = Layout;
 const { Title, Text } = Typography;
@@ -123,6 +124,54 @@ const CustomerDashboard = () => {
         },
     ];
 
+
+  const renderContent = () => {
+    switch (selectedKey) {
+      case "my-requests":
+        // Trang Danh sách yêu cầu
+        // Lưu ý: UserRequestsPage cần được điều chỉnh để không tự tạo Sider/Layout.
+        return <UserRequestsPage isEmbedded={true} />; 
+      case "quotation-approval":
+        // Trang Báo giá chờ duyệt
+        return <QuotationApproval />;
+      case "unsigned-contracts":
+      
+        // Trang Hợp đồng chờ ký
+        return <UserContractsPage />;
+        // Trang Tiến độ công việc của khách hàng
+          case"customer/work-progress":
+        return <CustpmerWorkProgressPage />;
+      default:
+        return (
+          <Title level={4}>Chào mừng đến với Bảng điều khiển Khách hàng!</Title>
+        );
+    }
+  };
+
+  return (
+    <Layout style={{ minHeight: "100vh" }}>
+      {/* Sider cho thanh điều hướng */}
+      <Sider width={260} style={{ background: "#fff", borderRight: "1px solid #f0f0f0" }}>
+        <div style={{ padding: 16 }}>
+          <Title level={4} style={{ margin: 0, color: "#8B0000" }}>Giao dịch khách hàng</Title>
+        </div>
+        <Menu
+          mode="inline"
+          selectedKeys={[selectedKey]}
+          onClick={({ key }) => setSelectedKey(key)}
+          style={{ height: "100%", borderRight: 0 }}
+          items={[
+            { key: "my-requests", icon: <OrderedListOutlined />, label: "📝 Danh sách yêu cầu" },
+            { key: "quotation-approval", icon: <FileTextOutlined />, label: "💰 Báo giá chờ duyệt" },
+            { key: "unsigned-contracts", icon: <ScheduleOutlined />, label: "✍️ Hợp đồng chờ ký" },
+            { key: "customer/work-progress", icon: <ScheduleOutlined />, label: "Tiến trình chuyển đồ" },
+            // Mục "Thông tin cá nhân" đã được loại bỏ
+            { type: 'divider' }, 
+            { key: "logout", label: "Đăng xuất", danger: true, onClick: () => { /* Logic đăng xuất */ } },
+          ]}
+        />
+      </Sider>
+
     /*** RENDER NỘI DUNG THEO TAB ***/
     const renderContent = () => {
         switch (selectedKey) {
@@ -208,6 +257,7 @@ const CustomerDashboard = () => {
                     ]}
                 />
             </Sider>
+
 
             <Layout style={{ padding: '0 24px 24px' }}>
                 <Content
