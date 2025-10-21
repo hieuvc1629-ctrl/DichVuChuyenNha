@@ -59,6 +59,8 @@ const QuotationApproval = () => {
     try {
       await api.put(`/quotations/approve/${quotationId}`);
       message.success("Bạn đã chấp thuận báo giá thành công! Hợp đồng sẽ được tạo.");
+      fetchQuotations(); // load lại danh sách mới
+
       // Cập nhật state bằng cách lọc bỏ báo giá vừa duyệt
       setQuotations((prev) => prev.filter((q) => q.id !== quotationId));
       setSelectedQuotation(null);

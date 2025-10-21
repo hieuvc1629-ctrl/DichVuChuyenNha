@@ -169,8 +169,8 @@ public ContractResponse createContract(ContractRequest request) {
                 totalPrice = quotation.getTotalPrice();
 
                 if (quotation.getSurvey() != null) {
-                    startAddress = quotation.getSurvey().getAddressFrom();
-                    endAddress = quotation.getSurvey().getAddressTo();
+                    startAddress = quotation.getSurvey().getRequest().getPickupAddress();
+                    endAddress = quotation.getSurvey().getRequest().getDestinationAddress();
                 }
 
                 if (quotation.getQuotationServices() != null) {
@@ -230,10 +230,10 @@ public ContractResponse createContract(ContractRequest request) {
                         .depositAmount(c.getDepositAmount())
                         .status(c.getStatus())
                         .startLocation(c.getQuotation() != null && c.getQuotation().getSurvey() != null
-                                ? c.getQuotation().getSurvey().getAddressFrom()
+                                ? c.getQuotation().getSurvey().getRequest().getPickupAddress()
                                 : null)
                         .endLocation(c.getQuotation() != null && c.getQuotation().getSurvey() != null
-                                ? c.getQuotation().getSurvey().getAddressTo()
+                                ? c.getQuotation().getSurvey().getRequest().getDestinationAddress()
                                 : null)
                         .build())
                 .toList();

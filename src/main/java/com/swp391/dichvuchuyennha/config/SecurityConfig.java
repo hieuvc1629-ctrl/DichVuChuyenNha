@@ -16,6 +16,7 @@ import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
@@ -64,7 +65,10 @@ public class SecurityConfig {
                 "/api/request-assignment/**",
                 "/api/work-progress/**",
                 "/api/customer/work-progress/**",
-
+                "/api/survey-floors/**",
+                "/api/survey-images/**",
+                "/images/survey/**",
+                "/api/manager/quotations/**",
                 "/api/chat-ai"};
 
 
@@ -161,7 +165,9 @@ public class SecurityConfig {
                 return jwtAuthenticationConverter;
         }
 
-        @Bean
+
+
+    @Bean
         public CorsFilter corsFilter() {
                 CorsConfiguration corsConfiguration = new CorsConfiguration();
                 corsConfiguration.addAllowedHeader("*");

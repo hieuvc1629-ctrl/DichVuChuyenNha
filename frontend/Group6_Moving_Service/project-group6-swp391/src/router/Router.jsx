@@ -35,6 +35,7 @@ import AssignSurveyer from "../manager/AssignSurveyer";
 import QuotationAddServices from "../staff/QuotationAddServices";
 import QuotationContractList from "../manager/QuotationContractList";
 import ManagerWorkProgressPage from "../manager/ManagerWorkProgressPage";
+import ReviewQuotationManagement from "../manager/ReviewQuotationManagement";
 
 
 const Router = () => {
@@ -89,6 +90,10 @@ const Router = () => {
         {
           path:"quotations-services-list",
           element: <QuotationServiceList/>
+        },
+         {
+          path:"review-quotations",
+          element: <ReviewQuotationManagement/>
         },
           {
           path: "quotation-for-customer",

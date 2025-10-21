@@ -20,7 +20,6 @@ public class QuotationForCustomer {
     private LocalDateTime surveyDate;
     private String addressFrom;
     private String addressTo;
-    private String listService;
 
 
 }

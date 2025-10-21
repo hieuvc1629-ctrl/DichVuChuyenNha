@@ -1,23 +1,23 @@
 import React, { useEffect, useState } from "react";
-import { Layout, Card, Form, message, Menu, Row, Col, Statistic, Badge } from "antd"; 
+import { Layout, Card, Form, message, Menu, Row, Col, Statistic, Badge, Modal, Descriptions, Tabs } from "antd"; 
 import {
     DollarOutlined,
     FileAddOutlined,
     AppstoreOutlined,
     ContainerOutlined,
-    // Import thêm các icon khác nếu cần thiết để tăng tính thẩm mỹ
 } from "@ant-design/icons";
 import dayjs from "dayjs";
 import axiosInstance from "../service/axiosInstance";
 
 // Import components
-import { RequestList } from "./RequestList";
+import { RequestList } from "./RequestList"; 
 import { SurveyList } from "./SurveyList";
 import { QuotationList } from "./QuotationList";
 import { CreateSurveyModal } from "./CreateSurveyModal";
 import { EditSurveyModal } from "./EditSurveyModal";
 import { CreateQuotationModal } from "./CreateQuotationModal";
 import QuotationAddServices from "./QuotationAddServices";
+import SurveyFloorList from "./SurveyFloorList";
 
 const { Content, Sider } = Layout;
 
@@ -29,6 +29,8 @@ const STAT_COLORS = {
 };
 
 const SurveyDashboard = () => {
+    const BACKEND_URL = "http://localhost:8080/images/survey/"; // đổi cho phù hợp môi trường
+
     const [form] = Form.useForm();
     const [editForm] = Form.useForm();
     const [quoteForm] = Form.useForm();
@@ -40,21 +42,31 @@ const SurveyDashboard = () => {
 
     const [activeMenu, setActiveMenu] = useState("survey");
 
-    // Modal states (Giữ nguyên)
+    // Modal states
     const [createSurveyModalVisible, setCreateSurveyModalVisible] = useState(false);
     const [editModalVisible, setEditModalVisible] = useState(false);
     const [createQuotationModalVisible, setCreateQuotationModalVisible] = useState(false);
+    
+    // TRẠNG THÁI CHO MODAL XEM CHI TIẾT KHẢO SÁT
+    const [viewSurveyModalVisible, setViewSurveyModalVisible] = useState(false);
+    const [viewingSurvey, setViewingSurvey] = useState(null); 
+    
+    // !!! TRẠNG THÁI MỚI CHO MODAL XEM CHI TIẾT REQUEST !!!
+    const [viewRequestModalVisible, setViewRequestModalVisible] = useState(false);
+    const [viewingRequest, setViewingRequest] = useState(null); 
 
     const [selectedRequestForSurvey, setSelectedRequestForSurvey] = useState(null);
     const [editingSurvey, setEditingSurvey] = useState(null);
     const [selectedSurveyForQuotation, setSelectedSurveyForQuotation] = useState(null);
 
-    // ====== FETCH API (Giữ nguyên) ======
+    
     useEffect(() => {
         fetchRequests();
         fetchSurveys();
         fetchQuotations();
     }, []);
+
+    // ... (Các useEffect và fetch data functions giữ nguyên) ...
 
     useEffect(() => {
         if (selectedQuotation) {
@@ -106,10 +118,28 @@ const SurveyDashboard = () => {
         }
     };
 
+
+    // ====== HANDLERS MỚI CHO REQUEST ======
+    const handleViewRequest = (record) => {
+        setViewingRequest(record);
+        setViewRequestModalVisible(true);
+    };
+
+    const handleCloseViewRequest = () => {
+        setViewRequestModalVisible(false);
+        setViewingRequest(null);
+    };
+    // ======================================
+
+
     // ====== SURVEY & QUOTATION Handlers (Giữ nguyên) ======
     const handleOpenCreateSurvey = (request) => {
         setSelectedRequestForSurvey(request);
-        form.setFieldsValue({ surveyDate: dayjs() });
+        form.setFieldsValue({
+            surveyDate: dayjs(),
+            addressFrom: request.pickupAddress || "",
+            addressTo: request.destinationAddress || "",
+        });        
         setCreateSurveyModalVisible(true);
     };
 
@@ -119,7 +149,7 @@ const SurveyDashboard = () => {
                 ...values,
                 requestId: selectedRequestForSurvey.requestId,
                 surveyDate: values.surveyDate.toISOString(),
-               
+                
             };
             await axiosInstance.post("/surveys", payload);
             message.success("Tạo khảo sát thành công!");
@@ -147,7 +177,7 @@ const SurveyDashboard = () => {
         setEditingSurvey(record);
         editForm.setFieldsValue({
             ...record,
-            surveyDate: dayjs(record.surveyDate),
+            surveyDate: record.surveyDate ? dayjs(record.surveyDate) : null,
         });
         setEditModalVisible(true);
     };
@@ -166,12 +196,21 @@ const SurveyDashboard = () => {
             message.error("Lỗi khi cập nhật khảo sát!");
         }
     };
+const handleOpenCreateQuotation = (survey) => {
+    if (survey.numFloors > 0 && (!survey.surveyFloors || survey.surveyFloors.length < survey.numFloors)) {
+        Modal.warning({
+            title: "Không thể tạo báo giá",
+            content: `Survey này có ${survey.numFloors} tầng. Vui lòng hoàn thành tất cả tầng trước khi tạo báo giá.`,
+            okText: "Đồng ý",
+        });
+        return;
+    }
 
-    const handleOpenCreateQuotation = (survey) => {
-        setSelectedSurveyForQuotation(survey);
-        quoteForm.setFieldsValue({ createdDate: dayjs() });
-        setCreateQuotationModalVisible(true);
-    };
+    setSelectedSurveyForQuotation(survey);
+    quoteForm.setFieldsValue({ createdDate: dayjs() });
+    setCreateQuotationModalVisible(true);
+};
+
 
     const handleCreateQuotation = async (values) => {
         try {
@@ -182,9 +221,7 @@ const SurveyDashboard = () => {
             };
             await axiosInstance.post("/quotations", payload);
             message.success("Tạo báo giá thành công!");
-                    
-       
-
+                                
             quoteForm.resetFields();
             setSelectedSurveyForQuotation(null);
             setCreateQuotationModalVisible(false);
@@ -194,23 +231,32 @@ const SurveyDashboard = () => {
         }
     };
 
-    // Hàm render card thống kê hiện đại
+    // HÀM XEM CHI TIẾT KHẢO SÁT (Giữ nguyên)
+    const handleViewSurvey = (record) => {
+        setViewingSurvey(record);
+        setViewSurveyModalVisible(true);
+    };
+
+    const handleCloseViewSurvey = () => {
+        setViewSurveyModalVisible(false);
+        setViewingSurvey(null);
+    };
+
+
+    // Hàm render card thống kê hiện đại (Giữ nguyên)
     const renderStatCard = (title, value, IconComponent, colors) => (
         <Card 
-            bordered={false} 
-            // Thêm hiệu ứng đổ bóng và bo tròn lớn hơn
+            variant="default" // Sửa cảnh báo 'bordered'
             style={{ 
                 borderRadius: 12, 
                 boxShadow: '0 4px 15px rgba(0, 0, 0, 0.08)',
                 transition: 'all 0.3s',
             }}
-            // Thêm hiệu ứng hover
             className="modern-stat-card"
             hoverable
         >
             <Row align="middle" gutter={16}>
                 <Col>
-                    {/* Icon lớn hơn, bo tròn và có màu nền nhẹ */}
                     <div style={{
                         backgroundColor: colors.bg,
                         padding: 12,
@@ -237,11 +283,113 @@ const SurveyDashboard = () => {
         </Card>
     );
     
+    // Component Modal để hiển thị chi tiết Request
+    const RequestDetailModal = () => (
+        <Modal
+            title="Chi tiết Yêu Cầu Khách Hàng"
+            open={viewRequestModalVisible}
+            onCancel={handleCloseViewRequest}
+            footer={null}
+            width={800}
+        >
+            {viewingRequest && (
+                <Descriptions bordered column={1} size="middle">
+                    <Descriptions.Item label="Mã Yêu Cầu">{viewingRequest.requestId}</Descriptions.Item>
+                    <Descriptions.Item label="Khách Hàng">{viewingRequest.username}</Descriptions.Item>
+                    <Descriptions.Item label="Công Ty">{viewingRequest.companyName}</Descriptions.Item>
+                    <Descriptions.Item label="Địa chỉ đi">{viewingRequest.pickupAddress}</Descriptions.Item>
+                    <Descriptions.Item label="Địa chỉ đến">{viewingRequest.destinationAddress}</Descriptions.Item>
+                    <Descriptions.Item label="Ngày tạo">
+                        {viewingRequest.requestTime ? dayjs(viewingRequest.requestTime).format("DD/MM/YYYY HH:mm") : "N/A"}
+                    </Descriptions.Item>
+                    <Descriptions.Item label="Trạng Thái">
+                        <Badge 
+                            status={viewingRequest.status === 'PENDING' ? 'warning' : 'success'} 
+                            text={viewingRequest.status === 'PENDING' ? 'Chờ Khảo Sát' : 'Đã Khảo Sát'} 
+                        />
+                    </Descriptions.Item>
+                </Descriptions>
+            )}
+        </Modal>
+    );
+
+    // Component Modal để hiển thị chi tiết Survey
+    const SurveyDetailModal = () => (
+        <Modal
+            title="Chi tiết Khảo Sát"
+            open={viewSurveyModalVisible}
+            onCancel={handleCloseViewSurvey}
+            footer={null}
+            width={800}
+        >
+            {viewingSurvey && (
+                <Descriptions bordered column={{ xs: 1, sm: 2, md: 3 }} size="middle">
+                    <Descriptions.Item label="ID Khảo Sát" span={3}>{viewingSurvey.surveyId}</Descriptions.Item>
+                    <Descriptions.Item label="Khách Hàng" span={3}>
+                        {viewingSurvey.username} ({viewingSurvey.companyName})
+                    </Descriptions.Item>
+                    
+                    <Descriptions.Item label="Ngày Khảo Sát" span={1}>
+                        {viewingSurvey.surveyDate ? dayjs(viewingSurvey.surveyDate).format("DD/MM/YYYY") : "N/A"}
+                    </Descriptions.Item>
+                    <Descriptions.Item label="Trạng Thái" span={2}>
+                        <Badge status={viewingSurvey.status === 'DONE' ? 'success' : 'processing'} text={viewingSurvey.status === 'DONE' ? 'Hoàn thành' : 'Đang xử lý'} />
+                    </Descriptions.Item>
+                    
+                    <Descriptions.Item label="Địa chỉ đi" span={3}>{viewingSurvey.addressFrom}</Descriptions.Item>
+                    <Descriptions.Item label="Địa chỉ đến" span={3}>{viewingSurvey.addressTo}</Descriptions.Item>
+                    
+                    {/* THÔNG TIN CHI TIẾT TỪ KHẢO SÁT */}
+                    <Descriptions.Item label="Diện tích (m²)">{viewingSurvey.totalArea || 'N/A'}</Descriptions.Item>
+                    <Descriptions.Item label="Số tầng ">{viewingSurvey.numFloors || 'N/A'}</Descriptions.Item>
+                    
+                    <Descriptions.Item label="Khoảng cách vận chuyển (km)" span={3}>
+                        {viewingSurvey.distanceKm || 'N/A'}
+                    </Descriptions.Item>
+
+                    <Descriptions.Item label="Ghi chú Khảo Sát" span={3}>
+                        {viewingSurvey.note || 'Không có ghi chú.'}
+                    </Descriptions.Item>
+                    {viewingSurvey.surveyFloors?.map(floor => (
+<Descriptions.Item
+  label={`Tầng ${floor.floorNumber}`}
+  span={3}
+  key={floor.floorId}
+>
+  <div style={{ display: "flex", flexWrap: "wrap", gap: 16 }}>
+    {floor.images?.map(img => (
+      <div key={img.imageId} style={{ width: 100 }}>
+        <div style={{ width: 100, height: 100, overflow: "hidden", borderRadius: 4 }}>
+          <img
+            src={`${BACKEND_URL}${img.imageUrl}`}
+            alt={img.note}
+            style={{ width: "100%", height: "100%", objectFit: "cover" }}
+          />
+        </div>
+        {img.note && (
+          <div style={{ fontSize: 12, textAlign: "center", marginTop: 4 }}>
+            {img.note}
+          </div>
+        )}
+      </div>
+    ))}
+  </div>
+</Descriptions.Item>
+
+))}
+
+                </Descriptions>
+            )}
+        </Modal>
+    );
+
+
     // ====== RENDER DASHBOARD ======
     return (
         <Layout style={{ minHeight: "100vh" }}>
             {/* ========== SIDEBAR (Giữ nguyên) ========== */}
             <Sider width={220} theme="light">
+                {/* ... (Sidebar Menu code giữ nguyên) ... */}
                 <div
                     style={{
                         padding: "20px",
@@ -306,8 +454,8 @@ const SurveyDashboard = () => {
             <Layout style={{ padding: "20px" }}>
                 <Content>
                     
-                    {/* ========== STATS CARDS MỚI ========== */}
-                    <Row gutter={24} style={{ marginBottom: 30 }}> {/* Tăng gutter và margin */}
+                    {/* ========== STATS CARDS ========== */}
+                    <Row gutter={24} style={{ marginBottom: 30 }}>
                         <Col span={8}>
                             {renderStatCard("Tổng Yêu Cầu", requests.length, ContainerOutlined, STAT_COLORS.requests)}
                         </Col>
@@ -336,16 +484,27 @@ const SurveyDashboard = () => {
                                 <RequestList
                                     requests={requests}
                                     onCreateSurvey={handleOpenCreateSurvey}
+                                    // !!! TRUYỀN HÀM MỚI VÀO ĐÂY !!!
+                                    onViewRequest={handleViewRequest} 
                                 />
                             </Card>
 
                             <Card title="Danh sách khảo sát">
-                                <SurveyList
-                                    surveys={surveys}
-                                    onEdit={handleEdit}
-                                    onDelete={handleDelete}
-                                    onCreateQuotation={handleOpenCreateQuotation}
-                                />
+                              <Tabs defaultActiveKey="all">
+        <Tabs.TabPane tab="Danh sách khảo sát" key="all">
+            <SurveyList
+                surveys={surveys}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+                onCreateQuotation={handleOpenCreateQuotation}
+                onViewSurvey={handleViewSurvey}
+            />
+        </Tabs.TabPane>
+
+        <Tabs.TabPane tab="Khảo sát theo tầng" key="floors">
+            <SurveyFloorList />
+        </Tabs.TabPane>
+    </Tabs>
                             </Card>
                         </>
                     )}
@@ -371,7 +530,10 @@ const SurveyDashboard = () => {
                 </Content>
             </Layout>
 
-            {/* ==== MODALS (Giữ nguyên) ==== */}
+            {/* ==== MODALS ==== */}
+            <RequestDetailModal />
+            <SurveyDetailModal />
+
             <CreateSurveyModal
                 visible={createSurveyModalVisible}
                 form={form}

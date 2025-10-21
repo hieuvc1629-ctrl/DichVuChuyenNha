@@ -14,7 +14,9 @@ public interface QuotationRepository extends JpaRepository<Quotations, Integer> 
     // Có thể thêm query theo surveyId nếu cần
 // QuotationRepository.java
     List<Quotations> findBySurvey_Request_AssignedEmployees_Employee_User_Username(String username);
-    List<Quotations> findByStatus(String status);  // <- dùng trong service
+    List<Quotations> findByStatus(String status);
+    List<Quotations> findBySurvey_Request_User_UserIdAndStatus(Integer userId, String status);
+// <- dùng trong service
 
 
 }

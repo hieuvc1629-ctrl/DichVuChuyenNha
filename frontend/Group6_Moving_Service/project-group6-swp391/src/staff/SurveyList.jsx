@@ -1,134 +1,150 @@
 import React from "react";
-import { Table, Button, Tag, Popconfirm, Space, Typography, Tooltip } from "antd";
+import { Card, Button, Tag, Popconfirm, Space, Typography, Row, Col } from "antd";
 import {
   EditOutlined,
   DeleteOutlined,
   DollarOutlined,
-  UserOutlined,
   EnvironmentOutlined,
-  CheckCircleOutlined
+  CheckCircleOutlined,
+  CalendarOutlined,
 } from "@ant-design/icons";
 import dayjs from "dayjs";
 
 const { Text } = Typography;
 
-export const SurveyList = ({ surveys, loading, onEdit, onDelete, onCreateQuotation }) => {
-  const columns = [
-    {
-      title: "ID KS",
-      dataIndex: "surveyId",
-      key: "surveyId",
-      width: 90,
-      render: (text) => <Text strong>{text}</Text>,
-    },
-    {
-      title: "Khách hàng / Công ty",
-      key: "client",
-      render: (_, record) => (
-        <div>
-          <Text>{record.username}</Text>
-          <br />
-          <Text type="secondary" style={{ fontSize: '0.9em' }}>{record.companyName}</Text>
-        </div>
-      ),
-    },
-    {
-      title: "Địa chỉ di chuyển",
-      key: "addresses",
-      render: (_, record) => (
-        <div>
-          <Text type="secondary" style={{ fontSize: '0.9em' }}>
-            <EnvironmentOutlined style={{ marginRight: 4, color: '#52c41a' }} />
-            **Từ**: {record.addressFrom}
-          </Text>
-          <br />
-          <Text type="secondary" style={{ fontSize: '0.9em' }}>
-            <EnvironmentOutlined style={{ marginRight: 4, color: '#faad14' }} />
-            **Đến**: {record.addressTo}
-          </Text>
-        </div>
-      ),
-    },
-    {
-      title: "Thông số KS",
-      key: "details",
-      width: 150,
-      render: (_, record) => (
-        <div>
-          <Text>
-            <UserOutlined style={{ marginRight: 4 }} />
-            CN: {record.estimatedWorkers}
-          </Text>
-          <br />
-          <Text type="secondary" style={{ fontSize: '0.9em' }}>
-            {record.surveyDate ? dayjs(record.surveyDate).format("DD/MM/YYYY") : "Chưa có ngày"}
-          </Text>
-        </div>
-      ),
-    },
-    {
-      title: "Dịch vụ bổ sung",
-      dataIndex: "listService",
-      key: "listService",
-      render: (listService) => (
-        <Tooltip title={listService || "Không có dịch vụ bổ sung"}>
-          <Text ellipsis style={{ maxWidth: 150 }}>
-            {listService || "-"}
-          </Text>
-        </Tooltip>
-      ),
-    },
-    {
-      title: "Trạng thái",
-      dataIndex: "status",
-      width: 120,
-      render: (status) => {
-        let color = status === "DONE" ? "success" : "processing";
-        return <Tag color={color} icon={<CheckCircleOutlined />}>{status}</Tag>;
-      },
-    },
-    {
-      title: "Thao tác",
-      key: "action",
-      width: 280,
-      render: (_, record) => (
-        <Space size="small">
-          <Button
-            type="primary"
-            icon={<DollarOutlined />}
-            onClick={() => onCreateQuotation(record)}
-          >
-            Tạo Báo Giá
-          </Button>
+// Đổi tên component để tránh nhầm lẫn với tên file SurveyList.jsx cũ
+export const SurveyList = ({ surveys, loading, onEdit, onDelete, onCreateQuotation, onViewSurvey }) => {
+  // Hàm renderStatusTag được cập nhật để xử lý trạng thái 'QUOTED' nếu cần
+  const renderStatusTag = (status) => {
+    let color;
+    let text;
 
-          <Button icon={<EditOutlined />} onClick={() => onEdit(record)}>
+    switch (status) {
+      case "DONE":
+        color = "success";
+        text = "Hoàn thành";
+        break;
+      case "QUOTED":
+        color = "blue"; // Ví dụ: màu xanh cho đã báo giá
+        text = "Đã Báo Giá";
+        break;
+      default:
+        color = "processing";
+        text = "Đang xử lý";
+        break;
+    }
+    return <Tag color={color} icon={<CheckCircleOutlined />}>{text}</Tag>;
+  };
+
+  return (
+    <Row gutter={[16, 16]}>
+      {surveys.map((record) => {
+        // MẢNG CHỨA CÁC ACTIONS (NÚT) TRÊN CARD
+        const cardActions = [];
+
+        // 1. NÚT TẠO BÁO GIÁ (CHỈ HIỆN KHI STATUS LÀ 'DONE' và ẨN KHI LÀ 'QUOTED' HOẶC KHÁC)
+        if (record.status === "DONE") {
+          cardActions.push(
+            <Button
+              key="quotation"
+              type="primary"
+              icon={<DollarOutlined />}
+              onClick={(e) => {
+                e.stopPropagation();
+                onCreateQuotation(record);
+              }}
+            >
+              Báo Giá
+            </Button>
+          );
+        } else if (record.status === "QUOTED") {
+           // Bạn có thể thêm một nút 'Xem Báo Giá' tại đây nếu cần
+           // Ví dụ: cardActions.push(<Button key="view-quote" icon={<DollarOutlined />}>Xem Báo Giá</Button>);
+        }
+
+
+        // 2. NÚT SỬA
+        cardActions.push(
+          <Button
+            key="edit"
+            icon={<EditOutlined />}
+            onClick={(e) => {
+              e.stopPropagation();
+              onEdit(record);
+            }}
+          >
             Sửa
           </Button>
+        );
 
+        // 3. NÚT XÓA
+        cardActions.push(
           <Popconfirm
+            key="delete"
             title="Xác nhận xóa"
             description="Bạn có chắc muốn xóa khảo sát này không?"
-            onConfirm={() => onDelete(record.surveyId)}
+            onConfirm={(e) => {
+              e.stopPropagation();
+              onDelete(record.surveyId);
+            }}
             okText="Xóa"
             cancelText="Hủy"
           >
-            <Button danger icon={<DeleteOutlined />} /> {/* Xóa gọn */}
+            <Button danger icon={<DeleteOutlined />} />
           </Popconfirm>
-        </Space>
-      ),
-    },
-  ];
+        );
 
-  return (
-    <Table
-      dataSource={surveys}
-      columns={columns}
-      rowKey={(record) => record.surveyId ?? record.id ?? Math.random()}
-      bordered={false} // Bỏ border để trông hiện đại hơn
-      loading={loading}
-      pagination={{ pageSize: 5 }} // Giới hạn số lượng hiển thị
-      size="middle"
-      scroll={{ x: 'max-content' }}
-    />
+        return (
+          <Col xs={24} sm={12} lg={8} xl={6} key={record.surveyId}>
+            <Card
+              title={
+                <Space>
+                  <Text type="secondary" style={{ fontSize: '0.9em' }}>ID KS:</Text>
+                  <Text strong>{record.surveyId}</Text>
+                </Space>
+              }
+              extra={renderStatusTag(record.status)}
+              loading={loading}
+              style={{ minHeight: 250, cursor: 'pointer' }}
+              onClick={() => onViewSurvey(record)}
+              actions={cardActions} // SỬ DỤNG MẢNG ACTIONS ĐÃ ĐƯỢC LỌC
+            >
+              {/* Thông tin Khách hàng */}
+              <div style={{ marginBottom: 10 }}>
+                <Text type="secondary" style={{ fontSize: '0.9em' }}>Khách hàng:</Text>
+                <br />
+                <Text strong style={{ fontSize: '1.1em', display: 'block' }}>{record.username}</Text>
+                <Text type="secondary" style={{ fontSize: '0.9em' }}>{record.companyName}</Text>
+              </div>
+
+              {/* Địa chỉ */}
+              <div style={{ marginBottom: 10, paddingBottom: 5, borderBottom: '1px dashed #f0f0f0' }}>
+                <Text type="secondary" style={{ display: "block", fontSize: "0.9em" }}>
+                  <EnvironmentOutlined style={{ marginRight: 4, color: "#52c41a" }} />
+                  **Từ**: {record.addressFrom}
+                </Text>
+                <Text type="secondary" style={{ display: "block", fontSize: "0.9em" }}>
+                  <EnvironmentOutlined style={{ marginRight: 4, color: "#faad14" }} />
+                  **Đến**: {record.addressTo}
+                </Text>
+              </div>
+
+              {/* Ngày Khảo sát */}
+              <Text type="secondary" style={{ display: 'block', fontSize: '0.9em' }}>
+                <CalendarOutlined style={{ marginRight: 4 }} />
+                **Ngày KS**: {record.surveyDate ? dayjs(record.surveyDate).format("DD/MM/YYYY") : "Chưa có"}
+              </Text>
+
+            </Card>
+
+          </Col>
+        );
+      })}
+      {!loading && surveys.length === 0 && (
+        <Col span={24}>
+          <Text type="secondary">Không có khảo sát nào để hiển thị.</Text>
+        </Col>
+      )}
+    </Row>
   );
 };
