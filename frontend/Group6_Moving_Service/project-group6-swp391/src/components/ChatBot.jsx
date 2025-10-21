@@ -118,7 +118,10 @@ const ChatBot = () => {
     ]);
     const [inputMessage, setInputMessage] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [selectedImages, setSelectedImages] = useState([]);
+    const [isDragOver, setIsDragOver] = useState(false);
     const messagesEndRef = useRef(null);
+    const fileInputRef = useRef(null);
 
     // Scroll to bottom when messages change
     const scrollToBottom = () => {
