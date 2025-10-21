@@ -41,6 +41,11 @@ public class SurveyService {
         survey.setRequest(request);
         survey.setStatus("DONE");
         request.setStatus("DONE");
+        survey.setNumFloors(dto.getNumFloors());
+        survey.setNumRooms(dto.getNumRooms());
+        survey.setDistanceKm(dto.getDistanceKm());
+        survey.setNote(dto.getNote());
+        survey.setEstimateWorkers(dto.getEstimateWorkers());
         requestRepository.save(request);
 
 //        List<RequestAssignment> assignments = requestAssignmentRepository.findByRequest(request);
@@ -63,7 +68,7 @@ public class SurveyService {
         }
         String username = auth.getName();
 
-        List<Surveys> surveys = surveyRepository.findSurveysByEmployeeAndStatus(username,"DONE");
+        List<Surveys> surveys = surveyRepository.findSurveysByEmployeeAndStatus(username);
         return surveys.stream()
                 .map(surveyMapper::toResponse)
                 .collect(Collectors.toList());
@@ -75,11 +80,8 @@ public class SurveyService {
 
         // update fields
         survey.setSurveyDate(dto.getSurveyDate());
-        survey.setAddressFrom(dto.getAddressFrom());
-        survey.setAddressTo(dto.getAddressTo());
         survey.setStatus(dto.getStatus());
-        survey.setEstimatedWorkers(dto.getEstimatedWorkers());
-
+        survey.setEstimateWorkers(dto.getEstimateWorkers());
         return surveyMapper.toResponse(surveyRepository.save(survey));
     }
 

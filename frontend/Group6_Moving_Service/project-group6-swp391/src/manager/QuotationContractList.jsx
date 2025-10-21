@@ -82,7 +82,6 @@ const QuotationContractList = () => {
             startDate: dayjs(contract.startDate),
             endDate: dayjs(contract.endDate),
             depositAmount: contract.depositAmount,
-            // Sử dụng totalAmount từ API nếu có, nếu không dùng totalPrice
             totalAmount: contract.totalAmount || contract.totalPrice, 
         });
     };

@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { Table, Button, message, Tag } from "antd"; // Thêm Tag
+import { Table, Button, message, Tag } from "antd";
 import axiosInstance from "../service/axiosInstance";
 import AddServiceModal from "./AddServiceModal";
-import dayjs from "dayjs"; // Import dayjs
+import dayjs from "dayjs";
 
 const QuotationAddServices = () => {
     const [quotations, setQuotations] = useState([]);
@@ -12,9 +12,7 @@ const QuotationAddServices = () => {
 
     const fetchQuotations = async () => {
         try {
-            // API trả về data cần được xem xét lại cấu trúc, nhưng vẫn giữ logic ban đầu
             const res = await axiosInstance.get("/quotations/me");
-            // API này trong file SurveyDashboard trả về res.data.result, tôi sẽ giả định sử dụng res.data.result
             setQuotations(Array.isArray(res.data.result) ? res.data.result : res.data || []);
         } catch (err) {
             console.error(err);
@@ -28,12 +26,51 @@ const QuotationAddServices = () => {
         fetchQuotations();
     }, []);
 
+    // ✨ HÀM ÁNH XẠ TRẠNG THÁI (Đã sửa lỗi)
+    const getStatusTag = (status) => {
+        let color = 'default';
+        let text = status;
+
+        switch (status) {
+            case 'DRAFT':
+                color = 'warning'; // Màu cam cho bản nháp
+                text = 'Bản nháp';
+                break;
+            case 'REVIEW':
+        
+                color = 'geekblue'; // Màu xanh dương cho đang chờ/xem xét
+                text = 'Đang xem xét từ quản lí bộ phận ';
+                break;
+            case 'PENDING':
+                color = 'processing';
+                text = 'Chờ sự đồng ý từ khách hàng';
+                break;
+            case 'APPROVED':
+                color = 'green';
+                text = 'Đã chấp thuận';
+                break;
+            case 'REJECTED':
+                color = 'error';
+                text = 'Đã từ chối';
+                break;
+            case 'CREATED':
+                color = 'magenta';
+                text = 'Đã tạo HĐ';
+                break;
+            default:
+                color = 'default';
+                text = status;
+        }
+
+        return <Tag color={color} style={{ borderRadius: 4, fontWeight: 'bold' }}>{text}</Tag>;
+    };
+    // ------------------------------------
+
     const columns = [
         { 
             title: "Mã báo giá", 
             dataIndex: "quotationId", 
             key: "id",
-            // Thêm hiệu ứng hover nhẹ cho cột ID
             render: (text) => <span style={{ fontWeight: 600, color: '#1890ff' }}>#{text}</span>
         },
         { 
@@ -41,7 +78,6 @@ const QuotationAddServices = () => {
             dataIndex: "totalPrice", 
             key: "totalPrice",
             sorter: (a, b) => a.totalPrice - b.totalPrice,
-            // Định dạng tiền tệ và làm nổi bật
             render: (price) => (
                 <span style={{ fontWeight: 'bold', color: price > 0 ? '#52c41a' : '#999' }}>
                     {price ? price.toLocaleString() : 0} ₫
@@ -50,7 +86,7 @@ const QuotationAddServices = () => {
         },
         { 
             title: "Ngày tạo", 
-            dataIndex: "createdDate", // Thay đổi key nếu API trả về createdDate hoặc createdAt
+            dataIndex: "createdDate",
             key: "createdDate",
             render: (date) => (
                 <Tag color="blue" style={{ borderRadius: 12 }}>
@@ -62,35 +98,40 @@ const QuotationAddServices = () => {
             title: "Trạng thái", 
             dataIndex: "status", 
             key: "status",
-            render: (status) => {
-                const color = status === 'PENDING' ? 'volcano' : status === 'APPROVED' ? 'green' : 'geekblue';
-                return <Tag color={color} style={{ borderRadius: 4, fontWeight: 'bold' }}>{status}</Tag>
-            }
+            // ✨ THAY THẾ LOGIC RENDER CŨ BẰNG HÀM getStatusTag
+            render: getStatusTag
         },
         {
-    title: "Hành động",
-    key: "action",
-    render: (_, record) => (
-        <Button
-            type="primary"
-            disabled={record.status === "CREATED"}
-            style={{
-                borderRadius: 6,
-                transition: "all 0.3s",
-                opacity: record.status === "CREATED" ? 0.5 : 1, 
-                cursor: record.status === "CREATED" ? "not-allowed" : "pointer",
-            }}
-            onClick={() => {
-                if (record.status !== "CREATED") {
-                    setSelectedQuotation(record);
-                    setOpen(true);
-                }
-            }}
-        >
-            Thêm dịch vụ
-        </Button>
-    ),
-},
+            title: "Hành động",
+            key: "action",
+            render: (_, record) => {
+                // ✨ CHỈ CHO PHÉP THÊM/SỬA DỊCH VỤ KHI Ở DRAFT, REVIEW, hoặc PENDING
+                const isEditable = record.status === "DRAFT" || record.status === "REVIEW" || record.status === "PENDING";
+                
+                return (
+                    <Button
+                        type="primary"
+                        disabled={!isEditable} // Vô hiệu hóa nếu không thể chỉnh sửa
+                        style={{
+                            borderRadius: 6,
+                            transition: "all 0.3s",
+                            opacity: isEditable ? 1 : 0.5, 
+                            cursor: isEditable ? "pointer" : "not-allowed",
+                        }}
+                        onClick={() => {
+                            if (isEditable) {
+                                setSelectedQuotation(record);
+                                setOpen(true);
+                            } else {
+                                message.warning(`Không thể thêm dịch vụ khi báo giá ở trạng thái: ${getStatusTag(record.status).props.children}`);
+                            }
+                        }}
+                    >
+                        Thêm dịch vụ
+                    </Button>
+                );
+            },
+        },
     ];
 
     return (
@@ -100,20 +141,11 @@ const QuotationAddServices = () => {
                 dataSource={quotations}
                 rowKey="quotationId"
                 loading={loading}
-                // Thêm style cho bảng để tăng độ bo tròn
                 style={{ borderRadius: 8, overflow: 'hidden', boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)' }}
-                // Thêm hiệu ứng chuyển màu cho hàng khi hover
                 rowClassName={() => 'quotation-row-hover'} 
                 
             />
-            {/* Cần thêm CSS sau để có hiệu ứng hover:
-            <style jsx global>{`
-                .quotation-row-hover:hover > td {
-                    background-color: #e6f7ff !important;
-                    transition: background-color 0.3s;
-                }
-            `}</style>
-            */}
+            
             <AddServiceModal
                 open={open}
                 quotation={selectedQuotation}

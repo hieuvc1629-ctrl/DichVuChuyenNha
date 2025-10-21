@@ -13,7 +13,7 @@ public interface SurveyRepository extends JpaRepository<Surveys, Integer> {
     @Query("SELECT s FROM Surveys s " +
             "JOIN s.request r " +
             "JOIN r.assignedEmployees a " +
-            "WHERE a.employee.user.username = :username AND s.status = :status")
-    List<Surveys> findSurveysByEmployeeAndStatus(@Param("username") String username, @Param("status") String status);
+            "WHERE a.employee.user.username = :username ")
+    List<Surveys> findSurveysByEmployeeAndStatus(@Param("username") String username);
 
 }

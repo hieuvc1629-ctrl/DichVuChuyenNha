@@ -14,6 +14,7 @@ public class RequestDto {
     private LocalDateTime requestTime;
     private String status;
     private String pickupAddress;
+    private String destinationAddress;
     private String assignmentStatus; // status của RequestAssignment
 
 }
