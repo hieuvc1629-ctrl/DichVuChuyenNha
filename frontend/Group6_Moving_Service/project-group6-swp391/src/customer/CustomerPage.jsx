@@ -50,7 +50,7 @@ const CustomerDashboard = () => {
         }
     }, [selectedKey]);
 
-    // CẤU HÌNH CỘT CHO BẢNG LỊCH SỬ HỢP ĐỒNG (Giữ nguyên)
+    // CẤU HÌNH CỘT CHO BẢNG LỊCH SỬ HỢP ĐỒNG
     const signedContractsColumns = [
         { 
             title: "Mã HĐ", 
@@ -124,55 +124,7 @@ const CustomerDashboard = () => {
         },
     ];
 
-
-  const renderContent = () => {
-    switch (selectedKey) {
-      case "my-requests":
-        // Trang Danh sách yêu cầu
-        // Lưu ý: UserRequestsPage cần được điều chỉnh để không tự tạo Sider/Layout.
-        return <UserRequestsPage isEmbedded={true} />; 
-      case "quotation-approval":
-        // Trang Báo giá chờ duyệt
-        return <QuotationApproval />;
-      case "unsigned-contracts":
-      
-        // Trang Hợp đồng chờ ký
-        return <UserContractsPage />;
-        // Trang Tiến độ công việc của khách hàng
-          case"customer/work-progress":
-        return <CustpmerWorkProgressPage />;
-      default:
-        return (
-          <Title level={4}>Chào mừng đến với Bảng điều khiển Khách hàng!</Title>
-        );
-    }
-  };
-
-  return (
-    <Layout style={{ minHeight: "100vh" }}>
-      {/* Sider cho thanh điều hướng */}
-      <Sider width={260} style={{ background: "#fff", borderRight: "1px solid #f0f0f0" }}>
-        <div style={{ padding: 16 }}>
-          <Title level={4} style={{ margin: 0, color: "#8B0000" }}>Giao dịch khách hàng</Title>
-        </div>
-        <Menu
-          mode="inline"
-          selectedKeys={[selectedKey]}
-          onClick={({ key }) => setSelectedKey(key)}
-          style={{ height: "100%", borderRight: 0 }}
-          items={[
-            { key: "my-requests", icon: <OrderedListOutlined />, label: "📝 Danh sách yêu cầu" },
-            { key: "quotation-approval", icon: <FileTextOutlined />, label: "💰 Báo giá chờ duyệt" },
-            { key: "unsigned-contracts", icon: <ScheduleOutlined />, label: "✍️ Hợp đồng chờ ký" },
-            { key: "customer/work-progress", icon: <ScheduleOutlined />, label: "Tiến trình chuyển đồ" },
-            // Mục "Thông tin cá nhân" đã được loại bỏ
-            { type: 'divider' }, 
-            { key: "logout", label: "Đăng xuất", danger: true, onClick: () => { /* Logic đăng xuất */ } },
-          ]}
-        />
-      </Sider>
-
-    /*** RENDER NỘI DUNG THEO TAB ***/
+    // Hàm render nội dung theo tab
     const renderContent = () => {
         switch (selectedKey) {
             case "my-requests":
@@ -181,6 +133,8 @@ const CustomerDashboard = () => {
                 return <QuotationApproval />;
             case "unsigned-contracts":
                 return <UserContractsPage />;
+            case "customer/work-progress":
+                return <CustpmerWorkProgressPage />;
             case "signed-contracts":
                 return (
                     <Card
@@ -216,11 +170,9 @@ const CustomerDashboard = () => {
                                                     <List.Item>
                                                         <List.Item.Meta
                                                             title={<Text strong>{item.serviceName}</Text>}
-                                                            // Cập nhật description để hiển thị priceType và quantity
                                                             description={`Loại giá: ${item.priceType || 'N/A'} | Số lượng: ${item.quantity}`}
                                                         />
-                                                        {/* Hiển thị amount (tổng tiền cho dịch vụ này) */}
-                                                        <div>{formatCurrency(item?.subtotal )}</div>
+                                                        <div>{formatCurrency(item?.subtotal)}</div>
                                                     </List.Item>
                                                 )}
                                             />
@@ -252,12 +204,13 @@ const CustomerDashboard = () => {
                         { key: "my-requests", icon: <OrderedListOutlined />, label: "📝 Danh sách yêu cầu" },
                         { key: "quotation-approval", icon: <FileTextOutlined />, label: "💰 Báo giá chờ duyệt" },
                         { key: "unsigned-contracts", icon: <ScheduleOutlined />, label: "✍️ Hợp đồng chờ ký" },
+                        { key: "customer/work-progress", icon: <ScheduleOutlined />, label: "🚚 Tiến trình chuyển đồ" },
                         { key: "signed-contracts", icon: <HistoryOutlined />, label: "📖 Lịch sử HĐ đã ký" },
                         { type: "divider" },
+                        { key: "logout", label: "Đăng xuất", danger: true, onClick: () => { /* Logic đăng xuất */ } },
                     ]}
                 />
             </Sider>
-
 
             <Layout style={{ padding: '0 24px 24px' }}>
                 <Content
