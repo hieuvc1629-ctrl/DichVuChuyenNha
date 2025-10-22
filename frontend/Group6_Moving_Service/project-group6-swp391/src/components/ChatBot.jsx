@@ -136,27 +136,111 @@ const ChatBot = () => {
         setIsOpen(!isOpen);
     };
 
+    // Xử lý upload file ảnh
+    const handleFileSelect = (files) => {
+        const imageFiles = Array.from(files).filter(file => 
+            file.type.startsWith('image/') && file.size <= 10 * 1024 * 1024 // 10MB limit
+        );
+        
+        if (imageFiles.length > 0) {
+            const newImages = imageFiles.map(file => ({
+                file,
+                preview: URL.createObjectURL(file),
+                name: file.name,
+                size: file.size
+            }));
+            setSelectedImages(prev => [...prev, ...newImages]);
+        }
+    };
+
+    // Xử lý drag & drop
+    const handleDragOver = (e) => {
+        e.preventDefault();
+        setIsDragOver(true);
+    };
+
+    const handleDragLeave = (e) => {
+        e.preventDefault();
+        setIsDragOver(false);
+    };
+
+    const handleDrop = (e) => {
+        e.preventDefault();
+        setIsDragOver(false);
+        const files = e.dataTransfer.files;
+        handleFileSelect(files);
+    };
+
+    // Xử lý paste ảnh
+    const handlePaste = (e) => {
+        const items = e.clipboardData.items;
+        for (let item of items) {
+            if (item.type.startsWith('image/')) {
+                const file = item.getAsFile();
+                handleFileSelect([file]);
+                break;
+            }
+        }
+    };
+
+    // Xóa ảnh đã chọn
+    const removeImage = (index) => {
+        setSelectedImages(prev => {
+            const newImages = [...prev];
+            URL.revokeObjectURL(newImages[index].preview);
+            newImages.splice(index, 1);
+            return newImages;
+        });
+    };
+
+    // Chuyển đổi file thành base64
+    const fileToBase64 = (file) => {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = error => reject(error);
+        });
+    };
+
     const handleSendMessage = async (e) => {
         e.preventDefault();
         
-        if (!inputMessage.trim()) return;
+        if (!inputMessage.trim() && selectedImages.length === 0) return;
 
-        // Add user message
+        // Chuẩn bị dữ liệu gửi
+        const messageData = {
+            message: inputMessage,
+            images: []
+        };
+
+        // Chuyển đổi ảnh thành base64
+        if (selectedImages.length > 0) {
+            try {
+                const imagePromises = selectedImages.map(img => fileToBase64(img.file));
+                messageData.images = await Promise.all(imagePromises);
+            } catch (error) {
+                console.error('Error converting images:', error);
+                return;
+            }
+        }
+
+        // Add user message với ảnh
         const userMessage = {
             type: 'user',
             text: inputMessage,
+            images: selectedImages.map(img => img.preview),
             timestamp: new Date()
         };
         
         setMessages(prev => [...prev, userMessage]);
         setInputMessage('');
+        setSelectedImages([]);
         setIsLoading(true);
 
         try {
-            // Call API
-            const response = await api.post('/chat-ai', {
-                message: inputMessage
-            });
+            // Call API với ảnh
+            const response = await api.post('/chat-ai', messageData);
 
             // Add bot response
             const botMessage = {
@@ -252,6 +336,19 @@ const ChatBot = () => {
                                 <div className="message-content">
                                     <div className="message-bubble">
                                         {msg.type === 'bot' ? parseMarkdown(msg.text) : msg.text}
+                                        {msg.images && msg.images.length > 0 && (
+                                            <div className="message-images">
+                                                {msg.images.map((image, imgIndex) => (
+                                                    <img 
+                                                        key={imgIndex}
+                                                        src={image} 
+                                                        alt={`Uploaded image ${imgIndex + 1}`}
+                                                        className="message-image"
+                                                        onClick={() => window.open(image, '_blank')}
+                                                    />
+                                                ))}
+                                            </div>
+                                        )}
                                     </div>
                                     <span className="message-time">{formatTime(msg.timestamp)}</span>
                                 </div>
@@ -277,26 +374,77 @@ const ChatBot = () => {
                     </div>
 
                     {/* Input */}
-                    <form className="chat-input-container" onSubmit={handleSendMessage}>
-                        <input
-                            type="text"
-                            className="chat-input"
-                            placeholder="Nhập tin nhắn..."
-                            value={inputMessage}
-                            onChange={(e) => setInputMessage(e.target.value)}
-                            disabled={isLoading}
-                        />
-                        <button 
-                            type="submit" 
-                            className="send-button"
-                            disabled={!inputMessage.trim() || isLoading}
-                        >
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                <line x1="22" y1="2" x2="11" y2="13"></line>
-                                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-                            </svg>
-                        </button>
-                    </form>
+                    <div 
+                        className={`chat-input-container ${isDragOver ? 'drag-over' : ''}`}
+                        onDragOver={handleDragOver}
+                        onDragLeave={handleDragLeave}
+                        onDrop={handleDrop}
+                    >
+                        {/* Image Preview */}
+                        {selectedImages.length > 0 && (
+                            <div className="image-preview-container">
+                                {selectedImages.map((image, index) => (
+                                    <div key={index} className="image-preview">
+                                        <img src={image.preview} alt={image.name} />
+                                        <button 
+                                            className="remove-image-btn"
+                                            onClick={() => removeImage(index)}
+                                        >
+                                            ×
+                                        </button>
+                                        <div className="image-info">
+                                            <span className="image-name">{image.name}</span>
+                                            <span className="image-size">
+                                                {(image.size / 1024 / 1024).toFixed(1)}MB
+                                            </span>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+
+                        <form onSubmit={handleSendMessage}>
+                            <div className="input-wrapper">
+                                <input
+                                    ref={fileInputRef}
+                                    type="file"
+                                    accept="image/*"
+                                    multiple
+                                    onChange={(e) => handleFileSelect(e.target.files)}
+                                    style={{ display: 'none' }}
+                                />
+                                <button
+                                    type="button"
+                                    className="attach-button"
+                                    onClick={() => fileInputRef.current?.click()}
+                                    title="Đính kèm hình ảnh"
+                                >
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                        <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66L9.64 16.2a2 2 0 0 1-2.83-2.83l8.49-8.49"></path>
+                                    </svg>
+                                </button>
+                                <input
+                                    type="text"
+                                    className="chat-input"
+                                    placeholder={isDragOver ? "Thả ảnh vào đây..." : "Nhập tin nhắn..."}
+                                    value={inputMessage}
+                                    onChange={(e) => setInputMessage(e.target.value)}
+                                    onPaste={handlePaste}
+                                    disabled={isLoading}
+                                />
+                                <button 
+                                    type="submit" 
+                                    className="send-button"
+                                    disabled={(!inputMessage.trim() && selectedImages.length === 0) || isLoading}
+                                >
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                        <line x1="22" y1="2" x2="11" y2="13"></line>
+                                        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                                    </svg>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             )}
         </div>
