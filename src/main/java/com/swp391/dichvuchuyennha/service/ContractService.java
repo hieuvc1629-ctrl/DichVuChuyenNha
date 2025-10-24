@@ -3,7 +3,6 @@ package com.swp391.dichvuchuyennha.service;
 import com.swp391.dichvuchuyennha.dto.request.ContractRequest;
 import com.swp391.dichvuchuyennha.dto.response.ContractDTO;
 import com.swp391.dichvuchuyennha.dto.response.ContractResponse;
-//import com.swp391.dichvuchuyennha.dto.response.EmployeeDTO;
 import com.swp391.dichvuchuyennha.dto.response.QuotationServiceInfo;
 import com.swp391.dichvuchuyennha.entity.Contract;
 import com.swp391.dichvuchuyennha.entity.Quotations;
@@ -16,13 +15,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-
 @RequiredArgsConstructor
 public class ContractService {
 
@@ -30,38 +30,38 @@ public class ContractService {
     private final UserRepository userRepository;
     private final ContractMapper contractMapper;
     private final QuotationRepository quotationRepository;
-// inject mapper
-public ContractResponse createContract(ContractRequest request) {
-    Quotations quotation = quotationRepository.findById(request.getQuotationId())
-            .orElseThrow(() -> new RuntimeException("Quotation not found"));
 
-    Contract contract = new Contract();
-    contract.setQuotation(quotation);
-    contract.setStartDate(request.getStartDate());
-    contract.setEndDate(request.getEndDate());
-    contract.setDepositAmount(request.getDepositAmount());
-    contract.setTotalAmount(quotation.getTotalPrice());
-    contract.setStatus("UNSIGNED");
+    /** ✅ Tạo hợp đồng mới */
+    public ContractResponse createContract(ContractRequest request) {
+        Quotations quotation = quotationRepository.findById(request.getQuotationId())
+                .orElseThrow(() -> new RuntimeException("Quotation not found"));
 
-    Contract saved = contractRepository.save(contract);
-    quotation.setStatus("CREATED");
-    quotationRepository.save(quotation);
+        Contract contract = new Contract();
+        contract.setQuotation(quotation);
+        contract.setStartDate(request.getStartDate());
+        contract.setDepositAmount(request.getDepositAmount());
+        contract.setTotalAmount(quotation.getTotalPrice());
+        contract.setStatus("UNSIGNED");
 
-    return contractMapper.toResponse(saved);
-}
+        Contract saved = contractRepository.save(contract);
+        quotation.setStatus("CREATED");
+        quotationRepository.save(quotation);
 
+        return contractMapper.toResponse(saved);
+    }
 
-
+    /** ✅ Lấy danh sách hợp đồng chưa ký của 1 user */
     @Transactional(readOnly = true)
     public List<ContractResponse> getUnsignedContracts(Integer userId) {
         List<Contract> contracts =
                 contractRepository.findByQuotation_Survey_Request_User_UserIdAndStatus(userId, "UNSIGNED");
 
         return contracts.stream()
-                .map(contractMapper::toResponse)  // dùng mapper
+                .map(contractMapper::toResponse)
                 .toList();
     }
 
+    /** ✅ Ký hợp đồng */
     @Transactional
     public ContractResponse signContract(Integer contractId, Integer userId) {
         Users user = userRepository.findById(userId)
@@ -84,37 +84,36 @@ public ContractResponse createContract(ContractRequest request) {
         contract.setSignedDate(LocalDateTime.now());
 
         Contract saved = contractRepository.save(contract);
-        return contractMapper.toResponse(saved); // mapper xử lý
-    }//detail
+        return contractMapper.toResponse(saved);
+    }
 
-
-
+    /** ✅ Cập nhật hợp đồng */
     public ContractResponse updateContract(Integer id, ContractRequest request) {
         Contract contract = contractRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Contract not found"));
 
         contract.setStartDate(request.getStartDate());
-        contract.setEndDate(request.getEndDate());
         contract.setDepositAmount(request.getDepositAmount());
         contractRepository.save(contract);
 
         return contractMapper.toResponse(contract);
     }
 
-    // Xóa hợp đồng
+    /** ✅ Xóa hợp đồng */
     public void deleteContract(Integer id) {
         if (!contractRepository.existsById(id)) throw new RuntimeException("Contract not found");
         contractRepository.deleteById(id);
     }
 
-    // Lấy danh sách hợp đồng
+    /** ✅ Lấy toàn bộ hợp đồng */
     public List<ContractResponse> getAllContracts() {
         return contractRepository.findAll()
                 .stream()
                 .map(contractMapper::toResponse)
                 .toList();
     }
-    /** ✅ Xây ContractResponse chi tiết an toàn (kể cả thiếu dữ liệu) */
+
+    /** ✅ Xây chi tiết hợp đồng (bao gồm movingDay) */
     @Transactional(readOnly = true)
     public ContractResponse buildContractDetail(Contract contract) {
         try {
@@ -122,11 +121,14 @@ public ContractResponse createContract(ContractRequest request) {
                 throw new RuntimeException("Contract is null");
             }
 
-            // 🧱 Lấy dữ liệu quotation nếu có
             var quotation = contract.getQuotation();
+            String username = null;
+            String companyName = null;
+
             String startAddress = null;
             String endAddress = null;
             Double totalPrice = null;
+            LocalDate movingDay = null;
             List<QuotationServiceInfo> serviceInfos = Collections.emptyList();
 
             if (quotation != null) {
@@ -137,10 +139,21 @@ public ContractResponse createContract(ContractRequest request) {
                     endAddress = quotation.getSurvey().getAddressTo();
                 }
 
+                if (quotation.getRequest() != null && quotation.getRequest().getMovingDay() != null) {
+                    movingDay = quotation.getRequest().getMovingDay()
+                            .toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+                }
+                var user = quotation.getRequest().getUser();
+                if (user != null) {
+                    username = user.getUsername();
+                    if (user.getCustomerCompany() != null) {
+                        companyName = user.getCustomerCompany().getCompanyName();
+                    }
+                }
+
                 if (quotation.getQuotationServices() != null) {
                     serviceInfos = quotation.getQuotationServices().stream()
-                            .filter(qs -> qs != null)
-                            .filter(qs -> qs.getService() != null && qs.getPrice() != null)
+                            .filter(qs -> qs != null && qs.getService() != null && qs.getPrice() != null)
                             .map(qs -> new QuotationServiceInfo(
                                     qs.getId(),
                                     qs.getService().getServiceName(),
@@ -165,21 +178,29 @@ public ContractResponse createContract(ContractRequest request) {
                     .signedByUsername(contract.getSignedBy() != null ? contract.getSignedBy().getUsername() : null)
                     .startLocation(startAddress)
                     .endLocation(endAddress)
+                    .username(username)
+                    .companyName(companyName)
+                    .movingDay(movingDay)
                     .services(serviceInfos)
                     .totalPrice(totalPrice)
                     .build();
+
         } catch (Exception e) {
-            // 🧠 log lỗi chi tiết để bạn dễ thấy
             e.printStackTrace();
             throw new RuntimeException("Error building contract detail: " + e.getMessage());
         }
     }
+
+
+    /** ✅ Lấy hợp đồng đã ký có nhân viên được gán */
     public List<ContractDTO> getContractsSignedWithEmployees() {
         return contractRepository.findByStatus("SIGNED").stream()
                 .filter(c -> c.getAssignmentEmployees() != null && !c.getAssignmentEmployees().isEmpty())
                 .map(c -> new ContractDTO(c.getContractId(), c.getStatus()))
                 .toList();
     }
+
+    /** ✅ Lấy danh sách hợp đồng đủ điều kiện tạo WorkProgress */
     @Transactional(readOnly = true)
     public List<ContractResponse> getEligibleContractsForWorkProgress() {
         List<Contract> contracts = contractRepository.findByStatus("SIGNED");
@@ -202,9 +223,5 @@ public ContractResponse createContract(ContractRequest request) {
                         .build())
                 .toList();
     }
-
-
-
-}//fix đủ
-
-
+}
+//end
