@@ -80,7 +80,6 @@ public class RequestAssignmentService {
 
         // Chỉ lấy request có trạng thái "PENDING"
         return assignments.stream()
-                .filter(ra -> "PENDING".equalsIgnoreCase(ra.getRequest().getStatus()))
                 .map(ra -> RequestDto.builder()
                         .requestId(ra.getRequest().getRequestId())
                         .username(ra.getRequest().getUser() != null
@@ -91,6 +90,8 @@ public class RequestAssignmentService {
                                 : "N/A")
                         .requestTime(ra.getRequest().getRequestTime())
                         .status(ra.getRequest().getStatus())
+                        .destinationAddress(ra.getRequest().getDestinationAddress())
+                        .pickupAddress(ra.getRequest().getPickupAddress())
                         .build())
                 .collect(Collectors.toList());
     }

@@ -4,14 +4,12 @@ import com.swp391.dichvuchuyennha.dto.request.ContractRequest;
 import com.swp391.dichvuchuyennha.dto.response.ContractDTO;
 import com.swp391.dichvuchuyennha.dto.response.ContractResponse;
 import com.swp391.dichvuchuyennha.dto.response.QuotationServiceInfo;
-import com.swp391.dichvuchuyennha.entity.Contract;
-import com.swp391.dichvuchuyennha.entity.Quotations;
-import com.swp391.dichvuchuyennha.entity.Users;
+import com.swp391.dichvuchuyennha.entity.*;
 import com.swp391.dichvuchuyennha.mapper.ContractMapper;
-import com.swp391.dichvuchuyennha.repository.ContractRepository;
-import com.swp391.dichvuchuyennha.repository.QuotationRepository;
-import com.swp391.dichvuchuyennha.repository.UserRepository;
+import com.swp391.dichvuchuyennha.repository.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -215,10 +213,10 @@ public class ContractService {
                         .depositAmount(c.getDepositAmount())
                         .status(c.getStatus())
                         .startLocation(c.getQuotation() != null && c.getQuotation().getSurvey() != null
-                                ? c.getQuotation().getSurvey().getAddressFrom()
+                                ? c.getQuotation().getSurvey().getRequest().getPickupAddress()
                                 : null)
                         .endLocation(c.getQuotation() != null && c.getQuotation().getSurvey() != null
-                                ? c.getQuotation().getSurvey().getAddressTo()
+                                ? c.getQuotation().getSurvey().getRequest().getDestinationAddress()
                                 : null)
                         .build())
                 .toList();

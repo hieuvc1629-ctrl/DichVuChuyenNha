@@ -31,7 +31,7 @@ public class SurveyService {
     private final SurveyRepository surveyRepository;
     private final RequestRepository requestRepository;
     private final EmployeeRepository employeeRepository;
-    private final RequestAssignmentRepository requestAssignmentRepository;
+//    private final RequestAssignmentRepository requestAssignmentRepository;
     public Surveys createSurvey(SurveyRequest dto) {
         Surveys survey = surveyMapper.toEntity(dto);
 
@@ -39,14 +39,24 @@ public class SurveyService {
                 .orElseThrow(() -> new AppException(ErrorCode.SURVEY_NOT_FOUND));
 
         survey.setRequest(request);
-        // Có thể set mặc định status nếu muốn
-        if (survey.getStatus() == null) {
-            survey.setStatus("Pending");
-        }
+        survey.setStatus("DONE");
         request.setStatus("DONE");
+        survey.setNumFloors(dto.getNumFloors());
+        survey.setNumRooms(dto.getNumRooms());
+        survey.setDistanceKm(dto.getDistanceKm());
+        survey.setNote(dto.getNote());
+        survey.setEstimateWorkers(dto.getEstimateWorkers());
         requestRepository.save(request);
 
-
+//        List<RequestAssignment> assignments = requestAssignmentRepository.findByRequest(request);
+//
+//        for (RequestAssignment assignment : assignments) {
+//            Employee emp = assignment.getEmployee();
+//            if (emp != null) {
+//                emp.setStatus("FREE"); // chỉ nhân viên này được set FREE
+//                employeeRepository.save(emp);
+//            }
+//        }
 
         return surveyRepository.save(survey);
     }
@@ -58,8 +68,7 @@ public class SurveyService {
         }
         String username = auth.getName();
 
-        List<Surveys> surveys = surveyRepository.findByRequest_AssignedEmployees_Employee_User_Username(username);
-
+        List<Surveys> surveys = surveyRepository.findSurveysByEmployeeAndStatus(username);
         return surveys.stream()
                 .map(surveyMapper::toResponse)
                 .collect(Collectors.toList());
@@ -71,11 +80,8 @@ public class SurveyService {
 
         // update fields
         survey.setSurveyDate(dto.getSurveyDate());
-        survey.setAddressFrom(dto.getAddressFrom());
-        survey.setAddressTo(dto.getAddressTo());
         survey.setStatus(dto.getStatus());
-        survey.setEstimatedWorkers(dto.getEstimatedWorkers());
-
+        survey.setEstimateWorkers(dto.getEstimateWorkers());
         return surveyMapper.toResponse(surveyRepository.save(survey));
     }
 
@@ -84,5 +90,11 @@ public class SurveyService {
             throw new RuntimeException("Survey not found");
         }
         surveyRepository.deleteById(id);
+    }
+    public List<SurveyResponse> getAllSurveys() {
+        return surveyRepository.findAll()
+                .stream()
+                .map(surveyMapper::toResponse)
+                .collect(Collectors.toList());
     }
 }

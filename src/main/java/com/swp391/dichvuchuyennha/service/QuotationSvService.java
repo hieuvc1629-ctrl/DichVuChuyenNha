@@ -42,6 +42,15 @@ public class QuotationSvService {
                 .sum();
 
         quotation.setTotalPrice(total);
+        if (total <= 0.0) {
+            quotation.setStatus("DRAFT"); // tổng = 0 → DRAFT
+        } else {
+            // Nếu đang là DRAFT hoặc PENDING → chuyển sang REVIEW
+            String status = quotation.getStatus();
+            if ("DRAFT".equals(status) || "PENDING".equals(status)) {
+                quotation.setStatus("REVIEW");
+            }
+        }
         quotationRepository.save(quotation);
     }
 

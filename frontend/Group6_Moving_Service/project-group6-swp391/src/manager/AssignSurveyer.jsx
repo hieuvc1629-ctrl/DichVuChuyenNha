@@ -3,7 +3,7 @@ import { Table, Button, Select, message, Tag, Space, Typography, Card } from "an
 import { UserAddOutlined, SolutionOutlined, CheckCircleOutlined, SyncOutlined } from "@ant-design/icons";
 // Sử dụng axiosInstance đã được cấu hình từ file bạn cung cấp
 import axiosInstance from "../service/axiosInstance"; 
-
+import { Tooltip } from "antd";
 const { Option } = Select;
 const { Text, Title } = Typography;
 
@@ -91,14 +91,14 @@ export default function AssignSurveyer() {
     const getStatusTag = (status) => {
         const statusColors = {
             PENDING: 'processing', // Đang chờ
-            ASSIGNED: 'geekblue', // Đã gán
-            COMPLETED: 'success', // Hoàn thành
+            assigned: 'geekblue', // Đã gán
+            DONE: 'success', // Hoàn thành
             CANCELLED: 'error', // Đã hủy
         };
         const statusText = {
             PENDING: 'Đang chờ xử lý',
-            ASSIGNED: 'Đã gán NV',
-            COMPLETED: 'Hoàn thành',
+            assigned: 'Đã gán NV',
+            DONE: 'Hoàn thành',
             CANCELLED: 'Đã hủy',
         };
         return (
@@ -138,50 +138,59 @@ export default function AssignSurveyer() {
             render: (text) => text ? new Date(text).toLocaleString() : 'N/A',
         },
         {
-            title: "Trạng thái",
+            title: "Trạng thái khảo sát",
             dataIndex: "status",
             key: "status",
             render: getStatusTag,
             width: 150,
         },
-        {
-            title: "Gán Surveyer",
-            key: "assign",
-            width: 350,
-            render: (_, record) => (
-                <Space>
-                    <Select
-                        showSearch
-                        placeholder="Chọn nhân viên khảo sát"
-                        optionFilterProp="children"
-                        style={{ width: 200 }}
-                        value={selectedEmployee[record.requestId]}
-                        onChange={value => setSelectedEmployee(prev => ({ ...prev, [record.requestId]: value }))}
-                        // Thêm icon cho Select
-                        suffixIcon={<SolutionOutlined />}
-                    >
-                        {surveyers.map(s => (
-                            <Option 
-                                key={s.employeeId} 
-                                value={s.employeeId}
-                                // Hiển thị thông tin đầy đủ hơn trong Select
-                            >
-                                <Text strong>{s.username}</Text> - <Text type="secondary">{s.position}</Text>
-                            </Option>
-                        ))}
-                    </Select>
-                    <Button 
-                        type="primary" 
+         {
+            title: "Hợp đồng đã được gán",
+            dataIndex: "assignmentStatus",
+            key: "assignmentStatus",
+            render: getStatusTag,
+            width: 150,
+        },
+    {
+    title: "Gán Surveyer",
+    key: "assign",
+    width: 350,
+    render: (_, record) => {
+        const isAssigned = record.assignmentStatus?.toLowerCase() === "assigned"; // check trạng thái
+        return (
+            <Space>
+                <Select
+                    showSearch
+                    placeholder="Chọn nhân viên khảo sát"
+                    optionFilterProp="children"
+                    style={{ width: 200 }}
+                    value={selectedEmployee[record.requestId]}
+                    onChange={value => setSelectedEmployee(prev => ({ ...prev, [record.requestId]: value }))}
+                    suffixIcon={<SolutionOutlined />}
+                    disabled={isAssigned} // disable Select luôn nếu đã gán
+                >
+                    {surveyers.map(s => (
+                        <Option key={s.employeeId} value={s.employeeId}>
+                            <Text strong>{s.username}</Text> - <Text type="secondary">{s.position}</Text>
+                        </Option>
+                    ))}
+                </Select>
+
+                <Tooltip title={isAssigned ? "Request đã có người phụ trách" : ""}>
+                    <Button
+                        type="primary"
                         icon={<UserAddOutlined />}
                         onClick={() => handleAssign(record.requestId)}
-                        disabled={!selectedEmployee[record.requestId]} // Disable nếu chưa chọn NV
+                        disabled={!selectedEmployee[record.requestId] || isAssigned} // disable nếu chưa chọn NV hoặc đã gán
                         style={{ borderRadius: 6 }}
                     >
                         Gán
                     </Button>
-                </Space>
-            ),
-        },
+                </Tooltip>
+            </Space>
+        );
+    }
+}
     ];
 
     // --- RENDER GIAO DIỆN ---

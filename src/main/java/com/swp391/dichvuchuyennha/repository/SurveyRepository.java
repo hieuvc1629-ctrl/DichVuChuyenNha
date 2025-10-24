@@ -10,6 +10,10 @@ import java.util.List;
 
 @Repository
 public interface SurveyRepository extends JpaRepository<Surveys, Integer> {
-    List<Surveys> findByRequest_AssignedEmployees_Employee_User_Username(String username);
+    @Query("SELECT s FROM Surveys s " +
+            "JOIN s.request r " +
+            "JOIN r.assignedEmployees a " +
+            "WHERE a.employee.user.username = :username ")
+    List<Surveys> findSurveysByEmployeeAndStatus(@Param("username") String username);
 
 }
