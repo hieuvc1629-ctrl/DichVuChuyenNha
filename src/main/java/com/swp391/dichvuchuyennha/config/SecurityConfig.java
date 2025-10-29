@@ -69,7 +69,10 @@ public class SecurityConfig {
                 "/api/survey-images/**",
                 "/images/survey/**",
                 "/api/manager/quotations/**",
+                "/api/damages/**",
+                "/images/damages/**",
                 "/api/chat-ai"};
+
 
 
 
@@ -199,7 +202,7 @@ public class SecurityConfig {
 
         @Bean
         public PasswordEncoder passwordEncoder() {
-                 return new BCryptPasswordEncoder(); // Đổi sang BCrypt
-//                return NoOpPasswordEncoder.getInstance();
+//                 return new BCryptPasswordEncoder(); // Đổi sang BCrypt
+        return NoOpPasswordEncoder.getInstance();
         }
 }
