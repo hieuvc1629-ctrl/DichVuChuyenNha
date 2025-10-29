@@ -25,7 +25,14 @@ public class Surveys {
     @Column(name = "survey_date")
     private LocalDateTime surveyDate;
 
-    // 'HOUSE' hoặc 'COMPANY'
+
+    //bo sung
+    @Column(name = "address_from")
+    private String addressFrom;
+
+    @Column(name = "address_to")
+    private String addressTo;
+
 
     @Column(name = "total_area")
     private Double totalArea; // Tổng diện tích tất cả tầng
