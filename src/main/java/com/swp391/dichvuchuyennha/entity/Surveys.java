@@ -46,7 +46,7 @@ public class Surveys {
     private Double distanceKm; // Khoảng cách vận chuyển (km)
 
     @Column(name = "estimate_worker")
-    private  Integer estimateWorkers; // Danh sách dịch vụ bổ sung
+    private Integer estimateWorkers; // Danh sách dịch vụ bổ sung
 
     @Column(name = "note", columnDefinition = "TEXT")
     private String note; // Ghi chú chung
@@ -59,5 +59,11 @@ public class Surveys {
 
     @OneToMany(mappedBy = "survey", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<SurveyFloor> floors; // Danh sách các tầng
+    @ManyToMany
+    @JoinTable(
+            name = "survey_services",
+            joinColumns = @JoinColumn(name = "survey_id"),
+            inverseJoinColumns = @JoinColumn(name = "service_id")
+    )
+    private List<Services> services;
 }
-
