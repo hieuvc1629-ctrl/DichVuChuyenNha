@@ -39,4 +39,7 @@ public class Quotations {
     private List<Vehicles> vehicles;
     @Column(name = "status")
     private String status;
+
+
+
 }
