@@ -35,8 +35,7 @@ import AssignSurveyer from "../manager/AssignSurveyer";
 import QuotationAddServices from "../staff/QuotationAddServices";
 import QuotationContractList from "../manager/QuotationContractList";
 import ManagerWorkProgressPage from "../manager/ManagerWorkProgressPage";
-import ReviewQuotationManagement from "../manager/ReviewQuotationManagement";
-
+import WorkProgressList from "../manager/WorkProgressList";
 
 const Router = () => {
   const router = createBrowserRouter([
@@ -50,14 +49,14 @@ const Router = () => {
           path: "",
           element: <HomePage/>
         },
-        {
-  path: "contract-assignment",
-  element: (
+//         {
+//   path: "contract-assignment",
+//   element: (
    
-      <ContractAssignment />
+//       <ContractAssignment />
    
-  ),
-},
+//   ),
+// },
         {
           path:"user-profile",
           element: <ProfilePage/>
@@ -134,7 +133,7 @@ const Router = () => {
           element: (
             <ProtectedRoute allowedRoles={["admin"]}>
               <CreateAdminUser />
-            </ProtectedRoute>
+             </ProtectedRoute>
           ),
 
         },
@@ -144,7 +143,7 @@ const Router = () => {
           element: (
             <ProtectedRoute allowedRoles={["admin"]}>
               <AdminDashboard />
-            </ProtectedRoute>
+             </ProtectedRoute>
           ),
         },
 
@@ -175,6 +174,11 @@ const Router = () => {
           element:<ManagerWorkProgressPage/>
 
         },
+        {
+          path:"manager/work-progress-list",
+          element:< WorkProgressList/>
+
+        },
 
         // user requests (customer)
         { path: "my-requests", element: <UserRequestsPage /> },
@@ -191,6 +195,14 @@ const Router = () => {
             
           ],
         },
+         {
+          path: "contract-assignment",
+          element: (
+            <ProtectedRoute allowedRoles={["admin", "manager"]}>
+              <ContractAssignment />
+            </ProtectedRoute>
+          ),
+        },
         {
           path: "manager/dashboard",
           element: <ManagerDashboard />,
@@ -198,6 +210,7 @@ const Router = () => {
             // { index: true, element: <ContractAssignment /> }, // mặc định khi vào /manager/dashboard
             { path: "contract-assignment", element: <ContractAssignment /> },
             { path: "manager/work-progress", element: <ManagerWorkProgressPage /> },
+             { path: "manager/work-progress-list", element: <WorkProgressList /> },
           ],
         },
          
