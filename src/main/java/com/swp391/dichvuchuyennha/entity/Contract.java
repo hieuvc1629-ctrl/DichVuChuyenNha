@@ -64,18 +64,10 @@ public class Contract {
 
     @OneToMany(mappedBy = "contract", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<WorkProgress> workProgress;
-    public LocalDate getMovingDay() {
-        if (this.quotation == null
-                || this.quotation.getRequest() == null
-                || this.quotation.getRequest().getMovingDay() == null) {
-            return null; // tránh NullPointerException
-        }
 
-        return this.quotation.getRequest().getMovingDay()
-                .toInstant()
-                .atZone(ZoneId.systemDefault())
-                .toLocalDate();
-    }
+    @Column(name = "deposit_due_date")
+    private LocalDate depositDueDate;
 
 
 }
+//thêm trường

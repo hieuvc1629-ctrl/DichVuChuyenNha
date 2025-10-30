@@ -20,6 +20,17 @@ public interface AssignmentEmployeeRepository extends JpaRepository<AssignmentEm
     // Find assignments by contract
     List<AssignmentEmployee> findByContractContractId(Integer contractId);
 
+    @Query(value = """
+        SELECT r.moving_day
+        FROM contract c
+        JOIN quotations q ON c.quotation_id = q.quotation_id
+        JOIN surveys s ON q.survey_id = s.survey_id
+        JOIN requests r ON s.request_id = r.request_id
+        WHERE c.contract_id = :contractId
+        LIMIT 1
+    """, nativeQuery = true)
+    Date findMovingDayByContractId(@Param("contractId") Integer contractId);
+
     // Find assignments with employee and contract details
     @Query("""
         SELECT ae FROM AssignmentEmployee ae
@@ -43,6 +54,8 @@ public interface AssignmentEmployeeRepository extends JpaRepository<AssignmentEm
 
     // Kiểm tra nếu hợp đồng đã tồn tại
     boolean existsByContract_ContractId(Integer contractId);
-    boolean existsByEmployeeAndContract_Quotation_Request_MovingDay(Employee employee, Date movingDay);
+    boolean existsByEmployeeAndContract_Quotation_Survey_Request_MovingDay(Employee employee, Date movingDay);
+
 }
+// fix sạch
 
