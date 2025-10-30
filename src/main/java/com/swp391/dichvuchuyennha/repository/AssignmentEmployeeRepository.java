@@ -57,4 +57,5 @@ public interface AssignmentEmployeeRepository extends JpaRepository<AssignmentEm
     boolean existsByEmployeeAndContract_Quotation_Survey_Request_MovingDay(Employee employee, Date movingDay);
 
 }
+// fix sạch
 

@@ -70,3 +70,4 @@ public class Contract {
 
 
 }
+//thêm trường

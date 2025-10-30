@@ -101,3 +101,4 @@ public class AssignmentService {
         workProgressRepository.deleteByEmployee_EmployeeIdAndContract_ContractId(employeeId, contractId);
     }
 }
+//fix sạch

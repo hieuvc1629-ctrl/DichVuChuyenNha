@@ -42,3 +42,4 @@ public class Payment {
     private String paymentType; // deposit | final
 
 }
+//thêm trươờng
