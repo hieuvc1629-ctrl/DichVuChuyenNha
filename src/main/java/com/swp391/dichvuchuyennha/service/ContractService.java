@@ -68,7 +68,11 @@ public class ContractService {
         Contract contract = contractRepository.findById(contractId)
                 .orElseThrow(() -> new RuntimeException("Contract not found"));
 
-        Users owner = contract.getQuotation().getSurvey().getRequest().getUser();
+        Users owner = contract.getQuotation()
+                .getSurvey()
+                .getRequest()
+                .getUser();
+
         if (!owner.getUserId().equals(userId)) {
             throw new RuntimeException("User not authorized to sign this contract");
         }
@@ -84,19 +88,19 @@ public class ContractService {
         Contract saved = contractRepository.save(contract);
         return contractMapper.toResponse(saved);
     }
+
+    /** ✅ Lấy hợp đồng đã ký của user hiện tại */
     @Transactional(readOnly = true)
     public List<ContractResponse> getSignedContractsOfCurrentUser() {
-        // Lấy thông tin user hiện tại từ Spring Security
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || auth.getName() == null) {
             throw new RuntimeException("User not authenticated");
         }
 
-        String username = auth.getName(); // giả sử username là unique
+        String username = auth.getName();
         Users user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        // Lấy hợp đồng đã ký của user
         List<Contract> contracts = contractRepository.findByQuotation_Survey_Request_User_UserIdAndStatus(
                 user.getUserId(), "SIGNED"
         );
@@ -143,7 +147,6 @@ public class ContractService {
             var quotation = contract.getQuotation();
             String username = null;
             String companyName = null;
-
             String startAddress = null;
             String endAddress = null;
             Double totalPrice = null;
@@ -156,17 +159,23 @@ public class ContractService {
                 if (quotation.getSurvey() != null) {
                     startAddress = quotation.getSurvey().getAddressFrom();
                     endAddress = quotation.getSurvey().getAddressTo();
-                }
 
-                if (quotation.getRequest() != null && quotation.getRequest().getMovingDay() != null) {
-                    movingDay = quotation.getRequest().getMovingDay()
-                            .toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-                }
-                var user = quotation.getRequest().getUser();
-                if (user != null) {
-                    username = user.getUsername();
-                    if (user.getCustomerCompany() != null) {
-                        companyName = user.getCustomerCompany().getCompanyName();
+                    var request = quotation.getSurvey().getRequest();
+                    if (request != null) {
+                        if (request.getMovingDay() != null) {
+                            movingDay = request.getMovingDay()
+                                    .toInstant()
+                                    .atZone(ZoneId.systemDefault())
+                                    .toLocalDate();
+                        }
+
+                        var user = request.getUser();
+                        if (user != null) {
+                            username = user.getUsername();
+                            if (user.getCustomerCompany() != null) {
+                                companyName = user.getCustomerCompany().getCompanyName();
+                            }
+                        }
                     }
                 }
 
@@ -210,7 +219,6 @@ public class ContractService {
         }
     }
 
-
     /** ✅ Lấy hợp đồng đã ký có nhân viên được gán */
     public List<ContractDTO> getContractsSignedWithEmployees() {
         return contractRepository.findByStatus("SIGNED").stream()
@@ -226,21 +234,27 @@ public class ContractService {
 
         return contracts.stream()
                 .filter(c -> c.getAssignmentEmployees() != null && !c.getAssignmentEmployees().isEmpty())
-                .map(c -> ContractResponse.builder()
-                        .contractId(c.getContractId())
-                        .startDate(c.getStartDate())
-                        .endDate(c.getEndDate())
-                        .totalAmount(c.getTotalAmount())
-                        .depositAmount(c.getDepositAmount())
-                        .status(c.getStatus())
-                        .startLocation(c.getQuotation() != null && c.getQuotation().getSurvey() != null
-                                ? c.getQuotation().getSurvey().getRequest().getPickupAddress()
-                                : null)
-                        .endLocation(c.getQuotation() != null && c.getQuotation().getSurvey() != null
-                                ? c.getQuotation().getSurvey().getRequest().getDestinationAddress()
-                                : null)
-                        .build())
+                .map(c -> {
+                    var quotation = c.getQuotation();
+                    String startLocation = null;
+                    String endLocation = null;
+
+                    if (quotation != null && quotation.getSurvey() != null && quotation.getSurvey().getRequest() != null) {
+                        startLocation = quotation.getSurvey().getRequest().getPickupAddress();
+                        endLocation = quotation.getSurvey().getRequest().getDestinationAddress();
+                    }
+
+                    return ContractResponse.builder()
+                            .contractId(c.getContractId())
+                            .startDate(c.getStartDate())
+                            .endDate(c.getEndDate())
+                            .totalAmount(c.getTotalAmount())
+                            .depositAmount(c.getDepositAmount())
+                            .status(c.getStatus())
+                            .startLocation(startLocation)
+                            .endLocation(endLocation)
+                            .build();
+                })
                 .toList();
     }
 }
-//end
