@@ -1,0 +1,47 @@
+.auth-form {
+  background: #fff;
+  color: #000;
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+  max-width: 400px;
+  margin: 80px auto;
+  transition: all 0.3s ease-in-out;
+}
+
+.auth-title {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  color: #000;
+  text-align: center;
+}
+
+.auth-subtitle {
+  color: #555;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+/* Áp dụng cho Input Ant Design */
+.auth-form .ant-input,
+.auth-form .ant-input-password,
+.auth-form .ant-select-selector {
+  padding: 12px !important;
+  border-radius: 6px !important;
+}
+
+/* Button */
+.auth-btn {
+  width: 100%;
+  padding: 12px;
+  background: #000 !important;
+  color: #fff !important;
+  border-radius: 6px;
+  border: none;
+  transition: background 0.3s ease;
+}
+
+.auth-btn:hover {
+  background: #333 !important;
+}

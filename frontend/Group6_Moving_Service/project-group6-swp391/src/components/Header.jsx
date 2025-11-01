@@ -152,7 +152,7 @@ const Header = () => {
 
               {isDropdownVisible && (
                 <div className="user-dropdown">
-                  <button
+                  {/* <button
                     key="my-requests"
                     className="dropdown-item"
                     onClick={() => {
@@ -160,8 +160,8 @@ const Header = () => {
                       setIsDropdownVisible(false);
                     }}
                   >
-                    Danh sách yêu cầu
-                  </button>
+                    Danh sách yêu cầ<u></u>
+                  </button> */}
                   {userMenuItems.map((item) => (
                     <button
                       key={item.key}
